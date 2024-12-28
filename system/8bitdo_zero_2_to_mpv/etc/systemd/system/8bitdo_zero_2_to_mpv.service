@@ -1,0 +1,16 @@
+[Unit]
+Description=8BitDo Gamepad Input for MPV
+# Ensure MPV is running before starting this script
+After=mpv.service
+
+[Service]
+ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/8bitdo_zero_2_to_mpv.py
+Restart=always
+User=mlj
+Group=mlj
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
