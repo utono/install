@@ -171,23 +171,17 @@ Root Login: Initial Configuration
 
     x15 login: root
     Password:
+    passwd
     nmtui
     sh ~/utono/aiso/system/system-configuration.sh ~/utono
     # sh ~/utono/aiso/system/sddm-configuration.sh ~/utono
     sh ~/utono/aiso/system/stow-root.sh
     ln -sf ~/.config/shell/profile ~/.zprofile
     chmod 0600 ~/.ssh/id_ed25519
-    reboot
-
-Root Login: SSH and Git Configuration
---------------------------------------
-.. code-block:: shell
-
-    x15 login: root
-    Password:
     eval $(ssh-agent)
-    chmod 0600 ~/.ssh/id_ed25519
     ssh-add ~/.ssh/id_ed25519
+    logout
+    x15 login: root
     cd ~/utono/aiso
     git stash
     git pull
@@ -200,11 +194,12 @@ User Login: New User Setup
 
     x15 login: mlj
     Password:
+    passwd
     su -
-    sh /root/utono/aiso/users/rsync-for-new-user.sh mlj
-    sh /root/utono/aiso/users/user-configuration.sh mlj
+    sh /root/utono/user-config/rsync-for-new-user.sh mlj
+    sh /root/utono/user-config/user-configuration.sh mlj
     exit
-    sh /home/mlj/utono/aiso/users/stow-user.sh
+    sh /home/mlj/utono/user-config/stow-user.sh
     ln -sf ~/.config/shell/profile ~/.zprofile
 
     vim ~/.zprofile
@@ -214,7 +209,7 @@ User Login: New User Setup
 
     chsh -s /bin/zsh
     chmod 0600 ~/.ssh/id_ed25519
-    reboot
+    logout
 
 User Login: Repository Cloning and Package Installation
 -------------------------------------------------------
@@ -224,15 +219,15 @@ User Login: Repository Cloning and Package Installation
     Password:
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
-    sh ~/utono/aiso/users/clone/utono/clone-utono.sh
-    sh ~/utono/aiso/users/clone/Documents/repos/clone_repos.sh
+    sh ~/utono/user-config/clone/utono/clone-utono.sh
+    sh ~/utono/user-config/clone/Documents/repos/clone_repos.sh
         archiso_repos_config.sh
         hyprland_repos_config.sh
         literature_repos_config.sh
         nvim_repos_config.sh
         zsh_repos_config.sh
 
-    sh ~/utono/aiso/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
+    sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
 
     sh ~/utono/aiso/paclists/install_packages.sh apps-paclist.csv
     sh ~/utono/aiso/paclists/install_packages.sh aur-paclist.csv
