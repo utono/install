@@ -7,8 +7,9 @@ Navigate to the boot directory:
 
     cd /var/lib/libvirt/boot
     wipefs --all /dev/disk/by-id/usb-My_flash_drive
-    sudo sgdisk --zap-all "${DEVICE}"
     sudo cp /var/lib/libvirt/boot/archlinux-2024.12.04-x86_64.iso /dev/sda
+
+    sudo sgdisk --zap-all "${DEVICE}"
 
 Switch to another terminal:
 ---------------------------
