@@ -1,15 +1,28 @@
 archinstall.rst
 ===============
 
+USB Wiping, Formatting and Mounting:
+--------------------------------
+.. code-block:: shell
+
+    wipefs --all /dev/disk/by-id/usb-My_flash_drive
+    sudo mkfs.fat -F 32 /dev/sda
+
+    lsblk -f /dev/sda
+
+        NAME FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+        sda  vfat   FAT32       FEED-C372                                           
+
+    udisksctl mount -b /dev/sda
+
+    sudo sgdisk --zap-all "${DEVICE}"
+
 Navigate to the boot directory:
 --------------------------------
 .. code-block:: shell
 
     cd /var/lib/libvirt/boot
-    wipefs --all /dev/disk/by-id/usb-My_flash_drive
     sudo cp /var/lib/libvirt/boot/archlinux-2024.12.04-x86_64.iso /dev/sda
-
-    sudo sgdisk --zap-all "${DEVICE}"
 
 Switch to another terminal:
 ---------------------------
