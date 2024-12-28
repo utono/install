@@ -246,6 +246,7 @@ Bluetooth Setup
     systemctl start bluetooth
     systemctl enable bluetooth
     systemctl enable --now bluetooth
+    sh $HOME/utono/user-config/8bitdo_zero_2_user_level_service.sh
 
 Optional: Run AUI Console
 -------------------------
