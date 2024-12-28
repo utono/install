@@ -136,19 +136,6 @@ Synchronize and configure system files:
     root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # rsync -av ~/utono/ /mnt/archinstall/root/utono
     root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # reboot
 
-
-
-
-
-
--------------------------------------------------------
--------------------------------------------------------
--------------------------------------------------------
-
-
-
-
-
 Copy the Dvorak keymap to the system keymap directory:
 -------------------------------------------------------
 .. code-block:: shell
@@ -177,4 +164,92 @@ Synchronize custom Xorg configuration files:
 
     [root@archiso dvorak]# rsync -av --progress --stats rpd/xorg.conf.d/etc/X11/xorg.conf.d/ /etc/X11/xorg.conf.d/
 
+Root Login: Initial Configuration
+---------------------------------
+.. code-block:: shell
+
+    x15 login: root
+    Password:
+    nmtui
+    sh ~/utono/aiso/system/system-configuration.sh ~/utono
+    # sh ~/utono/aiso/system/sddm-configuration.sh ~/utono
+    sh ~/utono/aiso/system/stow-root.sh
+    ln -sf ~/.config/shell/profile ~/.zprofile
+    chmod 0600 ~/.ssh/id_ed25519
+    reboot
+
+Root Login: SSH and Git Configuration
+--------------------------------------
+.. code-block:: shell
+
+    x15 login: root
+    Password:
+    eval $(ssh-agent)
+    chmod 0600 ~/.ssh/id_ed25519
+    ssh-add ~/.ssh/id_ed25519
+    cd ~/utono/aiso
+    git stash
+    git pull
+    ./git-pull-utono.sh
+    logout
+
+User Login: New User Setup
+--------------------------
+.. code-block:: shell
+
+    x15 login: mlj
+    Password:
+    su -
+    sh /root/utono/aiso/users/rsync-for-new-user.sh mlj
+    sh /root/utono/aiso/users/user-configuration.sh mlj
+    exit
+    sh /home/mlj/utono/aiso/users/stow-user.sh
+    ln -sf ~/.config/shell/profile ~/.zprofile
+
+    vim ~/.zprofile
+        # Comment out the lines below:
+        # export WAYLAND_DISPLAY=wayland-0
+        # export XDG_SESSION_TYPE=wayland
+
+    chsh -s /bin/zsh
+    chmod 0600 ~/.ssh/id_ed25519
+    reboot
+
+User Login: Repository Cloning and Package Installation
+-------------------------------------------------------
+.. code-block:: shell
+
+    x15 login: mlj
+    Password:
+    eval $(ssh-agent)
+    ssh-add ~/.ssh/id_ed25519
+    sh ~/utono/aiso/users/clone/utono/clone-utono.sh
+    sh ~/utono/aiso/users/clone/Documents/repos/clone_repos.sh
+        archiso_repos_config.sh
+        hyprland_repos_config.sh
+        literature_repos_config.sh
+        nvim_repos_config.sh
+        zsh_repos_config.sh
+
+    sh ~/utono/aiso/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
+
+    sh ~/utono/aiso/paclists/install_packages.sh apps-paclist.csv
+    sh ~/utono/aiso/paclists/install_packages.sh aur-paclist.csv
+    sh ~/utono/aiso/paclists/install_packages.sh hyprland-paclist.csv
+    sh ~/utono/aiso/paclists/install_packages.sh mpv-paclist.csv
+    sh ~/utono/aiso/paclists/install_packages.sh playstation-paclist.csv
+
+Bluetooth Setup
+---------------
+.. code-block:: shell
+
+    systemctl start bluetooth
+    systemctl enable bluetooth
+    systemctl enable --now bluetooth
+
+Optional: Run AUI Console
+-------------------------
+.. code-block:: shell
+
+    aui-run -u -i /var/lib/libvirt/images/aui-console-linux_5_18_8-0702-x64.iso
 
