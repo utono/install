@@ -102,6 +102,39 @@ Synchronize keyboard files:
 
     [root@archiso rpd]# ./keyd-configuration.sh
 
+Handle systemd issues and finalize installation:
+------------------------------------------------
+.. code-block:: shell
+
+    [root@archiso dvorak]# localectl
+    System has not been booted with systemd as init system (PID 1). Can't operate.
+    Failed to connect to bus: Host is down
+
+    [root@archiso dvorak]# exit
+
+        exit
+        Installation completed without any errors. You may now reboot.
+
+Synchronize and configure system files:
+---------------------------------------
+.. code-block:: shell
+
+    root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # rsync -av ~/utono/ /mnt/archinstall/root/utono
+    root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # reboot
+
+
+
+
+
+
+-------------------------------------------------------
+-------------------------------------------------------
+-------------------------------------------------------
+
+
+
+
+
 Copy the Dvorak keymap to the system keymap directory:
 -------------------------------------------------------
 .. code-block:: shell
@@ -130,22 +163,4 @@ Synchronize custom Xorg configuration files:
 
     [root@archiso dvorak]# rsync -av --progress --stats rpd/xorg.conf.d/etc/X11/xorg.conf.d/ /etc/X11/xorg.conf.d/
 
-Handle systemd issues and finalize installation:
-------------------------------------------------
-.. code-block:: shell
 
-    [root@archiso dvorak]# localectl
-    System has not been booted with systemd as init system (PID 1). Can't operate.
-    Failed to connect to bus: Host is down
-
-    [root@archiso dvorak]# exit
-
-        exit
-        Installation completed without any errors. You may now reboot.
-
-Synchronize and configure system files:
----------------------------------------
-.. code-block:: shell
-
-    root@archiso ~/utono/aiso/json/x17 (git)-[main] # rsync -av ~/utono/ /mnt/archinstall/root/utono
-    root@archiso ~/utono/aiso/json/x17 (git)-[main] # reboot
