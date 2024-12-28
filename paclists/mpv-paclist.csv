@@ -1,0 +1,12 @@
+# mpv-paclist.csv
+handbrake-cli
+mpv
+mkvtoolnix-cli
+antimicrox
+python-evdev, A Python module to interact with input devices
+sdl2
+sdl-jstest-git
+socat, Allows sending JSON commands to MPV's IPC socket --input-ipc-server
+ydotool
+
+
