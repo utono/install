@@ -219,30 +219,21 @@ User Login: Repository Cloning and Package Installation
     Password:
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
-    sh ~/utono/user-config/clone/utono/clone-utono.sh
+    sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
+    systemctl enable --now bluetooth
+    sh $HOME/utono/user-config/8bitdo_zero_2_user_level_service.sh
+
     sh ~/utono/user-config/clone/Documents/repos/clone_repos.sh
         archiso_repos_config.sh
         hyprland_repos_config.sh
         literature_repos_config.sh
         nvim_repos_config.sh
         zsh_repos_config.sh
-
-    sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
-
-    sh ~/utono/aiso/paclists/install_packages.sh apps-paclist.csv
-    sh ~/utono/aiso/paclists/install_packages.sh aur-paclist.csv
-    sh ~/utono/aiso/paclists/install_packages.sh hyprland-paclist.csv
-    sh ~/utono/aiso/paclists/install_packages.sh mpv-paclist.csv
-    sh ~/utono/aiso/paclists/install_packages.sh playstation-paclist.csv
-
-Bluetooth Setup
----------------
-.. code-block:: shell
-
-    systemctl start bluetooth
-    systemctl enable bluetooth
-    systemctl enable --now bluetooth
-    sh $HOME/utono/user-config/8bitdo_zero_2_user_level_service.sh
+    sh ~/utono/user-config/paclists/install_packages.sh apps-paclist.csv
+    sh ~/utono/user-config/paclists/install_packages.sh aur-paclist.csv
+    sh ~/utono/user-config/paclists/install_packages.sh hyprland-paclist.csv
+    sh ~/utono/user-config/paclists/install_packages.sh mpv-paclist.csv
+    sh ~/utono/user-config/paclists/install_packages.sh playstation-paclist.csv
 
 Optional: Run AUI Console
 -------------------------
