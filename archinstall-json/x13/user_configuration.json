@@ -1,0 +1,156 @@
+{
+    "additional-repositories": [],
+    "archinstall-language": "English",
+    "audio_config": {
+        "audio": "pipewire"
+    },
+    "bootloader": "Systemd-boot",
+    "config_version": "3.0.1",
+    "disk_config": {
+        "config_type": "default_layout",
+        "device_modifications": [
+            {
+                "device": "/dev/nvme0n1",
+                "partitions": [
+                    {
+                        "btrfs": [],
+                        "dev_path": null,
+                        "flags": [
+                            "boot",
+                            "esp"
+                        ],
+                        "fs_type": "fat32",
+                        "mount_options": [],
+                        "mountpoint": "/boot",
+                        "obj_id": "dd469b32-d94b-42ac-80b8-87a2e4838095",
+                        "size": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "GiB",
+                            "value": 1
+                        },
+                        "start": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "MiB",
+                            "value": 1
+                        },
+                        "status": "create",
+                        "type": "primary"
+                    },
+                    {
+                        "btrfs": [
+                            {
+                                "mountpoint": "/",
+                                "name": "@"
+                            },
+                            {
+                                "mountpoint": "/home",
+                                "name": "@home"
+                            },
+                            {
+                                "mountpoint": "/var/log",
+                                "name": "@log"
+                            },
+                            {
+                                "mountpoint": "/var/cache/pacman/pkg",
+                                "name": "@pkg"
+                            },
+                            {
+                                "mountpoint": "/.snapshots",
+                                "name": "@.snapshots"
+                            }
+                        ],
+                        "dev_path": null,
+                        "flags": [],
+                        "fs_type": "btrfs",
+                        "mount_options": [
+                            "nodatacow"
+                        ],
+                        "mountpoint": null,
+                        "obj_id": "07eb1592-752c-4881-92c0-88fb37a6e9e3",
+                        "size": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "B",
+                            "value": 511034351616
+                        },
+                        "start": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "B",
+                            "value": 1074790400
+                        },
+                        "status": "create",
+                        "type": "primary"
+                    }
+                ],
+                "wipe": true
+            }
+        ]
+    },
+    "disk_encryption": null,
+    "hostname": "x13",
+    "kernels": [
+        "linux"
+    ],
+    "locale_config": {
+        "kb_layout": "dvorak",
+        "sys_enc": "UTF-8",
+        "sys_lang": "en_US"
+    },
+    "mirror_config": null,
+    "network_config": {
+        "type": "nm"
+    },
+    "ntp": true,
+    "packages": [
+        "curl",
+        "fzf",
+        "git",
+        "jq",
+        "keyd",
+        "rsync",
+        "sof-firmware",
+        "starship",
+        "stow",
+        "ttf-jetbrains-mono-nerd",
+        "tree",
+        "vim",
+        "wezterm",
+        "xorg-xrandr",
+        "zoxide",
+        "zsh"
+    ],
+    "parallel downloads": 0,
+    "profile_config": {
+        "gfx_driver": "Intel (open-source)",
+        "greeter": "sddm",
+        "profile": {
+            "custom_settings": {
+                "Hyprland": {
+                    "seat_access": "polkit"
+                },
+                "KDE Plasma": {}
+            },
+            "details": [
+                "Hyprland",
+                "KDE Plasma"
+            ],
+            "main": "Desktop"
+        }
+    },
+    "save_config": null,
+    "swap": true,
+    "timezone": "America/Chicago",
+    "uki": false,
+    "version": "3.0.1"
+}
