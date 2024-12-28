@@ -1,7 +1,28 @@
 #!/usr/bin/env bash
 
 # stow-root.sh
-# This script sets up configuration files for the root user using GNU Stow.
+# This script sets up configuration files for the root user using GNU Stow. 
+# It performs the following tasks:
+# 
+# 1. Syncs the tty-dotfiles directory from the current user's home to /root if 
+#    it doesn't already exist.
+# 2. Runs GNU Stow for a predefined list of packages to manage symbolic links 
+#    for configuration files under /root.
+# 3. Handles conflicts by prompting the user to remove problematic directories 
+#    and retrying failed operations.
+# 4. Tracks and reports any failures encountered during execution.
+#
+# Usage:
+#   ./stow-root.sh
+#
+# Requirements:
+#   - Must be run as root.
+#   - Requires the 'rsync' and 'stow' utilities to be installed.
+#
+# Notes:
+#   - The script does not take any arguments.
+#   - Existing directories in /root that conflict with Stow operations will 
+#     trigger a prompt for manual removal.
 
 # Array to track failed commands
 FAILED_COMMANDS=()

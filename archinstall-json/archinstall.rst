@@ -115,6 +115,7 @@ Synchronize keyboard files:
 .. code-block:: shell
 
     [root@archiso rpd]# ./keyd-configuration.sh
+    [root@archiso rpd]# systemctl list-unit-files --type=service --state=enabled
 
 Handle systemd issues and finalize installation:
 ------------------------------------------------
