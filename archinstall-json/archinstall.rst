@@ -73,6 +73,10 @@ Run Archinstall with the specified configuration:
 
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
 
+(Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
+---------------------------------
+sh $HOME/utono/install/system/nvidia-blacklist.sh
+
 (Optional) Disable and mask SDDM:
 ---------------------------------
 .. code-block:: shell
