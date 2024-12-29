@@ -71,7 +71,7 @@ Run Archinstall with the specified configuration:
 -------------------------------------------------
 .. code-block:: shell
 
-    root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # archinstall --config user_configuration.json --creds user_credentials.json
+    root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
 
 (Optional) Disable and mask SDDM:
 ---------------------------------
