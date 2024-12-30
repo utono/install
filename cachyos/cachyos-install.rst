@@ -40,17 +40,11 @@ Root Login: rsync utono
 	rsync -av /run/media/root/FEED-C372/ /root/utono
 	udisksctl unmount -b /dev/sda
 
-Root Login: Initial Configuration
----------------------------------
+Root Login: git-pull-utono.sh
+-----------------------------
 
 .. code-block:: bash
 
-    sh ~/utono/install/system/system-configuration.sh ~/utono
-    # sh ~/utono/install/system/sddm-configuration.sh ~/utono
-    sudo pacman -S stow
-    sh ~/utono/install/system/stow-root.sh
-    ln -sf ~/.config/shell/profile ~/.zprofile
-    logout
     x15 login: root
     cd ~/utono/user-config
     git stash
@@ -59,6 +53,26 @@ Root Login: Initial Configuration
     ssh-add ~/.ssh/id_ed25519
     git pull
     ./git-pull-utono.sh
+    logout
+
+
+Root Login: system-configuration.sh
+-----------------------------------
+
+.. code-block:: bash
+
+    cd ~/utono/system-configs/scs
+    sh $HOME/utono/system-configs/scs/system-configuration.sh   
+
+Root Login: stow-root.sh
+------------------------
+
+.. code-block:: bash
+
+    mv ~/utono/tty-dotfiles ~
+    sudo pacman -S stow
+    sh ~/tty-dotfiles/stow-root.sh
+    ln -sf ~/.config/shell/profile ~/.zprofile
     logout
 
 User Login: New User Setup

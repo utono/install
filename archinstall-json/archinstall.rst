@@ -65,17 +65,13 @@ Change to the Archinstall configuration directory:
 --------------------------------------------------
 .. code-block:: shell
 
-    root@archiso ~/utono/install # cd archinstall-json/hyprland-kde-plasma
+    root@archiso ~/utono/install # cd archinstall-json/x##
 
 Run Archinstall with the specified configuration:
 -------------------------------------------------
 .. code-block:: shell
 
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
-
-(Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
----------------------------------
-sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
 
 (Optional) Disable and mask SDDM:
 ---------------------------------
@@ -108,18 +104,18 @@ Navigate to the newly created directory:
 
     [root@archiso /]# cd /root/utono
 
-Clone the RPD repository:
+Clone RPD and enable keyd:
 --------------------------
 .. code-block:: shell
 
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
-
-Synchronize keyboard files:
--------------------------------------------------------
-.. code-block:: shell
-
+    [root@archiso utono]# cd rpd
     [root@archiso rpd]# ./keyd-configuration.sh
-    [root@archiso rpd]# systemctl list-unit-files --type=service --state=enabled
+
+(Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
+---------------------------------
+    [root@archiso utono]# git clone https://github.com/utono/system-configs.git
+    [root@archiso utono]# sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
 
 Handle systemd issues and finalize installation:
 ------------------------------------------------
@@ -141,33 +137,9 @@ Synchronize and configure system files:
     root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # rsync -av ~/utono/ /mnt/archinstall/root/utono
     root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # reboot
 
-Copy the Dvorak keymap to the system keymap directory:
--------------------------------------------------------
-.. code-block:: shell
-
-    [root@archiso utono]# cd rpd/kbd/usr/share/kbd/keymaps/i386/dvorak
-    [root@archiso dvorak]# cp -v real_prog_dvorak.map.gz /usr/share/kbd/keymaps/i386/dvorak/
-
-Edit the console configuration to use the custom Dvorak keymap:
----------------------------------------------------------------
-.. code-block:: shell
-
-    [root@archiso dvorak]# vim /etc/vconsole.conf
-
-        KEYMAP=real_prog_dvorak
-
-Synchronize custom XKB keyboard symbols:
------------------------------------------
-.. code-block:: shell
-
-    [root@archiso dvorak]# cd /root/utono
-    [root@archiso dvorak]# rsync -av --progress --stats rpd/xkb/usr/share/X11/xkb/symbols/ /usr/share/X11/xkb/symbols/
-
-Synchronize custom Xorg configuration files:
---------------------------------------------
-.. code-block:: shell
-
-    [root@archiso dvorak]# rsync -av --progress --stats rpd/xorg.conf.d/etc/X11/xorg.conf.d/ /etc/X11/xorg.conf.d/
+Check systemd services
+----------------------
+    [root@archiso rpd]# systemctl list-unit-files --type=service --state=enabled
 
 Root Login: Initial Configuration
 ---------------------------------
@@ -177,6 +149,7 @@ Root Login: Initial Configuration
     Password:
     passwd
     nmtui
+    sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
     sh $HOME/utono/system-configs/scs/system-configuration.sh ~/utono
     # sh $HOME/utono/system-configs/scs/sddm-configuration.sh ~/utono
     sh $HOME/tty-dotfiles/stow-root.sh

@@ -114,6 +114,8 @@
     },
     "ntp": true,
     "packages": [
+        "bluez",
+        "bluez-utils",
         "curl",
         "fzf",
         "git",
@@ -126,7 +128,6 @@
         "ttf-jetbrains-mono-nerd",
         "tree",
         "vim",
-        "wezterm",
         "xorg-xrandr",
         "zoxide",
         "zsh"
