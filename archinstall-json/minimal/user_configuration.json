@@ -1,0 +1,149 @@
+{
+    "additional-repositories": [],
+    "archinstall-language": "English",
+    "audio_config": {
+        "audio": "pipewire"
+    },
+    "bootloader": "Systemd-boot",
+    "config_version": "3.0.1",
+    "disk_config": {
+        "config_type": "default_layout",
+        "device_modifications": [
+            {
+                "device": "/dev/nvme0n1",
+                "partitions": [
+                    {
+                        "btrfs": [],
+                        "dev_path": null,
+                        "flags": [
+                            "boot",
+                            "esp"
+                        ],
+                        "fs_type": "fat32",
+                        "mount_options": [],
+                        "mountpoint": "/boot",
+                        "obj_id": "117c5a32-469b-4391-8a7c-a3fbd4f5275a",
+                        "size": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "GiB",
+                            "value": 1
+                        },
+                        "start": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "MiB",
+                            "value": 1
+                        },
+                        "status": "create",
+                        "type": "primary"
+                    },
+                    {
+                        "btrfs": [
+                            {
+                                "mountpoint": "/",
+                                "name": "@"
+                            },
+                            {
+                                "mountpoint": "/home",
+                                "name": "@home"
+                            },
+                            {
+                                "mountpoint": "/var/log",
+                                "name": "@log"
+                            },
+                            {
+                                "mountpoint": "/var/cache/pacman/pkg",
+                                "name": "@pkg"
+                            },
+                            {
+                                "mountpoint": "/.snapshots",
+                                "name": "@.snapshots"
+                            }
+                        ],
+                        "dev_path": null,
+                        "flags": [],
+                        "fs_type": "btrfs",
+                        "mount_options": [
+                            "nodatacow"
+                        ],
+                        "mountpoint": null,
+                        "obj_id": "26686bec-4084-4e32-8611-7d29c80a200f",
+                        "size": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "B",
+                            "value": 2047332409344
+                        },
+                        "start": {
+                            "sector_size": {
+                                "unit": "B",
+                                "value": 512
+                            },
+                            "unit": "B",
+                            "value": 1074790400
+                        },
+                        "status": "create",
+                        "type": "primary"
+                    }
+                ],
+                "wipe": true
+            }
+        ]
+    },
+    "disk_encryption": null,
+    "hostname": "x17-2tb",
+    "kernels": [
+        "linux",
+        "linux-lts"
+    ],
+    "locale_config": {
+        "kb_layout": "dvorak",
+        "sys_enc": "UTF-8",
+        "sys_lang": "en_US"
+    },
+    "mirror_config": null,
+    "network_config": {
+        "type": "nm"
+    },
+    "ntp": true,
+    "packages": [
+        "curl",
+        "fzf",
+        "git",
+        "jq",
+        "keyd",
+        "rsync",
+        "sof-firmware",
+        "starship",
+        "stow",
+        "ttf-jetbrains-mono-nerd",
+        "tree",
+        "vim",
+        "wezterm",
+        "xorg-xrandr",
+        "zoxide",
+        "zsh"
+    ],
+    "parallel downloads": 0,
+    "profile_config": {
+        "gfx_driver": null,
+        "greeter": null,
+        "profile": {
+            "custom_settings": {},
+            "details": [],
+            "main": "Minimal"
+        }
+    },
+    "save_config": null,
+    "swap": true,
+    "timezone": "America/Chicago",
+    "uki": false,
+    "version": "3.0.1"
+}
