@@ -58,16 +58,45 @@ sync_dotfiles() {
 }
 
 # Function to sync pacman.conf
-sync_pacman_config() {
-    local utono_path="$1"
+# sync_pacman_config() {
+#     local utono_path="$1"
+#
+#     if [ -f "${utono_path}/aiso/mkarchiso/releng-custom/custom/airootfs/etc/pacman.conf" ]; then
+#         rsync -av --chown=root:root --backup --suffix=.bak "${utono_path}/aiso/mkarchiso/releng-custom/custom/airootfs/etc/pacman.conf" /etc/ && \
+#         log_rsync "${utono_path}/aiso/mkarchiso/releng-custom/custom/airootfs/etc/pacman.conf" "/etc/" || \
+#         FAILED_COMMANDS+=("rsync pacman.conf")
+#     else
+#         echo "[SKIPPED] pacman.conf source file does not exist."
+#     fi
+# }
 
-    if [ -f "${utono_path}/aiso/mkarchiso/releng-custom/custom/airootfs/etc/pacman.conf" ]; then
-        rsync -av --chown=root:root --backup --suffix=.bak "${utono_path}/aiso/mkarchiso/releng-custom/custom/airootfs/etc/pacman.conf" /etc/ && \
-        log_rsync "${utono_path}/aiso/mkarchiso/releng-custom/custom/airootfs/etc/pacman.conf" "/etc/" || \
-        FAILED_COMMANDS+=("rsync pacman.conf")
-    else
-        echo "[SKIPPED] pacman.conf source file does not exist."
+# Function to update pacman.conf
+update_pacman_config() {
+    local pacman_conf="/etc/pacman.conf"
+    local backup_conf="${pacman_conf}.bak"
+
+    # Create a backup of the current pacman.conf
+    if [[ -f $pacman_conf ]]; then
+        cp -v "$pacman_conf" "$backup_conf"
     fi
+
+    # Define additions and edits
+    local additions=(
+        "[archlive_aur_repository]\nSigLevel = Optional TrustAll\nServer = file:///root/utono/archlive_aur_repository\n"
+        "[heftig]\nSigLevel = Optional\nServer = https://pkgbuild.com/~heftig/repo/\$arch\n"
+    )
+
+    # Ensure 'ILoveCandy' and 'ParallelDownloads = 10' exist in the [options] section
+    sed -i '/^\[options\]/a ILoveCandy\nParallelDownloads = 10' "$pacman_conf"
+
+    # Append repository configurations if not already present
+    for addition in "${additions[@]}"; do
+        if ! grep -Fxq "$(echo -e "$addition" | head -n1)" "$pacman_conf"; then
+            echo -e "\n$addition" >> "$pacman_conf"
+        fi
+    done
+
+    echo "pacman.conf updated successfully."
 }
 
 # Function to sync sudoers.d configurations
@@ -124,7 +153,8 @@ main() {
     local utono_path="$1"
 
     sync_dotfiles "$utono_path"
-    sync_pacman_config "$utono_path"
+    # sync_pacman_config "$utono_path"
+    update_pacman_config
     sync_sudoers "$utono_path"
     configure_makepkg_settings
     report_rsync_operations
