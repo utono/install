@@ -1,11 +1,23 @@
 cachyos-install.rst
 ===================
 
+Clone repos to USB drive:
+-------------------------
+
+.. code-block:: bash
+
+    udisksctl mount -b /dev/sda1
+    ~/utono/archlive_aur_packages
+    ~/utono/archlive_aur_repository
+    ~/Music/william_shakespeare/
+    ~/Music/hilary-mantel/
+
 Root Login: TTY
 ---------------
 
 .. code-block:: bash
 
+	nmtui
 	pacman -Syy
 	pacman -S terminus-font
 	cd /usr/share/kbd/consolefonts
@@ -26,6 +38,7 @@ Root Login: Clone rpd and configure keyboard:
 	cd rpd
 	sudo pacman -Syy
 	./keyd-configuration.sh
+	systemctl start keyd
 	systemctl list-unit-files --type=service --state=enabled
 	loadkeys real_prog_dvorak
 
@@ -37,7 +50,7 @@ Root Login: rsync utono
     
 	sudo pacman -S udisks2
 	udisksctl mount -b /dev/sda
-	rsync -av /run/media/root/FEED-C372/ /root/utono
+	rsync -av /run/media/root/FEED-C372/utono/ /root/utono
 	udisksctl unmount -b /dev/sda
 
 Root Login: git-pull-utono.sh
