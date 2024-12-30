@@ -177,16 +177,16 @@ Root Login: Initial Configuration
     Password:
     passwd
     nmtui
-    sh ~/utono/aiso/system/system-configuration.sh ~/utono
-    # sh ~/utono/aiso/system/sddm-configuration.sh ~/utono
-    sh ~/utono/aiso/system/stow-root.sh
+    sh $HOME/utono/system-configs/sys-config-scripts/system-configuration.sh ~/utono
+    # sh $HOME/utono/system-configs/sys-config-scripts/sddm-configuration.sh ~/utono
+    sh $HOME/utono/system-configs/sys-config-scripts/stow-root.sh
     ln -sf ~/.config/shell/profile ~/.zprofile
     chmod 0600 ~/.ssh/id_ed25519
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
     logout
     x15 login: root
-    cd ~/utono/aiso
+    cd ~/utono/user-config
     git stash
     git pull
     ./git-pull-utono.sh
