@@ -52,7 +52,7 @@ Root Login: Initial Configuration
     ln -sf ~/.config/shell/profile ~/.zprofile
     logout
     x15 login: root
-    cd ~/utono/aiso
+    cd ~/utono/user-config
     git stash
     chmod 0600 ~/.ssh/id_ed25519
     eval $(ssh-agent)

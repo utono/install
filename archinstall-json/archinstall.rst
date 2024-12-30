@@ -46,20 +46,20 @@ Navigate to the repository directory:
 -------------------------------------
 .. code-block:: shell
 
-    root@archiso ~ # cd utono/aiso
+    root@archiso ~ # cd utono/user-config
 
 Stash local changes and update the repository:
 ----------------------------------------------
 .. code-block:: shell
 
-    root@archiso ~/utono/aiso # git stash
-    root@archiso ~/utono/aiso # git pull
+    root@archiso ~/utono/user-config # git stash
+    root@archiso ~/utono/user-config # git pull
 
 Run a custom script to synchronize additional files:
 ----------------------------------------------------
 .. code-block:: shell
 
-    root@archiso ~/utono/aiso # ./git-pull-utono.sh
+    root@archiso ~/utono/user-config # ./git-pull-utono.sh
 
 Change to the Archinstall configuration directory:
 --------------------------------------------------
