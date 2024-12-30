@@ -75,7 +75,7 @@ Run Archinstall with the specified configuration:
 
 (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
 ---------------------------------
-sh $HOME/utono/install/system/nvidia-blacklist.sh
+sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
 
 (Optional) Disable and mask SDDM:
 ---------------------------------
@@ -177,9 +177,9 @@ Root Login: Initial Configuration
     Password:
     passwd
     nmtui
-    sh $HOME/utono/system-configs/sys-config-scripts/system-configuration.sh ~/utono
-    # sh $HOME/utono/system-configs/sys-config-scripts/sddm-configuration.sh ~/utono
-    sh $HOME/utono/system-configs/sys-config-scripts/stow-root.sh
+    sh $HOME/utono/system-configs/scs/system-configuration.sh ~/utono
+    # sh $HOME/utono/system-configs/scs/sddm-configuration.sh ~/utono
+    sh $HOME/tty-dotfiles/stow-root.sh
     ln -sf ~/.config/shell/profile ~/.zprofile
     chmod 0600 ~/.ssh/id_ed25519
     eval $(ssh-agent)
@@ -203,7 +203,7 @@ User Login: New User Setup
     sh /root/utono/user-config/rsync-for-new-user.sh mlj
     sh /root/utono/user-config/user-configuration.sh mlj
     exit
-    sh /home/mlj/utono/user-config/stow-user.sh
+    sh /home/mlj/tty-dotfiles/stow-user.sh
     ln -sf ~/.config/shell/profile ~/.zprofile
 
     vim ~/.zprofile
