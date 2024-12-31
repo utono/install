@@ -22,7 +22,7 @@
                         "fs_type": "fat32",
                         "mount_options": [],
                         "mountpoint": "/boot",
-                        "obj_id": "117c5a32-469b-4391-8a7c-a3fbd4f5275a",
+                        "obj_id": "390a4750-7835-4230-8774-67a119d53fbe",
                         "size": {
                             "sector_size": {
                                 "unit": "B",
@@ -72,7 +72,7 @@
                             "nodatacow"
                         ],
                         "mountpoint": null,
-                        "obj_id": "26686bec-4084-4e32-8611-7d29c80a200f",
+                        "obj_id": "5b76f457-edf4-4c8e-82da-0763ed5a4ad0",
                         "size": {
                             "sector_size": {
                                 "unit": "B",
@@ -100,8 +100,7 @@
     "disk_encryption": null,
     "hostname": "x17-2tb",
     "kernels": [
-        "linux",
-        "linux-lts"
+        "linux"
     ],
     "locale_config": {
         "kb_layout": "dvorak",
