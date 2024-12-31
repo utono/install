@@ -121,6 +121,7 @@
         "jq",
         "keyd",
         "openssh",
+        "reflector",
         "rsync",
         "sof-firmware",
         "starship",

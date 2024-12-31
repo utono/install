@@ -1,17 +1,20 @@
 archinstall.rst
 ===============
 
+Switch to another terminal:
+---------------------------
+
+.. code-block:: bash
+
+    Ctrl+fn+alt f2
+
 USB Wiping, Formatting and Mounting:
 --------------------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     wipefs --all /dev/disk/by-id/usb-My_flash_drive
     sudo mkfs.fat -F 32 /dev/sda
-
-    lsblk -f /dev/sda
-
-        NAME FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
-        sda  vfat   FAT32       FEED-C372                                           
 
     udisksctl mount -b /dev/sda
 
@@ -19,110 +22,68 @@ USB Wiping, Formatting and Mounting:
 
 Navigate to the boot directory:
 --------------------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     cd /var/lib/libvirt/boot
     sudo cp /var/lib/libvirt/boot/archlinux-2024.12.04-x86_64.iso /dev/sda
 
-Switch to another terminal:
----------------------------
-.. code-block:: shell
-
-    Ctrl+fn+alt f2
-
 Start the SSH agent:
 --------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     root@archiso ~ # eval $(ssh-agent)
-
-Add your SSH private key for authentication:
---------------------------------------------
-.. code-block:: shell
-
     root@archiso ~ # ssh-add ~/.ssh/id_ed25519
-
-Navigate to the repository directory:
--------------------------------------
-.. code-block:: shell
-
-    root@archiso ~ # cd utono/user-config
 
 Stash local changes and update the repository:
 ----------------------------------------------
-.. code-block:: shell
 
+.. code-block:: bash
+
+    root@archiso ~ # cd utono/user-config
     root@archiso ~/utono/user-config # git stash
     root@archiso ~/utono/user-config # git pull
-
-Run a custom script to synchronize additional files:
-----------------------------------------------------
-.. code-block:: shell
-
     root@archiso ~/utono/user-config # ./git-pull-utono.sh
-
-Change to the Archinstall configuration directory:
---------------------------------------------------
-.. code-block:: shell
-
     root@archiso ~/utono/user-config # cd ~/utono/install/archinstall-json/x##
-
-Run Archinstall with the specified configuration:
--------------------------------------------------
-.. code-block:: shell
-
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
 
-Change the default shell to Zsh for the root user:
---------------------------------------------------
-.. code-block:: shell
+arch-chroot:
+------------
+
+.. code-block:: bash
 
     [root@archiso /]# chsh -s /bin/zsh
-
-Create a directory to store custom configurations:
---------------------------------------------------
-.. code-block:: shell
-
     [root@archiso /]# mkdir -p /root/utono
-
-Set the directory attribute to not use copy-on-write (COW):
-------------------------------------------------------------
-.. code-block:: shell
-
     [root@archiso /]# chattr -V +C /root/utono
-
-Navigate to the newly created directory:
------------------------------------------
-.. code-block:: shell
-
     [root@archiso /]# cd /root/utono
-
-Clone RPD and enable keyd:
---------------------------
-.. code-block:: shell
-
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
     [root@archiso utono]# git clone https://github.com/utono/system-configs.git
     [root@archiso utono]# cd rpd
-    !!! xorg must be first installed for keyd-configuration.sh
-    !!! to copy real_prog_dvorak to /usr/share/X11/xkb/symbols
     [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
 
-(Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
----------------------------------
-    [root@archiso utono]# git clone https://github.com/utono/system-configs.git
-    [root@archiso utono]# sh $HOME/utono/system-configs/scripts/nvidia-blacklist.sh
+arch-chroot: (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
+--------------------------------------------------------------------------------------
 
-(Optional) Disable and mask SDDM:
----------------------------------
-.. code-block:: shell
+.. code-block:: bash
+
+    [root@archiso utono]# git clone https://github.com/utono/system-configs.git
+    [root@archiso utono]# cd system-configs/scripts
+    [root@archiso utono]# chmod +x *.sh
+    [root@archiso utono]# sh nvidia-blacklist.sh
+
+arch-chroot: (Optional) Disable and mask SDDM:
+----------------------------------------------
+
+.. code-block:: bash
 
     [root@archiso /]# systemctl disable sddm
     [root@archiso /]# systemctl mask sddm
 
-Handle systemd issues and finalize installation:
-------------------------------------------------
-.. code-block:: shell
+arch-chroot: Handle systemd issues and finalize installation:
+-------------------------------------------------------------
+
+.. code-block:: bash
 
     [root@archiso dvorak]# localectl
     System has not been booted with systemd as init system (PID 1). Can't operate.
@@ -133,16 +94,18 @@ Handle systemd issues and finalize installation:
         exit
         Installation completed without any errors. You may now reboot.
 
-Synchronize and configure system files:
----------------------------------------
-.. code-block:: shell
+arch-chroot: Synchronize and configure system files:
+----------------------------------------------------
 
-    root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # rsync -av ~/utono/ /mnt/archinstall/root/utono
-    root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # reboot
+.. code-block:: bash
+
+    root@archiso ~/utono/install/archinstall-json/x## # rsync -av ~/utono/ /mnt/archinstall/root/utono
+    root@archiso ~/utono/install/archinstall-json/x## # reboot
 
 Root Login: Initial Configuration
 ---------------------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     x15 login: root
     Password:
@@ -151,10 +114,18 @@ Root Login: Initial Configuration
 
     nmtui
 
+    .. wifi might be slow; reboot will help
+
+    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+    reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
     systemctl list-unit-files --type=service --state=enabled
 
-    cp -r /root/utono/tty-dotfiles ~/tty-dotfiles
-    sh $HOME/tty-dotfiles/stow-root.sh
+    cp -r /root/utono/tty-dotfiles ~
+    cp -r /root/utono/cachy-dots ~
+    mkdir -p ~/.local/bin
+    # sh $HOME/tty-dotfiles/stow-root.sh
+    stow -v --no-folding bat bin-mlj btop environment.d git keyd kitty ksb shell ssh starship systemd zathura
+    pacman -S --needed bat btop kitty starship
     ln -sf ~/.config/shell/profile ~/.zprofile
 
     chmod 0600 ~/.ssh/id_ed25519
@@ -172,16 +143,19 @@ Root Login: Initial Configuration
 
     ./git-pull-utono.sh
 
+    sh /root/utono/user-config/rsync-for-new-user.sh mlj
+    sh /root/utono/user-config/user-configuration.sh mlj
+
     logout
 
 User Login: New User Setup
 --------------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     x15 login: mlj
     Password:
     passwd
-    su -
     sh /root/utono/user-config/rsync-for-new-user.sh mlj
     sh /root/utono/user-config/user-configuration.sh mlj
     exit
@@ -199,7 +173,8 @@ User Login: New User Setup
 
 User Login: Repository Cloning and Package Installation
 -------------------------------------------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     x15 login: mlj
     Password:
@@ -223,7 +198,8 @@ User Login: Repository Cloning and Package Installation
 
 Optional: Run AUI Console
 -------------------------
-.. code-block:: shell
+
+.. code-block:: bash
 
     aui-run -u -i /var/lib/libvirt/images/aui-console-linux_5_18_8-0702-x64.iso
 
