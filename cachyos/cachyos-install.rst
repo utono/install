@@ -83,6 +83,8 @@ Root Login: stow-root.sh
     cd ~/tty-dotfiles
     stow -v --no-folding bat bin-mlj git keyd kitty shell ssh starship
     ln -sf ~/.config/shell/profile ~/.zprofile
+    chsh -s /bin/zsh
+    logout
     cd ~/utono/user-config
     git stash
     chmod 0600 ~/.ssh/id_ed25519
@@ -104,7 +106,8 @@ User Login: New User Setup
     sh /root/utono/user-config/rsync-for-new-user.sh mlj
     sh /root/utono/user-config/user-configuration.sh mlj
     exit
-    sh /home/mlj/utono/user-config/stow-user.sh
+    # sh /home/mlj/utono/user-config/stow-user.sh
+    stow -v --no-folding bat bin-mlj git keyd kitty shell ssh starship
     ln -sf ~/.config/shell/profile ~/.zprofile
 
     vim ~/.zprofile
