@@ -73,13 +73,6 @@ Run Archinstall with the specified configuration:
 
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
 
-(Optional) Disable and mask SDDM:
----------------------------------
-.. code-block:: shell
-
-    [root@archiso /]# systemctl disable sddm
-    [root@archiso /]# systemctl mask sddm
-
 Change the default shell to Zsh for the root user:
 --------------------------------------------------
 .. code-block:: shell
@@ -109,6 +102,7 @@ Clone RPD and enable keyd:
 .. code-block:: shell
 
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
+    [root@archiso utono]# git clone https://github.com/utono/system-configs.git
     [root@archiso utono]# cd rpd
     !!! xorg must be first installed for keyd-configuration.sh
     !!! to copy real_prog_dvorak to /usr/share/X11/xkb/symbols
@@ -118,6 +112,13 @@ Clone RPD and enable keyd:
 ---------------------------------
     [root@archiso utono]# git clone https://github.com/utono/system-configs.git
     [root@archiso utono]# sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
+
+(Optional) Disable and mask SDDM:
+---------------------------------
+.. code-block:: shell
+
+    [root@archiso /]# systemctl disable sddm
+    [root@archiso /]# systemctl mask sddm
 
 Handle systemd issues and finalize installation:
 ------------------------------------------------
