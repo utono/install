@@ -62,44 +62,34 @@ arch-chroot:
     [root@archiso utono]# cd rpd
     [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
 
-arch-chroot: (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
---------------------------------------------------------------------------------------
+    .. (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
 
-.. code-block:: bash
-
-    [root@archiso utono]# git clone https://github.com/utono/system-configs.git
     [root@archiso utono]# cd system-configs/scripts
     [root@archiso utono]# chmod +x *.sh
-    [root@archiso utono]# sh nvidia-blacklist.sh
+    [root@archiso utono]# sh nvidia-blacklist.sh ~/utono
 
-arch-chroot: (Optional) Disable and mask SDDM:
-----------------------------------------------
-
-.. code-block:: bash
+    .. (Optional) Disable and mask SDDM:
 
     [root@archiso /]# systemctl disable sddm
     [root@archiso /]# systemctl mask sddm
 
-arch-chroot: Handle systemd issues and finalize installation:
--------------------------------------------------------------
+    [root@archiso /]# localectl
 
-.. code-block:: bash
-
-    [root@archiso dvorak]# localectl
-    System has not been booted with systemd as init system (PID 1). Can't operate.
-    Failed to connect to bus: Host is down
+    .. System has not been booted with systemd as init system (PID 1). Can't operate.
+    .. Failed to connect to bus: Host is down
 
     [root@archiso dvorak]# exit
 
-        exit
-        Installation completed without any errors. You may now reboot.
-
-arch-chroot: Synchronize and configure system files:
-----------------------------------------------------
+root@archiso: Synchronize and configure system files:
+-----------------------------------------------------
 
 .. code-block:: bash
 
     root@archiso ~/utono/install/archinstall-json/x## # rsync -av ~/utono/ /mnt/archinstall/root/utono
+    root@archiso ~/utono/install/archinstall-json/x## # cp -i /root/user_configuration.json .
+    root@archiso ~/utono/install/archinstall-json/x## # git add .
+    root@archiso ~/utono/install/archinstall-json/x## # git commit -m json
+    root@archiso ~/utono/install/archinstall-json/x## # git push
     root@archiso ~/utono/install/archinstall-json/x## # reboot
 
 Root Login: Initial Configuration
