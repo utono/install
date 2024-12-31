@@ -65,7 +65,7 @@ Change to the Archinstall configuration directory:
 --------------------------------------------------
 .. code-block:: shell
 
-    root@archiso ~/utono/install # cd archinstall-json/x##
+    root@archiso ~/utono/user-config # cd ~/utono/install/archinstall-json/x##
 
 Run Archinstall with the specified configuration:
 -------------------------------------------------
@@ -110,6 +110,8 @@ Clone RPD and enable keyd:
 
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
     [root@archiso utono]# cd rpd
+    !!! xorg must be first installed for keyd-configuration.sh
+    !!! to copy real_prog_dvorak to /usr/share/X11/xkb/symbols
     [root@archiso rpd]# ./keyd-configuration.sh
 
 (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
