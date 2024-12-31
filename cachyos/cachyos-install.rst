@@ -7,10 +7,12 @@ Clone repos to USB drive:
 .. code-block:: bash
 
     udisksctl mount -b /dev/sda1
-    ~/utono/archlive_aur_packages
-    ~/utono/archlive_aur_repository
-    ~/Music/william_shakespeare/
-    ~/Music/hilary-mantel/
+    sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/FEED-C372/utono
+    sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono
+    rsync -av --progress ~/utono/archlive_aur_packages /run/media/mlj/FEED-C372/utono
+    rsync -av --progress ~/utono/archlive_aur_repository /run/media/mlj/FEED-C372/utono
+    rsync -av --progress ~/Music/william_shakespeare /run/media/mlj/FEED-C372/utono
+    rsync -av --progress ~/Music/hilary-mantel /run/media/mlj/FEED-C372/utono
 
 Root Login: TTY
 ---------------
@@ -24,7 +26,6 @@ Root Login: TTY
 	setfont ter-132n
 	:colorscheme ron
 	loadkeys dvorak
-	loadkeys dvorak-programmer
 
 Root Login: Clone rpd and configure keyboard:
 ---------------------------------------------
@@ -48,17 +49,37 @@ Root Login: rsync utono
 
 .. code-block:: bash
     
-	sudo pacman -S udisks2
+	sudo pacman -S udisks2 tree
 	udisksctl mount -b /dev/sda
 	rsync -av /run/media/root/FEED-C372/utono/ /root/utono
+	rsync -av /run/media/root/FEED-C372/Music/ /root/Music
 	udisksctl unmount -b /dev/sda
 
-Root Login: git-pull-utono.sh
------------------------------
+Root Login: system-configuration.sh
+-----------------------------------
 
 .. code-block:: bash
 
-    x15 login: root
+    cd ~/utono/system-configs/scs
+    sh $HOME/utono/system-configs/scs/system-configuration.sh   
+    sh $HOME/utono/system-configs/scs/sddm-configuration.sh
+    cd /root/utono/archlive_aur_repository
+    rm -rf paru* yay*
+    ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
+    pacman -Syy neovim-nightly-bin
+
+
+Root Login: stow-root.sh
+------------------------
+
+.. code-block:: bash
+
+    mv ~/utono/tty-dotfiles ~
+    mv ~/utono/cachy-dots ~
+    sudo pacman -S stow starship zoxide
+    # sh ~/tty-dotfiles/stow-root.sh
+    stow -v --no-folding bat bin-mlj git keyd kitty shell ssh starship
+    ln -sf ~/.config/shell/profile ~/.zprofile
     cd ~/utono/user-config
     git stash
     chmod 0600 ~/.ssh/id_ed25519
@@ -68,25 +89,6 @@ Root Login: git-pull-utono.sh
     ./git-pull-utono.sh
     logout
 
-
-Root Login: system-configuration.sh
------------------------------------
-
-.. code-block:: bash
-
-    cd ~/utono/system-configs/scs
-    sh $HOME/utono/system-configs/scs/system-configuration.sh   
-
-Root Login: stow-root.sh
-------------------------
-
-.. code-block:: bash
-
-    mv ~/utono/tty-dotfiles ~
-    sudo pacman -S stow
-    sh ~/tty-dotfiles/stow-root.sh
-    ln -sf ~/.config/shell/profile ~/.zprofile
-    logout
 
 User Login: New User Setup
 --------------------------
@@ -113,6 +115,7 @@ User Login: New User Setup
 
 User Login: Repository Cloning and Package Installation
 -------------------------------------------------------
+
 .. code-block:: bash
 
     x15 login: mlj
@@ -120,8 +123,14 @@ User Login: Repository Cloning and Package Installation
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
     sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
+    cd ~/utono/archlive_aur_packages
+    ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
+
+    # For hyprland, refer to: $HOME/utono/rpd/hyprland-keyboard-configuration.rst
+    # For hyprland, see ~/utono/cachy-dots/hypr/.config/config/user-config.conf
+
     systemctl enable --now bluetooth
-    sh $HOME/utono/user-config/8bitdo_zero_2_user_level_service.sh
+    sh $HOME/utono/user-config/user-systemd-services-sync.sh
 
     sh ~/utono/user-config/clone/Documents/repos/clone_repos.sh
         archiso_repos_config.sh
