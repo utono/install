@@ -100,8 +100,7 @@
     "disk_encryption": null,
     "hostname": "x17-2tb",
     "kernels": [
-        "linux",
-        "linux-lts"
+        "linux"
     ],
     "locale_config": {
         "kb_layout": "dvorak",
@@ -141,12 +140,10 @@
             "custom_settings": {
                 "Hyprland": {
                     "seat_access": "polkit"
-                },
-                "KDE Plasma": {}
+                }
             },
             "details": [
-                "Hyprland",
-                "KDE Plasma"
+                "Hyprland"
             ],
             "main": "Desktop"
         }
