@@ -121,6 +121,7 @@
         "git",
         "jq",
         "keyd",
+        "openssh",
         "rsync",
         "sof-firmware",
         "starship",

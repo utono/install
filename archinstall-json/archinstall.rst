@@ -106,12 +106,12 @@ Clone RPD and enable keyd:
     [root@archiso utono]# cd rpd
     !!! xorg must be first installed for keyd-configuration.sh
     !!! to copy real_prog_dvorak to /usr/share/X11/xkb/symbols
-    [root@archiso rpd]# ./keyd-configuration.sh
+    [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
 
 (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
 ---------------------------------
     [root@archiso utono]# git clone https://github.com/utono/system-configs.git
-    [root@archiso utono]# sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
+    [root@archiso utono]# sh $HOME/utono/system-configs/scripts/nvidia-blacklist.sh
 
 (Optional) Disable and mask SDDM:
 ---------------------------------
@@ -140,32 +140,38 @@ Synchronize and configure system files:
     root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # rsync -av ~/utono/ /mnt/archinstall/root/utono
     root@archiso ~/utono/install/archinstall-json/hyprland-kde-plasma # reboot
 
-Check systemd services
-----------------------
-    [root@archiso rpd]# systemctl list-unit-files --type=service --state=enabled
-
 Root Login: Initial Configuration
 ---------------------------------
 .. code-block:: shell
 
     x15 login: root
     Password:
+
     passwd
+
     nmtui
-    sh $HOME/utono/system-configs/scs/nvidia-blacklist.sh
-    sh $HOME/utono/system-configs/scs/system-configuration.sh ~/utono
-    # sh $HOME/utono/system-configs/scs/sddm-configuration.sh ~/utono
+
+    systemctl list-unit-files --type=service --state=enabled
+
+    cp -r /root/utono/tty-dotfiles ~/tty-dotfiles
     sh $HOME/tty-dotfiles/stow-root.sh
     ln -sf ~/.config/shell/profile ~/.zprofile
+
     chmod 0600 ~/.ssh/id_ed25519
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
+
     logout
+
     x15 login: root
+    Password:
+
     cd ~/utono/user-config
     git stash
     git pull
+
     ./git-pull-utono.sh
+
     logout
 
 User Login: New User Setup
