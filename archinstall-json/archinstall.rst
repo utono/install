@@ -135,6 +135,7 @@ Root Login: Initial Configuration
 
     sh /root/utono/user-config/rsync-for-new-user.sh mlj
     sh /root/utono/user-config/user-configuration.sh mlj
+    sudo chown -R mlj:mlj /path/to/directory
 
     logout
 
@@ -146,10 +147,15 @@ User Login: New User Setup
     x15 login: mlj
     Password:
     passwd
-    sh /root/utono/user-config/rsync-for-new-user.sh mlj
-    sh /root/utono/user-config/user-configuration.sh mlj
-    exit
-    sh /home/mlj/tty-dotfiles/stow-user.sh
+    .. Changing password for mlj.
+    .. Current password:
+    .. New password:
+    .. Retype new password:
+    .. passwd: password updated successfully
+
+    mkdir -p ~/.local/bin
+    cd ~/cachy-dots
+    stow -v --no-folding
     ln -sf ~/.config/shell/profile ~/.zprofile
 
     vim ~/.zprofile
@@ -158,8 +164,16 @@ User Login: New User Setup
         # export XDG_SESSION_TYPE=wayland
 
     chsh -s /bin/zsh
+    sudo chown -R mlj:mlj /path/to/directory
     chmod 0600 ~/.ssh/id_ed25519
     logout
+
+eval $(ssh-agent)
+ssh-add ~/.ssh/id_ed25519
+    pacman -S --needed git base-devel
+git clone --depth 1 https://github.com/prasanthrangan/hyprdots ~/HyDE
+cd ~/HyDE/Scripts
+./install.sh
 
 User Login: Repository Cloning and Package Installation
 -------------------------------------------------------

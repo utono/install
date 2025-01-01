@@ -6,6 +6,9 @@ Clone repos to USB drive:
 
 .. code-block:: bash
 
+    wipefs --all /dev/disk/by-id/usb-My_flash_drive
+    sudo mkfs.fat -F 32 /dev/sda
+
     udisksctl mount -b /dev/sda
     sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/FEED-C372/utono
     sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono
@@ -14,18 +17,30 @@ Clone repos to USB drive:
     rsync -av --progress ~/Music/william_shakespeare /run/media/mlj/FEED-C372/utono
     rsync -av --progress ~/Music/hilary-mantel /run/media/mlj/FEED-C372/utono
 
+mlj Login: TTY
+---------------
+
+.. code-block:: bash
+
+    hyprctl keyword input:kb_layout us
+    hyprctl keyword input:kb_variant dvorak
+    sudo pacman -Syy
+    sudo pacman -S udisks2 tree
+
+
+
 Root Login: TTY
 ---------------
 
 .. code-block:: bash
 
+	loadkeys dvorak
 	nmtui
 	pacman -Syy
 	pacman -S terminus-font
 	cd /usr/share/kbd/consolefonts
 	setfont ter-132n
 	:colorscheme ron
-	loadkeys dvorak
 
 Root Login: Clone rpd and configure keyboard:
 ---------------------------------------------
@@ -36,8 +51,8 @@ Root Login: Clone rpd and configure keyboard:
 	cd /root/utono
 	chattr -V +C /root/utono
 	git clone https://github.com/utono/rpd.git
+	git clone https://github.com/utono/systm-configs.git
 	cd rpd
-	sudo pacman -Syy
 	./keyd-configuration.sh /root/utono/rpd
 	loadkeys real_prog_dvorak
 	systemctl start keyd
@@ -52,6 +67,7 @@ Root Login: rsync utono
 	sudo pacman -S udisks2 tree
 	udisksctl mount -b /dev/sda
 	rsync -av /run/media/root/FEED-C372/utono/ /root/utono
+	rsync -av ./ /root/utono
 	rsync -av /run/media/root/FEED-C372/Music/ /root/Music
 	udisksctl unmount -b /dev/sda
 
@@ -63,8 +79,8 @@ Root Login: system-configuration.sh
     # the hyprland monitor.conf file takes care of the resolution
     # sh $HOME/utono/system-configs/scs/sddm-configuration.sh
 
-    cd ~/utono/system-configs/scs
-    sh $HOME/utono/system-configs/scs/system-configuration.sh   
+    cd ~/utono/system-configs/scripts
+    sh $HOME/utono/system-configs/scripts/system-configuration.sh   
     cd /root/utono/archlive_aur_repository
     rm -rf paru* yay*
     ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
@@ -76,11 +92,11 @@ Root Login: stow-root.sh
 
 .. code-block:: bash
 
-    mv ~/utono/tty-dotfiles ~
-    mv ~/utono/cachy-dots ~
+    cp -r ~/utono/tty-dotfiles ~
+    cp -r ~/utono/cachy-dots ~
     sudo pacman -S kitty stow starship zoxide
     # sh ~/tty-dotfiles/stow-root.sh
-    cd ~/tty-dotfiles
+    cd ~/cachy-dots
     stow -v --no-folding bat bin-mlj git keyd kitty shell ssh starship
     ln -sf ~/.config/shell/profile ~/.zprofile
     chsh -s /bin/zsh
