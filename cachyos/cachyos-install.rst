@@ -10,68 +10,103 @@ Clone repos to USB drive:
     sudo mkfs.fat -F 32 /dev/sda
 
     udisksctl mount -b /dev/sda
-    sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/FEED-C372/utono
-    sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono
-    rsync -av --progress ~/utono/archlive_aur_packages /run/media/mlj/FEED-C372/utono
-    rsync -av --progress ~/utono/archlive_aur_repository /run/media/mlj/FEED-C372/utono
-    rsync -av --progress ~/Music/william_shakespeare /run/media/mlj/FEED-C372/utono
-    rsync -av --progress ~/Music/hilary-mantel /run/media/mlj/FEED-C372/utono
 
-mlj Login: TTY
----------------
+    sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/956A-D24E/utono
+    sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono
+
+    rsync -avl --progress ~/utono/{archlive_aur_packages,archlive_aur_repository} /run/media/mlj/956A-D24E/utono
+    rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono
+
+mlj Login: Switch to dvorak and 1920x1200
+----------------------------------------
 
 .. code-block:: bash
 
-    hyprctl keyword input:kb_layout us
+    Not required: nmtui
+
+    .. Alacritty:
+        Control + Equals
+        Control + Minus
+        Control + Zero
+
     hyprctl keyword input:kb_variant dvorak
+    (hyprctl keyword input:kb_variant "")
+    hyprctl monitors
+    hyprctl keyword monitor ,1920x1200,,
+
+    mkdir -p ~/utono
+    chattr -V +C ~/utono
+    cd ~/utono
+    git clone https://github.com/utono/rpd.git
+    cd ~/utono/rpd
+    sudo sh keyd-configuration.sh ~/utono/rpd
+    hyprctl keyword input:kb_variant ""
+    hyprctl keyword input:kb_layout real_prog_dvorak
+    sudo systemctl start keyd
+    systemctl list-unit-files --type=service --state=enabled
+
+mlj Login:  rsync ~/utono/cachyos-hyprland-settings/etc
+-------------------------------------------------------
+
+.. code-block:: bash
+
+    cd ~/utono
+    git clone git@github.com:utono/cachyos-hyprland-settings.git
+    git remote add upstream https://github.com/CachyOS/cachyos-hyprland-settings.git
+    cd ~/utono/cachyos-hyprland-settings
+    git remote -v
+    git fetch upstream
+    git merge upstream/master
+    sh link_hyprland_settings.sh
+    reboot
+    hyprctl keyword input:kb_layout real_prog_dvorak
+
+mlj Login:  pacman
+------------------------------
+
+.. code-block:: bash
+
+    git clone https://github.com/utono/system-configs.git
+    cd ~/utono/system-configs
+    sh system-configuration.sh
     sudo pacman -Syy
+    reboot                                  # if wi-fi is slow
+    sudo pacman neovim-nightly-bin
     sudo pacman -S udisks2 tree
 
-
-
-Root Login: TTY
----------------
+mlj Login:  copy usb drive
+--------------------------
 
 .. code-block:: bash
 
-	loadkeys dvorak
-	nmtui
-	pacman -Syy
-	pacman -S terminus-font
-	cd /usr/share/kbd/consolefonts
-	setfont ter-132n
-	:colorscheme ron
+    udisksctl mount -b /dev/sda
+    cp -r /utono/** ~/utono
+    cp -r /Music/** ~/Music
+    cp -r /tty-dotfiles ~
+    cp -r /cachy-dots ~
 
-Root Login: Clone rpd and configure keyboard:
----------------------------------------------
+mlj Login:  stow
+----------------
 
 .. code-block:: bash
 
-	mkdir -p /root/utono
-	cd /root/utono
-	chattr -V +C /root/utono
-	git clone https://github.com/utono/rpd.git
-	git clone https://github.com/utono/systm-configs.git
-	cd rpd
-	./keyd-configuration.sh /root/utono/rpd
-	loadkeys real_prog_dvorak
-	systemctl start keyd
-	systemctl list-unit-files --type=service --state=enabled
+    cd ~/cachy-dots
+    stow -v --no-folding ssh
+    chmod 0600 ~/.ssh/id_ed25519
+    eval $(ssh-agent)
+    ssh-add ~/.ssh/id_ed25519
 
-
-Root Login: rsync utono
------------------------
+mlj Login:  HyDE
+----------------
 
 .. code-block:: bash
-    
-	sudo pacman -S udisks2 tree
-	udisksctl mount -b /dev/sda
-	rsync -av /run/media/root/FEED-C372/utono/ /root/utono
-	rsync -av ./ /root/utono
-	rsync -av /run/media/root/FEED-C372/Music/ /root/Music
-	udisksctl unmount -b /dev/sda
 
-Root Login: system-configuration.sh
+    pacman -S --needed git base-devel
+    git clone --depth 1 https://github.com/prasanthrangan/hyprdots ~/HyDE
+    cd ~/HyDE/Scripts
+    ./install.sh
+
+mlj Login: system-configuration.sh
 -----------------------------------
 
 .. code-block:: bash
@@ -82,34 +117,8 @@ Root Login: system-configuration.sh
     cd ~/utono/system-configs/scripts
     sh $HOME/utono/system-configs/scripts/system-configuration.sh   
     cd /root/utono/archlive_aur_repository
-    rm -rf paru* yay*
     ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
     pacman -Syy neovim-nightly-bin
-
-
-Root Login: stow-root.sh
-------------------------
-
-.. code-block:: bash
-
-    cp -r ~/utono/tty-dotfiles ~
-    cp -r ~/utono/cachy-dots ~
-    sudo pacman -S kitty stow starship zoxide
-    # sh ~/tty-dotfiles/stow-root.sh
-    cd ~/cachy-dots
-    stow -v --no-folding bat bin-mlj git keyd kitty shell ssh starship
-    ln -sf ~/.config/shell/profile ~/.zprofile
-    chsh -s /bin/zsh
-    logout
-    cd ~/utono/user-config
-    git stash
-    chmod 0600 ~/.ssh/id_ed25519
-    eval $(ssh-agent)
-    ssh-add ~/.ssh/id_ed25519
-    git pull
-    ./git-pull-utono.sh
-    logout
-
 
 User Login: New User Setup
 --------------------------
@@ -123,8 +132,8 @@ User Login: New User Setup
     sh /root/utono/user-config/user-configuration.sh mlj
     exit
     # sh /home/mlj/utono/user-config/stow-user.sh
-    stow -v --no-folding bat bin-mlj git keyd kitty shell ssh starship
-    ln -sf ~/.config/shell/profile ~/.zprofile
+    stow -v --no-folding bat bin-mlj git keyd kitty bash ssh starship
+    ln -sf ~/.config/bash/profile ~/.zprofile
 
     vim ~/.zprofile
         # Comment out the lines below:

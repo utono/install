@@ -85,7 +85,7 @@ root@archiso: Synchronize and configure system files:
 
 .. code-block:: bash
 
-    root@archiso ~/utono/install/archinstall-json/x## # rsync -av ~/utono/ /mnt/archinstall/root/utono
+    root@archiso ~/utono/install/archinstall-json/x## # rsync -avl ~/utono/ /mnt/archinstall/root/utono
     root@archiso ~/utono/install/archinstall-json/x## # cp -i /root/user_configuration.json .
     root@archiso ~/utono/install/archinstall-json/x## # git add .
     root@archiso ~/utono/install/archinstall-json/x## # git commit -m json
