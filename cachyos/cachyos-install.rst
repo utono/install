@@ -24,6 +24,8 @@ mlj Login: Switch to dvorak and 1920x1200
 
     Not required: nmtui
 
+    meta + enter
+
     .. Alacritty:
         Control + Equals
         Control + Minus
@@ -33,6 +35,14 @@ mlj Login: Switch to dvorak and 1920x1200
     (hyprctl keyword input:kb_variant "")
     hyprctl monitors
     hyprctl keyword monitor ,1920x1200,,
+    pacman -Syy
+    pacman -Syu keyd rsync
+
+    mkdir -p ~/tmp
+    cd ~/tmp
+    curl -O https://raw.githubusercontent.com/utono/rpd/main/keyboard-layout-sync.sh
+    chmod +x keyboard-layout-sync.sh
+    ./keyboard-layout-sync
 
     mkdir -p ~/utono
     chattr -V +C ~/utono
@@ -40,9 +50,9 @@ mlj Login: Switch to dvorak and 1920x1200
     git clone https://github.com/utono/rpd.git
     cd ~/utono/rpd
     sudo sh keyd-configuration.sh ~/utono/rpd
-    hyprctl keyword input:kb_variant ""
-    hyprctl keyword input:kb_layout real_prog_dvorak
-    sudo systemctl start keyd
+    # hyprctl keyword input:kb_variant ""
+    # hyprctl keyword input:kb_layout real_prog_dvorak
+    # sudo systemctl start keyd
     systemctl list-unit-files --type=service --state=enabled
 
 mlj Login:  rsync ~/utono/cachyos-hyprland-settings/etc
@@ -56,22 +66,22 @@ mlj Login:  rsync ~/utono/cachyos-hyprland-settings/etc
     cd ~/utono/cachyos-hyprland-settings
     git remote -v
     git fetch upstream
+    git log HEAD..upstream/master
     git merge upstream/master
     sh link_hyprland_settings.sh
     reboot
     hyprctl keyword input:kb_layout real_prog_dvorak
 
-mlj Login:  pacman
-------------------------------
+mlj Login:  pacman, sudoers, makepkg
+------------------------------------
 
 .. code-block:: bash
 
     git clone https://github.com/utono/system-configs.git
-    cd ~/utono/system-configs
+    cd ~/utono/system-configs/scripts
     sh system-configuration.sh
     sudo pacman -Syy
     reboot                                  # if wi-fi is slow
-    sudo pacman neovim-nightly-bin
     sudo pacman -S udisks2 tree
 
 mlj Login:  copy usb drive
@@ -83,39 +93,23 @@ mlj Login:  copy usb drive
     cp -r /utono/** ~/utono
     cp -r /Music/** ~/Music
     cp -r /tty-dotfiles ~
-    cp -r /cachy-dots ~
 
 mlj Login:  stow
 ----------------
 
 .. code-block:: bash
 
-    cd ~/cachy-dots
+    cd ~/tty-dotfiles
     stow -v --no-folding ssh
     chmod 0600 ~/.ssh/id_ed25519
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
 
-mlj Login:  HyDE
-----------------
+mlj Login: neovim-nightly-bin
+-----------------------------
 
 .. code-block:: bash
 
-    pacman -S --needed git base-devel
-    git clone --depth 1 https://github.com/prasanthrangan/hyprdots ~/HyDE
-    cd ~/HyDE/Scripts
-    ./install.sh
-
-mlj Login: system-configuration.sh
------------------------------------
-
-.. code-block:: bash
-
-    # the hyprland monitor.conf file takes care of the resolution
-    # sh $HOME/utono/system-configs/scs/sddm-configuration.sh
-
-    cd ~/utono/system-configs/scripts
-    sh $HOME/utono/system-configs/scripts/system-configuration.sh   
     cd /root/utono/archlive_aur_repository
     ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
     pacman -Syy neovim-nightly-bin
@@ -153,14 +147,14 @@ User Login: Repository Cloning and Package Installation
     Password:
     eval $(ssh-agent)
     ssh-add ~/.ssh/id_ed25519
-    sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh  # Must install paru or yay first
+    sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh
     cd ~/utono/archlive_aur_packages
     ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
 
     # For hyprland, refer to: $HOME/utono/rpd/hyprland-keyboard-configuration.rst
-    # For hyprland, see ~/utono/cachy-dots/hypr/.config/config/user-config.conf
 
     systemctl enable --now bluetooth
+    bluetuith
     sh $HOME/utono/user-config/user-systemd-services-sync.sh
 
     sh ~/utono/user-config/clone/Documents/repos/clone_repos.sh
