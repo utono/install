@@ -33,14 +33,14 @@ hyprctl keyword monitor ,1920x1200,,
 pacman -Syy
 pacman -Syu keyd rsync
 
-mkdir -p ~/tmp
-cd ~/tmp
-curl -O https://raw.githubusercontent.com/utono/rpd/main/keyboard-layout-sync.sh
-chmod +x keyboard-layout-sync.sh
-./keyboard-layout-sync
+# mkdir -p ~/tmp
+# cd ~/tmp
+# curl -O https://raw.githubusercontent.com/utono/rpd/main/keyboard-layout-sync.sh
+# chmod +x keyboard-layout-sync.sh
+# ./keyboard-layout-sync
 
 mkdir -p ~/utono
-chattr -V +C ~/utono
+# chattr -V +C ~/utono
 cd ~/utono
 git clone https://github.com/utono/rpd.git
 cd ~/utono/rpd
@@ -53,7 +53,7 @@ systemctl list-unit-files --type=service --state=enabled
 
 ```bash
 cd ~/utono
-git clone git@github.com:utono/cachyos-hyprland-settings.git
+git clone https://github.com/utono/cachyos-hyprland-settings.git
 git remote add upstream https://github.com/CachyOS/cachyos-hyprland-settings.git
 cd ~/utono/cachyos-hyprland-settings
 git remote -v
@@ -61,6 +61,7 @@ git fetch upstream
 git log HEAD..upstream/master
 git merge upstream/master
 sh link_hyprland_settings.sh
+sudo sh keyd-configuration.sh ~/utono/rpd
 reboot
 hyprctl keyword input:kb_layout real_prog_dvorak
 ```
