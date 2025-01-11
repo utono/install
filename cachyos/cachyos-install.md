@@ -31,34 +31,36 @@ hyprctl keyword input:kb_variant dvorak
 hyprctl monitors
 hyprctl keyword monitor ,1920x1200,,
 pacman -Syy
-pacman -Syu keyd rsync udisks2
-
-# mkdir -p ~/tmp
-# cd ~/tmp
-# curl -O https://raw.githubusercontent.com/utono/rpd/main/keyboard-layout-sync.sh
-# chmod +x keyboard-layout-sync.sh
-# ./keyboard-layout-sync
+pacman -Syu keyd udisks2
 
 mkdir -p ~/utono
 # chattr -V +C ~/utono
 cd ~/utono
-git clone https://github.com/utono/cachyos-hyprland-settings.git
-git clone https://github.com/utono/install.git
-git clone https://github.com/utono/kickstart-modular.nvim.git
+# git clone https://github.com/utono/cachyos-hyprland-settings.git
+# git clone https://github.com/utono/install.git
+# git clone https://github.com/utono/kickstart-modular.nvim.git
 git clone https://github.com/utono/rpd.git
-git clone https://github.com/utono/system-config.git
-git clone https://github.com/utono/user-config.git
+# git clone https://github.com/utono/system-config.git
+# git clone https://github.com/utono/user-config.git
+
 cd ~/utono/rpd
 sudo sh keyd-configuration.sh ~/utono/rpd
 systemctl list-unit-files --type=service --state=enabled
 systemctl status keyd
 
 udisksctl mount -b /dev/sda
+cd /run/media/mlj/####/utono
+rsync -av . ~/utono
+chown -R "$USERNAME:$USERNAME" ~/utono
+
 mkdir -p ~/.config
-cd /run/media/mlj/######/utono/tty-dotfiles/git/.config
-cp -r git ~/.config
-cd /run/media/mlj/######/utono/tty-dotfiles/ssh
-cp -r .ssh ~
+cd ~/utono
+mv tty-dotfiles ~
+cd ~/tty-dotfiles
+stow -v --no-folding git shell ssh
+cd ~
+ln -sf ~/.config/shell/profile .zprofile
+logout
 chmod 600 ~/.ssh/id_ed25519
 echo $SSH_AUTH_SOCK
 echo $SSH_AGENT_PID
