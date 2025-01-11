@@ -58,7 +58,7 @@ arch-chroot:
     [root@archiso /]# chattr -V +C /root/utono
     [root@archiso /]# cd /root/utono
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
-    [root@archiso utono]# git clone https://github.com/utono/system-configs.git
+    [root@archiso utono]# git clone https://github.com/utono/system-config.git
     [root@archiso utono]# cd rpd
     [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
 
