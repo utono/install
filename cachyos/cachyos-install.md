@@ -11,7 +11,7 @@ udisksctl mount -b /dev/sda
 sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/956A-D24E/utono
 sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono
 
-rsync -avl --progress ~/utono/{archlive_aur_packages,archlive_aur_repository} /run/media/mlj/956A-D24E/utono
+# rsync -avl --progress ~/utono/{archlive_aur_packages,archlive_aur_repository} /run/media/mlj/956A-D24E/utono
 rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono
 ```
 
@@ -26,6 +26,7 @@ Control + Equals
 Control + Minus
 Control + Zero
 
+paru -Syu neovim-nightly-bin
 hyprctl keyword input:kb_variant dvorak
 (hyprctl keyword input:kb_variant "")
 hyprctl monitors
@@ -34,8 +35,11 @@ pacman -Syy
 pacman -Syu keyd udisks2
 
 mkdir -p ~/utono
-# chattr -V +C ~/utono
+chattr -V +C ~/utono
 cd ~/utono
+udisksctl mount -b /dev/sda
+cd /run/media/mlj/#######/utono
+rsync -avl . ~/utono
 # git clone https://github.com/utono/cachyos-hyprland-settings.git
 # git clone https://github.com/utono/install.git
 # git clone https://github.com/utono/kickstart-modular.nvim.git
@@ -44,13 +48,18 @@ git clone https://github.com/utono/rpd.git
 # git clone https://github.com/utono/user-config.git
 
 cd ~/utono/rpd
-sudo sh keyd-configuration.sh ~/utono/rpd
+chmod +x keyd-configuration.sh
+keyd-configuration.sh ~/utono/rpd
 systemctl list-unit-files --type=service --state=enabled
 systemctl status keyd
 
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/####/utono
-rsync -av . ~/utono
+rsync -avl . ~/utono
+
+sh ~/utono/user-config/move-repos-for-new-user.sh mlj
+# cd ~/utono/user-config/repo-add-aur
+# sh archlive_repo_add.sh
 chown -R "$USERNAME:$USERNAME" ~/utono
 
 mkdir -p ~/.config
@@ -62,8 +71,6 @@ cd ~
 ln -sf ~/.config/shell/profile .zprofile
 logout
 chmod 600 ~/.ssh/id_ed25519
-echo $SSH_AUTH_SOCK
-echo $SSH_AGENT_PID
 
 pgrep ssh-agent
 systemctl --user enable ssh-agent.service
@@ -129,8 +136,8 @@ ssh-add ~/.ssh/id_ed25519
 ## Install `neovim-nightly-bin`
 
 ```bash
-cd /root/utono/archlive_aur_repository
-ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
+# cd /root/utono/archlive_aur_repository
+# ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
 pacman -Syy neovim-nightly-bin
 ```
 
