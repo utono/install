@@ -53,17 +53,19 @@ systemctl list-unit-files --type=service --state=enabled
 systemctl status keyd
 
 sh ~/utono/user-config/move-repos-for-new-user.sh mlj
+nvim
 # cd ~/utono/user-config/repo-add-aur
 # sh archlive_repo_add.sh
 # chown -R "$USERNAME:$USERNAME" ~/utono
 
 cd ~/tty-dotfiles
 paru -S kitty starship stow zoxide
-stow -v --no-folding git shell ssh starship
+stow -v --no-folding bin-mlj git kitty shell ssh starship
 cd ~
 ln -sf ~/.config/shell/profile .zprofile
 chmod 0600 ~/.ssh/id_ed25519
 chsh -s /bin/zsh
+nvim ~/.config/hypr/config/default <-- kitty
 logout
 # paru -S ttf-firacode-nerd
 paru -S ttf-jetbrains-mono-nerd
