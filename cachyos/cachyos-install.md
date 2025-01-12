@@ -42,7 +42,7 @@ rsync -avl . ~/utono
 # git clone https://github.com/utono/cachyos-hyprland-settings.git
 # git clone https://github.com/utono/install.git
 # git clone https://github.com/utono/kickstart-modular.nvim.git
-git clone https://github.com/utono/rpd.git
+# git clone https://github.com/utono/rpd.git
 # git clone https://github.com/utono/system-config.git
 # git clone https://github.com/utono/user-config.git
 
@@ -51,6 +51,22 @@ chmod +x keyd-configuration.sh
 ./keyd-configuration.sh ~/utono/rpd
 systemctl list-unit-files --type=service --state=enabled
 systemctl status keyd
+
+sudo localectl set-keymap rpd
+# sudo nvim /etc/mkinitcpio.conf
+# HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)
+mkinitcpio -P
+# loadkeys rpd
+localectl status
+sudo nvim /usr/share/sddm/scripts/Xsetup
+
+    # Set custom keyboard layout with verbosity
+    export XKB_DEFAULT_LAYOUT=real_prog_dvorak
+    setxkbmap -layout rpd -v
+
+sudo systemctl restart sddm
+
+
 
 sh ~/utono/user-config/move-repos-for-new-user.sh mlj
 nvim
@@ -131,9 +147,9 @@ x15 login: mlj
 Password:
 eval $(ssh-agent)
 ssh-add ~/.ssh/id_ed25519
-sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh
-cd ~/utono/archlive_aur_packages
-ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
+# sh ~/utono/user-config/repo-add-aur/archlive_repo_add.sh
+# cd ~/utono/archlive_aur_packages
+# ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
 
 # For Hyprland, refer to:
 # $HOME/utono/rpd/hyprland-keyboard-configuration.rst
