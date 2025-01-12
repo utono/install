@@ -26,13 +26,12 @@ Control + Equals
 Control + Minus
 Control + Zero
 
-paru -Syu neovim-nightly-bin
+paru -Syy
+paru -Syu keyd neovim-nightly-bin udisks2
 hyprctl keyword input:kb_variant dvorak
 (hyprctl keyword input:kb_variant "")
 hyprctl monitors
 hyprctl keyword monitor ,1920x1200,,
-pacman -Syy
-pacman -Syu keyd udisks2
 
 mkdir -p ~/utono
 chattr -V +C ~/utono
@@ -49,35 +48,34 @@ git clone https://github.com/utono/rpd.git
 
 cd ~/utono/rpd
 chmod +x keyd-configuration.sh
-keyd-configuration.sh ~/utono/rpd
+./keyd-configuration.sh ~/utono/rpd
 systemctl list-unit-files --type=service --state=enabled
 systemctl status keyd
-
-udisksctl mount -b /dev/sda
-cd /run/media/mlj/####/utono
-rsync -avl . ~/utono
 
 sh ~/utono/user-config/move-repos-for-new-user.sh mlj
 # cd ~/utono/user-config/repo-add-aur
 # sh archlive_repo_add.sh
-chown -R "$USERNAME:$USERNAME" ~/utono
+# chown -R "$USERNAME:$USERNAME" ~/utono
 
-mkdir -p ~/.config
-cd ~/utono
-mv tty-dotfiles ~
 cd ~/tty-dotfiles
-stow -v --no-folding git shell ssh
+paru -S kitty starship stow zoxide
+stow -v --no-folding git shell ssh starship
 cd ~
 ln -sf ~/.config/shell/profile .zprofile
+chmod 0600 ~/.ssh/id_ed25519
+chsh -s /bin/zsh
 logout
-chmod 600 ~/.ssh/id_ed25519
+# paru -S ttf-firacode-nerd
+paru -S ttf-jetbrains-mono-nerd
+# paru -S ttf-nerd-fonts-symbols-mono
+# paru -S nerd-fonts
 
 pgrep ssh-agent
 systemctl --user enable ssh-agent.service
 systemctl --user start ssh-agent.service
 systemctl --user status ssh-agent.service
 ssh-add -l
-ssh-add ~/.ssh/id_rsa
+# ssh-add ~/.ssh/id_rsa
 
 cd ~/utono/rpd
 hyprctl binds >> hyprctl-binds.md
@@ -95,50 +93,7 @@ git fetch upstream
 git log HEAD..upstream/master
 git merge upstream/master
 sh link_hyprland_settings.sh
-sudo sh keyd-configuration.sh ~/utono/rpd
 reboot
-hyprctl keyword input:kb_layout real_prog_dvorak
-```
-
-## Configure Pacman, Sudoers, and Makepkg
-
-```bash
-git clone https://github.com/utono/system-configs.git
-cd ~/utono/system-configs/scripts
-sh system-configuration.sh
-sh pacman-config.sh
-sudo pacman -Syy
-# sh sudoers-config.sh
-# sh makepkg-config.sh
-# If Wi-Fi is slow, reboot
-sudo pacman -S udisks2 tree
-```
-
-## Copy Files from USB Drive
-
-```bash
-udisksctl mount -b /dev/sda
-cp -r /utono/** ~/utono
-cp -r /Music/** ~/Music
-cp -r /tty-dotfiles ~
-```
-
-## Apply Dotfiles with Stow
-
-```bash
-cd ~/tty-dotfiles
-stow -v --no-folding ssh
-chmod 0600 ~/.ssh/id_ed25519
-eval $(ssh-agent)
-ssh-add ~/.ssh/id_ed25519
-```
-
-## Install `neovim-nightly-bin`
-
-```bash
-# cd /root/utono/archlive_aur_repository
-# ln -sf archlive_aur_repository.db.tar.gz archlive_aur_repository.db
-pacman -Syy neovim-nightly-bin
 ```
 
 ## New User Setup
@@ -148,8 +103,9 @@ x15 login: mlj
 Password:
 passwd
 su -
-sh /root/utono/user-config/rsync-for-new-user.sh mlj
 sh /root/utono/user-config/user-configuration.sh mlj
+udisksctl mount -b /dev/sda
+cp -r /Music/** ~/Music
 exit
 
 # Optional:
