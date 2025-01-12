@@ -59,13 +59,13 @@ nvim
 # chown -R "$USERNAME:$USERNAME" ~/utono
 
 cd ~/tty-dotfiles
-paru -S kitty starship stow zoxide
+paru -S git-delta kitty starship stow zoxide
 stow -v --no-folding bin-mlj git kitty shell ssh starship
 cd ~
 ln -sf ~/.config/shell/profile .zprofile
 chmod 0600 ~/.ssh/id_ed25519
 chsh -s /bin/zsh
-nvim ~/.config/hypr/config/default <-- kitty
+nvim ~/.config/hypr/config/defaults.conf <-- $terminal = kitty
 logout
 # paru -S ttf-firacode-nerd
 paru -S ttf-jetbrains-mono-nerd
