@@ -22,7 +22,7 @@
                         "fs_type": "fat32",
                         "mount_options": [],
                         "mountpoint": "/boot",
-                        "obj_id": "213f78b3-f91a-47b6-85c4-8c3ab980e6f8",
+                        "obj_id": "00a8b8c1-31ff-4a78-be6d-6bd559eba776",
                         "size": {
                             "sector_size": {
                                 "unit": "B",
@@ -72,7 +72,7 @@
                             "nodatacow"
                         ],
                         "mountpoint": null,
-                        "obj_id": "286ab5d1-2507-4cf5-9f6a-127f7a3549e7",
+                        "obj_id": "555e0a43-60dc-417e-8b05-8aecc9656418",
                         "size": {
                             "sector_size": {
                                 "unit": "B",
@@ -136,7 +136,7 @@
     ],
     "parallel downloads": 0,
     "profile_config": {
-        "gfx_driver": "Intel (open-source)",
+        "gfx_driver": "Nvidia (proprietary)",
         "greeter": "sddm",
         "profile": {
             "custom_settings": {
