@@ -28,8 +28,15 @@ Control + Zero
 
 paru -Syy
 paru -Syu keyd neovim-nightly-bin udisks2
+# paru -S openssh
 hyprctl keyword input:kb_variant dvorak
 (hyprctl keyword input:kb_variant "")
+sudo nvim /etc/sddm.conf
+
+    [Autologin]
+    User=mlj
+    Session=hyprland
+
 hyprctl monitors
 hyprctl keyword monitor ,1920x1200,,
 
@@ -52,23 +59,20 @@ chmod +x keyd-configuration.sh
 systemctl list-unit-files --type=service --state=enabled
 systemctl status keyd
 
-sudo localectl set-keymap rpd
+sudo localectl set-keymap real_prog_dvorak
 # sudo nvim /etc/mkinitcpio.conf
 # HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)
 mkinitcpio -P
-# loadkeys rpd
+# loadkeys real_prog_dvorak
 localectl status
 sudo nvim /usr/share/sddm/scripts/Xsetup
 
     # Set custom keyboard layout with verbosity
     export XKB_DEFAULT_LAYOUT=real_prog_dvorak
-    setxkbmap -layout rpd -v
+    setxkbmap -layout real_prog_dvorak -v
 
-sudo systemctl restart sddm
-
-
-
-sh ~/utono/user-config/move-repos-for-new-user.sh mlj
+reboot
+sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj
 nvim
 # cd ~/utono/user-config/repo-add-aur
 # sh archlive_repo_add.sh
@@ -94,6 +98,19 @@ systemctl --user start ssh-agent.service
 systemctl --user status ssh-agent.service
 ssh-add -l
 # ssh-add ~/.ssh/id_rsa
+# sudo systemctl restart sddm
+sudo nvim /etc/ssh/sshd_config <-- PermitRootLogin
+
+sudo systemctl start ssh
+sudo systemctl enable sshd
+systemctl status sshd
+ip addr show
+
+# from the client:
+    ssh-copy-id -i ~/.ssh/id_ed25519.pub username@server_ip
+
+
+
 
 cd ~/utono/rpd
 hyprctl binds >> hyprctl-binds.md
