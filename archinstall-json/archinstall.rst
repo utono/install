@@ -53,7 +53,7 @@ arch-chroot:
 
 .. code-block:: bash
 
-    [root@archiso /]# chsh -s /bin/zsh
+    [root@archiso /]# chsh -s /usr/bin/zsh
     [root@archiso /]# mkdir -p /root/utono
     [root@archiso /]# chattr -V +C /root/utono
     [root@archiso /]# cd /root/utono
