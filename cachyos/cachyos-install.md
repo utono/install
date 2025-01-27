@@ -12,6 +12,26 @@
 
 `rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono`  
 
+## kde plasma: Adjust Keyboard Layout and Resolution
+
+ctrl+alt+f2
+
+`sudo loadkeys dvorak`
+`localectl status`
+`cat /etc/vconsole.conf`
+`nvim /etc/vconsole.conf`
+    KEYMAP=real_prog_dvorak
+`udisksctl mount -b /dev/sda`
+`mkdir -p ~/utono`
+`rsync -avl /run/media/####/utono/ ~/utono`
+`cd ~/utono/rpd`
+`chmod +x keyd-configuration.sh`
+`sudo sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd`
+`mkinitcpio -P`
+`sudo localectl set-x11-keymap real_prog_dvorak`
+`sudo loadkeys real_prog_dvorak'
+`reboot`
+
 ## Adjust Keyboard Layout and Resolution
 
 # Not required: nmtui
