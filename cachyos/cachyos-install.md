@@ -43,7 +43,7 @@ Control + Minus
 Control + Zero
 
 `paru -Syy`
-`paru -Syu keyd neovim-nightly-bin udisks2`
+`paru -Syu --needed keyd neovim-nightly-bin udisks2`
 `hyprctl keyword input:kb_variant dvorak`
 # `hyprctl keyword input:kb_variant ""`
 `sudo nvim /etc/sddm.conf`
@@ -73,8 +73,7 @@ Control + Zero
 `systemctl list-unit-files --type=service --state=enabled`
 `systemctl status keyd`
 
-`sudo localectl set-keymap real_prog_dvorak`
-`mkinitcpio -P`
+`sudo mkinitcpio -P`
 # `loadkeys real_prog_dvorak`
 `localectl status`
 `sudo nvim /usr/share/sddm/scripts/Xsetup`
@@ -83,39 +82,46 @@ Control + Zero
     export XKB_DEFAULT_LAYOUT=real_prog_dvorak
     setxkbmap -layout real_prog_dvorak -v
 
+`mkdir -p ~/.config/nvim`
+`chattr -V +C ~/.config/nvim`
+`rsync -avl ~/utono/kickstart-modular.nvim/ ~/.config/nvim/`
+
 `reboot`
+
+
+
+
+
+
+
 `sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj`
 
 `cd ~/tty-dotfiles`
 `paru -S git-delta kitty starship stow zoxide`
-`stow -v --no-folding bin-mlj git kitty shell ssh starship`
+`stow -v --no-folding bin-mlj git kitty shell starship`
 `cd ~`
 `ln -sf ~/.config/shell/profile .zprofile`
-`chmod 0600 ~/.ssh/id_ed25519`
 `chsh -s /bin/zsh`
 `nvim ~/.config/hypr/config/defaults.conf <-- $terminal = kitty`
 `logout`
 # `paru -S ttf-firacode-nerd`
 `paru -S ttf-jetbrains-mono-nerd`
 
-`sh $HOME/utono/system-config/scripts/ssh-sync.sh`
+`sh $HOME/utono/ssh/sync-ssh-keys.sh`
 
-    `pgrep ssh-agent`
-    `systemctl --user enable ssh-agent.service`
-    `systemctl --user start ssh-agent.service`
-    `systemctl --user status ssh-agent.service`
-    `ssh-add -l`
-    `ssh-add ~/.ssh/id_rsa`
+    #    `rsync -av ~/utono/tty-dotfiles/ssh/.ssh/ ~/.ssh/`
+    #    `pgrep ssh-agent`
+    #    `systemctl --user enable ssh-agent.service`
+    #    `systemctl --user start ssh-agent.service`
+    #    `systemctl --user status ssh-agent.service`
+    #    `ssh-add -l`
+    #    `ssh-add ~/.ssh/id_rsa`
 
-`sudo nvim /etc/ssh/sshd_config <-- PermitRootLogin`
+    #   `sudo nvim /etc/ssh/sshd_config <-- PermitRootLogin`
 
-`sudo systemctl start ssh`
-`sudo systemctl enable sshd`
-`systemctl status sshd`
-`ip addr show`
-
-# from the client:
-`ssh-copy-id -i ~/.ssh/id_ed25519.pub username@server_ip`
+`chmod 700 ~/.ssh`
+`find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;`
+`chmod 0600 ~/.ssh/id_ed25519`
 
 `cd ~/utono/rpd`
 `hyprctl binds >> hyprctl-binds.md`
