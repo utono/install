@@ -88,40 +88,44 @@ Control + Zero
 
 `reboot`
 
-
-
-
-
-
-
 `sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj`
 
 `cd ~/tty-dotfiles`
-`paru -S git-delta kitty starship stow zoxide`
-`stow -v --no-folding bin-mlj git kitty shell starship`
+`paru -S --needed git-delta kitty starship stow zoxide ttf-jetbrains-mono-nerd`
+# `paru -S ttf-firacode-nerd`
+`mkdir -p ~/.local/bin`
+`chattr +V -C ~/.local/bin`
+`stow --verbose=2 --no-folding bin-mlj git kitty shell starship`
 `cd ~`
+`mv .zshrc .zshrc.cachyos.bak`
 `ln -sf ~/.config/shell/profile .zprofile`
 `chsh -s /bin/zsh`
-`nvim ~/.config/hypr/config/defaults.conf <-- $terminal = kitty`
 `logout`
-# `paru -S ttf-firacode-nerd`
-`paru -S ttf-jetbrains-mono-nerd`
+
+
+
+
+
+
+
+
 
 `sh $HOME/utono/ssh/sync-ssh-keys.sh`
 
-    #    `rsync -av ~/utono/tty-dotfiles/ssh/.ssh/ ~/.ssh/`
-    #    `pgrep ssh-agent`
-    #    `systemctl --user enable ssh-agent.service`
-    #    `systemctl --user start ssh-agent.service`
-    #    `systemctl --user status ssh-agent.service`
-    #    `ssh-add -l`
-    #    `ssh-add ~/.ssh/id_rsa`
+    #   `rsync -av ~/utono/ssh/.ssh/ ~/.ssh/`
+    #   `chmod 700 ~/.ssh`
+    #   `find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;`
+    #   `chmod 0600 ~/.ssh/id_ed25519`
+    #   `pgrep ssh-agent`
+    #   `systemctl --user enable ssh-agent.service`
+    #   `systemctl --user start ssh-agent.service`
+    #   `systemctl --user status ssh-agent.service`
+    #   `ssh-add -l`
+    #   `ssh-add ~/.ssh/id_rsa`
 
     #   `sudo nvim /etc/ssh/sshd_config <-- PermitRootLogin`
 
-`chmod 700 ~/.ssh`
-`find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;`
-`chmod 0600 ~/.ssh/id_ed25519`
 
 `cd ~/utono/rpd`
 `hyprctl binds >> hyprctl-binds.md`
+`sh $HOME/utono/user-config/link_hyprland_settings.sh`
