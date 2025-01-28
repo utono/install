@@ -33,8 +33,11 @@ Start the SSH agent:
 
 .. code-block:: bash
 
-    root@archiso ~ # eval $(ssh-agent)
+    root@archiso ~ # eval $(ssh-agent -s)
     root@archiso ~ # ssh-add ~/.ssh/id_ed25519
+    root@archiso ~ # pgrep ssh-agent
+    root@archiso ~ # ssh-add -l
+    root@archiso ~ # eval $(ssh-agent -k)    # stops ssh-agent
 
 Stash local changes and update the repository:
 ----------------------------------------------
@@ -44,7 +47,7 @@ Stash local changes and update the repository:
     root@archiso ~ # cd utono/user-config
     root@archiso ~/utono/user-config # git stash
     root@archiso ~/utono/user-config # git pull
-    root@archiso ~/utono/user-config # ./git-pull-utono.sh
+    root@archiso ~/utono/user-config # ./utono-repo-sync.sh
     root@archiso ~/utono/user-config # cd ~/utono/install/archinstall-json/x##
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
 

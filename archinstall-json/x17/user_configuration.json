@@ -246,7 +246,24 @@
     "ntp": true,
     "packages": [
         "bluez",
-        "bluez-utils"
+        "bluez-utils",
+        "curl",
+        "fzf",
+        "git",
+        "jq",
+        "keyd",
+        "openssh",
+        "reflector",
+        "rsync",
+        "sof-firmware",
+        "starship",
+        "stow",
+        "ttf-jetbrains-mono-nerd",
+        "tree",
+        "vim",
+        "xorg-xrandr",
+        "zoxide",
+        "zsh"
     ],
     "parallel downloads": 0,
     "profile_config": {
