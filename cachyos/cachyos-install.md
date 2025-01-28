@@ -52,6 +52,11 @@ Control + Zero
     User=mlj
     Session=hyprland
 
+    .. (Optional) Disable and mask SDDM:
+
+    [root@archiso /]# systemctl disable sddm
+    [root@archiso /]# systemctl mask sddm
+
 `sudo systemctl restart sddm`
 
 `hyprctl monitors`
@@ -91,7 +96,8 @@ Control + Zero
 `sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj`
 
 `cd ~/tty-dotfiles`
-`paru -S --needed git-delta kitty starship stow zoxide ttf-jetbrains-mono-nerd`
+`paru -S --needed blueman git-delta kitty libnotify socat starship stow zoxide ttf-jetbrains-mono-nerd`
+
 # `paru -S ttf-firacode-nerd`
 `mkdir -p ~/.local/bin`
 `chattr +V -C ~/.local/bin`
@@ -112,6 +118,8 @@ Control + Zero
 
 `sh $HOME/utono/ssh/sync-ssh-keys.sh`
 
+    # mkdir -p ~/.ssh
+    # chattr -V +C ~/.ssh
     #   `rsync -av ~/utono/ssh/.ssh/ ~/.ssh/`
     #   `chmod 700 ~/.ssh`
     #   `find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;`
@@ -126,6 +134,14 @@ Control + Zero
     #   `sudo nvim /etc/ssh/sshd_config <-- PermitRootLogin`
 
 
+`reboot`
 `cd ~/utono/rpd`
 `hyprctl binds >> hyprctl-binds.md`
 `sh $HOME/utono/user-config/link_hyprland_settings.sh`
+`cd ~/utono/cachyos-hyprland-settings`
+`git fetch upstream`
+`git branch -r`
+`git merge upstream/master`
+`git merge upstream/master --allow-unrelated-histories`
+`git add <file_with_conflicts_removed>`
+`git commit`
