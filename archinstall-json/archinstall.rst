@@ -48,7 +48,9 @@ Stash local changes and update the repository:
     root@archiso ~/utono/user-config # git stash
     root@archiso ~/utono/user-config # git pull
     root@archiso ~/utono/user-config # ./utono-repo-sync.sh
-    root@archiso ~/utono/user-config # cd ~/utono/install/archinstall-json/x##
+    root@archiso ~/utono/user-config # cd ~/utono/install
+    root@archiso ~/utono/install # git pull
+    root@archiso ~/utono/install # cd ~/utono/install/archinstall-json/x##
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
 
 arch-chroot:
@@ -67,6 +69,7 @@ arch-chroot:
 
     .. (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
 
+    [root@archiso utono]# mkinitcpio -P
     [root@archiso utono]# cd system-configs/scripts
     [root@archiso utono]# chmod +x *.sh
     [root@archiso utono]# sh nvidia-blacklist.sh ~/utono
@@ -106,6 +109,7 @@ Root Login: Initial Configuration
     passwd
 
     nmtui
+    pacman -Syu
 
     .. wifi might be slow; reboot will help
 
