@@ -63,13 +63,12 @@ arch-chroot:
     [root@archiso /]# chattr -V +C /root/utono
     [root@archiso /]# cd /root/utono
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
-    [root@archiso utono]# git clone https://github.com/utono/system-config.git
     [root@archiso utono]# cd rpd
     [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
+    [root@archiso utono]# mkinitcpio -P
 
     .. (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
-
-    [root@archiso utono]# mkinitcpio -P
+    [root@archiso utono]# git clone https://github.com/utono/system-config.git
     [root@archiso utono]# cd system-configs/scripts
     [root@archiso utono]# chmod +x *.sh
     [root@archiso utono]# sh nvidia-blacklist.sh ~/utono
@@ -109,9 +108,28 @@ Root Login: Initial Configuration
     passwd
 
     nmtui
+    reboot
     pacman -Syu
 
     .. wifi might be slow; reboot will help
+
+    mkdir -p ~/Documents
+    chattr -V +C ~/Documents
+    mkdir -p ~/Documents/repos/paru
+    cd ~/Documents/repos/paru
+    sudo pacman -S --needed base-devel
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
+    makepkg -si
+    cd ~/Documents/repos
+    mkdir -p Bugswriter
+    cd Bugswriter
+    git clone https://github.com/Bugswriter/arch-linux-magic.git
+    git clone https://github.com/Bugswriter/hyprdots.git
+
+    sh ~/utono/ssh/sync-ssh-keys.sh ~/utono/ssh
+
+    sh ~/utono/user-config/paclists/install_packages.sh jan-2025.csv
 
     cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
     reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist

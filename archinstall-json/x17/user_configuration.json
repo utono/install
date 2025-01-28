@@ -246,8 +246,6 @@
     },
     "ntp": true,
     "packages": [
-        "bluez",
-        "bluez-utils",
         "curl",
         "fwupd",
         "fzf",
