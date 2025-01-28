@@ -100,7 +100,8 @@
     "disk_encryption": null,
     "hostname": "x17-2tb",
     "kernels": [
-        "linux"
+        "linux",
+        "linux-lts"
     ],
     "locale_config": {
         "kb_layout": "dvorak",
@@ -269,7 +270,7 @@
     ],
     "parallel downloads": 0,
     "profile_config": {
-        "gfx_driver": "All open-source",
+        "gfx_driver": "Nvidia (proprietary)",
         "greeter": "sddm",
         "profile": {
             "custom_settings": {
