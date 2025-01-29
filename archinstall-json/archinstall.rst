@@ -44,11 +44,7 @@ Stash local changes and update the repository:
 
 .. code-block:: bash
 
-    root@archiso ~ # cd utono/user-config
-    root@archiso ~/utono/user-config # git stash
-    root@archiso ~/utono/user-config # git pull
-    root@archiso ~/utono/user-config # ./utono-repo-sync.sh
-    root@archiso ~/utono/user-config # cd ~/utono/install
+    root@archiso ~ # cd utono/install
     root@archiso ~/utono/install # git pull
     root@archiso ~/utono/install # cd ~/utono/install/archinstall-json/x##
     root@archiso ~/utono/install/archinstall-json/x## # archinstall --config user_configuration.json --creds user_credentials.json
@@ -65,6 +61,7 @@ arch-chroot:
     [root@archiso utono]# git clone https://github.com/utono/rpd.git
     [root@archiso utono]# cd rpd
     [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
+    [root@archiso rpd]# cat /etc/vconsole.conf
     [root@archiso utono]# mkinitcpio -P
 
     .. (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
@@ -108,11 +105,28 @@ Root Login: Initial Configuration
     passwd
 
     nmtui
+    systemctl enable --now bluetooth.service
+    systemctl restart bluetooth.service
+    pacman -Syy linux linux-headers
+    pacman -Syu sof-firmware
+    systemctl --user enable --now pipewire pipewire-pulse
+    systemctl --user enable --now wireplumber
+    systemctl --user restart pipewire pipewire-pulse wireplumber
+    pacman -Syy alsa-utils
+
     reboot
-    pacman -Syu
 
     .. wifi might be slow; reboot will help
 
+Root Login: Install paru and additional packages
+------------------------------------------------
+
+.. code-block:: bash
+
+    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+    reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+    systemctl list-unit-files --type=service --state=enabled
+    pacman -Syu
     mkdir -p ~/Documents
     chattr -V +C ~/Documents
     mkdir -p ~/Documents/repos/paru
@@ -121,26 +135,20 @@ Root Login: Initial Configuration
     git clone https://aur.archlinux.org/paru.git
     cd paru
     makepkg -si
-    cd ~/Documents/repos
-    mkdir -p Bugswriter
-    cd Bugswriter
-    git clone https://github.com/Bugswriter/arch-linux-magic.git
-    git clone https://github.com/Bugswriter/hyprdots.git
+    cd ~/utono/user-config/paclists
+    ./install_packages.sh jan-2025.csv
 
-    sh ~/utono/ssh/sync-ssh-keys.sh ~/utono/ssh
+Root Login: stow and ssh keys
+---------------------------------
 
-    sh ~/utono/user-config/paclists/install_packages.sh jan-2025.csv
+.. code-block:: bash
 
-    cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-    reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-    systemctl list-unit-files --type=service --state=enabled
 
     cp -r /root/utono/tty-dotfiles ~
     cp -r /root/utono/cachy-dots ~
     mkdir -p ~/.local/bin
     # sh $HOME/tty-dotfiles/stow-root.sh
     stow -v --no-folding bat bin-mlj btop environment.d git keyd kitty ksb shell ssh starship systemd zathura
-    pacman -S --needed bat btop kitty starship
     ln -sf ~/.config/shell/profile ~/.zprofile
 
     chmod 0600 ~/.ssh/id_ed25519
@@ -156,13 +164,53 @@ Root Login: Initial Configuration
     git stash
     git pull
 
-    ./git-pull-utono.sh
+    ./utono-repo-sync ~/utono
 
     sh /root/utono/user-config/rsync-for-new-user.sh mlj
     sh /root/utono/user-config/user-configuration.sh mlj
     sudo chown -R mlj:mlj /path/to/directory
 
     logout
+
+Root Login: test sound in tty
+---------------------------------
+
+.. code-block:: bash
+
+   systemctl --user status pipewire pipewire-pulse wireplumber
+   systemctl --user enable --now pipewire pipewire-pulse wireplumber
+   pw-cli info
+   sudo pacman -S alsa-utils mpv
+   aplay /usr/share/sounds/alsa/Front_Center.wav
+   mpv https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3
+
+Root Login: test sound in Hyprland
+----------------------------------
+
+.. code-block:: bash
+    
+   sudo pacman -S pipewire-pulse pavucontrol
+   pw-cli list-objects | grep node
+   pavucontrol
+   paplay /usr/share/sounds/freedesktop/stereo/message.oga
+   mpv https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3
+   pw-cli info
+
+Root Login: troubleshooting sound
+----------------------------------
+
+.. code-block:: bash
+   alsamixer
+   pw-metadata | grep default.audio.sink
+   pactl set-default-sink <sink-name>
+   systemctl --user restart pipewire pipewire-pulse wireplumber
+   journalctl --user -u pipewire --follow
+   
+
+
+
+
+
 
 User Login: New User Setup
 --------------------------

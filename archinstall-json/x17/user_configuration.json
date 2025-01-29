@@ -104,7 +104,7 @@
         "linux-lts"
     ],
     "locale_config": {
-        "kb_layout": "dvorak",
+        "kb_layout": "us",
         "sys_enc": "UTF-8",
         "sys_lang": "en_US"
     },

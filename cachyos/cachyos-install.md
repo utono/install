@@ -42,6 +42,22 @@ Control + Equals
 Control + Minus
 Control + Zero
 
+sudo systemctl status bluetooth.service
+sudo systemctl start bluetooth.service
+sudo systemctl enable --now bluetooth.service
+reboot # maybe wait for 30 seconds
+
+pacman -Qi sof-firmware
+alsamixer
+    press F6
+    then in sof-firmware:
+        
+
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+
 `paru -Syy`
 `paru -Syu --needed keyd neovim-nightly-bin udisks2`
 `hyprctl keyword input:kb_variant dvorak`
@@ -77,6 +93,7 @@ Control + Zero
 `./keyd-configuration.sh ~/utono/rpd`
 `systemctl list-unit-files --type=service --state=enabled`
 `systemctl status keyd`
+`hyprctl keyword input:kb_layout real_prog_dvorak`
 
 `sudo mkinitcpio -P`
 # `loadkeys real_prog_dvorak`
