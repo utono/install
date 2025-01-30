@@ -2,7 +2,7 @@
     "additional-repositories": [],
     "archinstall-language": "English",
     "audio_config": {
-        "audio": "pipewire"
+        "audio": "pulseaudio"
     },
     "bootloader": "Systemd-boot",
     "config_version": "3.0.2",
@@ -274,10 +274,12 @@
             "custom_settings": {
                 "Hyprland": {
                     "seat_access": "polkit"
-                }
+                },
+                "KDE Plasma": {}
             },
             "details": [
-                "Hyprland"
+                "Hyprland",
+                "KDE Plasma"
             ],
             "main": "Desktop"
         }
