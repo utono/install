@@ -139,6 +139,8 @@ Root Login: Install paru and additional packages
     makepkg -si
     cd ~/utono/user-config/paclists
     ./install_packages.sh jan-2025.csv
+    paru -S ml4w-hyprland-git
+    ml4w-hyprland-setup
 
 Root Login: stow and ssh keys
 ---------------------------------
