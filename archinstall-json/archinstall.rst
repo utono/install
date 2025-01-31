@@ -44,6 +44,10 @@ Stash local changes and update the repository:
 
 .. code-block:: bash
 
+    root@archiso ~ # cd utono/system-config
+    root@archiso ~/utono/system-config # git stash && git pull
+    root@archiso ~/utono/system-config # cd utono/user-config
+    root@archiso ~/utono/user-config # git stash && git pull
     root@archiso ~ # cd utono/install
     root@archiso ~/utono/install # git pull
     root@archiso ~/utono/install # cd ~/utono/install/archinstall-json/x##
@@ -62,13 +66,13 @@ arch-chroot:
     [root@archiso utono]# cd rpd
     [root@archiso rpd]# ./keyd-configuration.sh /root/utono/rpd
     [root@archiso rpd]# cat /etc/vconsole.conf
-    [root@archiso utono]# mkinitcpio -P
 
     .. (Optional) Blacklist NVIDIA drivers and removes NVIDIA-related udev rules
     [root@archiso utono]# git clone https://github.com/utono/system-config.git
     [root@archiso utono]# cd system-configs/scripts
     [root@archiso utono]# chmod +x *.sh
     [root@archiso utono]# sh nvidia-blacklist.sh ~/utono
+    [root@archiso utono]# mkinitcpio -P
 
     .. (Optional) Disable and mask SDDM:
 
@@ -107,12 +111,10 @@ Root Login: Initial Configuration
     nmtui
     systemctl enable --now bluetooth.service
     systemctl restart bluetooth.service
-    pacman -Syy linux linux-headers
-    pacman -Syu sof-firmware
+    pacman -Syy alsa-utils linux-headers
     systemctl --user enable --now pipewire pipewire-pulse
     systemctl --user enable --now wireplumber
     systemctl --user restart pipewire pipewire-pulse wireplumber
-    pacman -Syy alsa-utils
 
     reboot
 
