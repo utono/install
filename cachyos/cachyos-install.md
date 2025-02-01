@@ -2,163 +2,189 @@
 
 ## Clone Repositories to USB Drive
 
-`wipefs --all /dev/disk/by-id/usb-My_flash_drive`  
-`sudo mkfs.fat -F 32 /dev/sda`  
+wipefs --all /dev/disk/by-id/usb-My_flash_drive  
+sudo mkfs.fat -F 32 /dev/sda  
 
-`udisksctl mount -b /dev/sda`  
+udisksctl mount -b /dev/sda  
 
-`sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/956A-D24E/utono`  
-`sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono`  
+sh $HOME/utono/user-config/utono-clone.sh /run/media/mlj/956A-D24E/utono  
+sh $HOME/utono/user-config/git-pull-utono.sh /run/media/mlj/FEED-C372/utono  
 
-`rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono`  
+rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono  
 
-## kde plasma: Adjust Keyboard Layout and Resolution
+---
 
-ctrl+alt+f2
+## Root Setup
 
-`sudo loadkeys dvorak`
-`localectl status`
-`cat /etc/vconsole.conf`
-`nvim /etc/vconsole.conf`
+**Switch to TTY:**  
+Ctrl + Alt + F3
+
+### Login as Root  
+
+x17 login: root  
+Password:  
+
+sudo loadkeys dvorak  
+udisksctl mount -b /dev/sda  
+mkdir -p ~/utono  
+rsync -avl /run/media/####/utono/ ~/utono  
+cd ~/utono/rpd  
+chmod +x keyd-configuration.sh  
+sudo sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd  
+<!-- localectl status   -->
+<!-- sudo localectl set-x11-keymap real_prog_dvorak   -->
+cat /etc/vconsole.conf  
+nvim /etc/vconsole.conf  
     KEYMAP=real_prog_dvorak
-`udisksctl mount -b /dev/sda`
-`mkdir -p ~/utono`
-`rsync -avl /run/media/####/utono/ ~/utono`
-`cd ~/utono/rpd`
-`chmod +x keyd-configuration.sh`
-`sudo sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd`
-`mkinitcpio -P`
-`sudo localectl set-x11-keymap real_prog_dvorak`
-`sudo loadkeys real_prog_dvorak'
-`reboot`
+mkinitcpio -P  
+sudo loadkeys real_prog_dvorak  
 
-## Adjust Keyboard Layout and Resolution
+reboot
 
-# Not required: nmtui
-meta + enter
+x17 login: root  
+Password:  
 
-# Alacritty:
-Control + Equals
-Control + Minus
-Control + Zero
+### Bluetooth Setup
 
-sudo systemctl status bluetooth.service
-sudo systemctl start bluetooth.service
-sudo systemctl enable --now bluetooth.service
-reboot # maybe wait for 30 seconds
+sudo systemctl status bluetooth.service  
+sudo systemctl start bluetooth.service  
+sudo systemctl enable --now bluetooth.service  
+(Reboot might be necessary, wait ~30s before proceeding)
 
-pacman -Qi sof-firmware
-alsamixer
-    press F6
-    then in sof-firmware:
-        
+### SDDM Configuration
 
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
+sudo nvim /usr/share/sddm/scripts/Xsetup  
 
-`paru -Syy`
-`paru -Syu --needed keyd neovim-nightly-bin udisks2`
-`hyprctl keyword input:kb_variant dvorak`
-# `hyprctl keyword input:kb_variant ""`
-`sudo nvim /etc/sddm.conf`
+export XKB_DEFAULT_LAYOUT=real_prog_dvorak  
+setxkbmap -layout real_prog_dvorak -v  
 
-    [Autologin]
-    User=mlj
-    Session=hyprland
+sudo nvim /etc/sddm.conf  
 
-    .. (Optional) Disable and mask SDDM:
+[Autologin]  
+User=mlj  
+Session=hyprland  
 
-    [root@archiso /]# systemctl disable sddm
-    [root@archiso /]# systemctl mask sddm
+(Optional: Disable and mask SDDM if needed)
 
-`sudo systemctl restart sddm`
+[root@archiso /]# systemctl disable sddm  
+[root@archiso /]# systemctl mask sddm  
 
-`hyprctl monitors`
-`hyprctl keyword monitor ,1920x1200,,`
+sudo systemctl restart sddm  
+reboot  
 
-`mkdir -p ~/utono`
-`chattr -V +C ~/utono`
-`cd ~/utono`
-`udisksctl mount -b /dev/sda`
-`cd /run/media/mlj/#######/utono`
-`rsync -avl . ~/utono`
-`chown -R "$USERNAME:$USERNAME" ~/utono`
+---
 
-# `git clone https://github.com/utono/rpd.git`
+## Login as User
 
-`cd ~/utono/rpd`
-`chmod +x keyd-configuration.sh`
-`./keyd-configuration.sh ~/utono/rpd`
-`systemctl list-unit-files --type=service --state=enabled`
-`systemctl status keyd`
-`hyprctl keyword input:kb_layout real_prog_dvorak`
+**Switch to TTY:**  
+Ctrl + Alt + F3
 
-`sudo mkinitcpio -P`
-# `loadkeys real_prog_dvorak`
-`localectl status`
-`sudo nvim /usr/share/sddm/scripts/Xsetup`
+x17 login: mlj  
+Password:  
 
-    # Set custom keyboard layout with verbosity
-    export XKB_DEFAULT_LAYOUT=real_prog_dvorak
-    setxkbmap -layout real_prog_dvorak -v
+mkdir -p ~/utono  
+chattr -V +C ~/utono  
+cd ~/utono  
+udisksctl mount -b /dev/sda  
 
-`mkdir -p ~/.config/nvim`
-`chattr -V +C ~/.config/nvim`
-`rsync -avl ~/utono/kickstart-modular.nvim/ ~/.config/nvim/`
+cd /run/media/mlj/#######/utono  
+rsync -avl . ~/utono  
+chown -R "$USERNAME:$USERNAME" ~/utono  
 
-`reboot`
+sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj  
 
-`sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj`
+### Install Essential Packages  
+paru -S --needed blueman git-delta kitty libnotify socat starship stow zoxide ttf-jetbrains-mono-nerd  
 
-`cd ~/tty-dotfiles`
-`paru -S --needed blueman git-delta kitty libnotify socat starship stow zoxide ttf-jetbrains-mono-nerd`
+(Optional: Install other fonts)
 
-# `paru -S ttf-firacode-nerd`
-`mkdir -p ~/.local/bin`
-`chattr +V -C ~/.local/bin`
-`stow --verbose=2 --no-folding bin-mlj git kitty shell starship`
-`cd ~`
-`mv .zshrc .zshrc.cachyos.bak`
-`ln -sf ~/.config/shell/profile .zprofile`
-`chsh -s /bin/zsh`
-`logout`
+paru -S ttf-firacode-nerd  
 
+mkdir -p ~/.local/bin  
+chattr +V -C ~/.local/bin  
 
+### Dotfiles Setup  
 
+cd ~/tty-dotfiles/  
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
+cd ~  
+mv .zshrc .zshrc.cachyos.bak  
+ln -sf ~/.config/shell/profile .zprofile  
+chsh -s /bin/zsh  
+logout  
 
+---
 
+## Post-Login Setup
 
+paru -Syu --needed neovim-nightly-bin
+sh $HOME/utono/ssh/sync-ssh-keys.sh  
 
+### SSH Configuration  
 
+mkdir -p ~/.ssh  
+chattr -V +C ~/.ssh  
+rsync -av ~/utono/ssh/.ssh/ ~/.ssh/  
+chmod 700 ~/.ssh  
+find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;  
+chmod 0600 ~/.ssh/id_ed25519  
+pgrep ssh-agent  
+systemctl --user enable ssh-agent.service  
+systemctl --user start ssh-agent.service  
+systemctl --user status ssh-agent.service  
+ssh-add -l  
+ssh-add ~/.ssh/id_rsa  
 
-`sh $HOME/utono/ssh/sync-ssh-keys.sh`
+sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
+reboot  
 
-    # mkdir -p ~/.ssh
-    # chattr -V +C ~/.ssh
-    #   `rsync -av ~/utono/ssh/.ssh/ ~/.ssh/`
-    #   `chmod 700 ~/.ssh`
-    #   `find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;`
-    #   `chmod 0600 ~/.ssh/id_ed25519`
-    #   `pgrep ssh-agent`
-    #   `systemctl --user enable ssh-agent.service`
-    #   `systemctl --user start ssh-agent.service`
-    #   `systemctl --user status ssh-agent.service`
-    #   `ssh-add -l`
-    #   `ssh-add ~/.ssh/id_rsa`
+---
 
-    #   `sudo nvim /etc/ssh/sshd_config <-- PermitRootLogin`
+## Hyprland Configuration
 
+**Switch to TTY:**  
+Ctrl + Alt + F1  
 
-`reboot`
-`cd ~/utono/rpd`
-`hyprctl binds >> hyprctl-binds.md`
-`sh $HOME/utono/user-config/link_hyprland_settings.sh`
-`cd ~/utono/cachyos-hyprland-settings`
-`git fetch upstream`
-`git branch -r`
-`git merge upstream/master`
-`git merge upstream/master --allow-unrelated-histories`
-`git add <file_with_conflicts_removed>`
-`git commit`
+hyprctl monitors  
+hyprctl keyword monitor ,1920x1200,,  
+hyprctl keyword input:kb_variant dvorak  
+(Optional: Reset keyboard layout)  
+
+hyprctl keyword input:kb_variant ""  
+hyprctl keyword input:kb_layout real_prog_dvorak  
+
+### Terminal Adjustments  
+**Open terminal:** Meta + Enter  
+
+**Alacritty Font Adjustments**  
+
+Control + Equals  
+Control + Minus  
+Control + Zero  
+
+### Hyprland Bindings and Config Sync  
+
+cd ~/utono/rpd  
+hyprctl binds >> hyprctl-binds.md  
+sh $HOME/utono/user-config/link_hyprland_settings.sh  
+cd ~/utono/cachyos-hyprland-settings  
+git fetch upstream  
+git branch -r  
+git merge upstream/master  
+git merge upstream/master --allow-unrelated-histories  
+git add <file_with_conflicts_removed>  
+git commit  
+
+---
+
+## Audio Configuration
+
+pacman -Qi sof-firmware  
+alsamixer  
+
+**Steps:**  
+1. Press F6  
+2. Select sof-firmware if available  
+
+---
+

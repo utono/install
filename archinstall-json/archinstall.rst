@@ -137,8 +137,8 @@ Root Login: Install paru and additional packages
     git clone https://aur.archlinux.org/paru.git
     cd paru
     makepkg -si
-    cd ~/utono/user-config/paclists
-    ./install_packages.sh jan-2025.csv
+    cd ~/utono/install/paclists
+    # ./install_packages.sh jan-2025.csv
     paru -S ml4w-hyprland-git
     ml4w-hyprland-setup
 
