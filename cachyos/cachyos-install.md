@@ -191,6 +191,14 @@ git commit
 ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
 <!-- sh $HOME/utono/user-config/link_hyprland_settings.sh   -->
 
+### lid-behavior.conf
+
+sudo cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
+sudo systemctl restart systemd-logind
+sudo loginctl show-logind | grep HandleLidSwitch
+
+
+
 ---
 
 ## Audio Configuration
