@@ -2,8 +2,6 @@
 
 !!! the key presses of the gamepad are for the real_prog_dvorak layout
 !!! in ~/.config/mpv/scripts/micro-to-mpv-27.py, use the qwerty equivalents
-!!!
-!!! real_prog_dvorak ---> qwerty equivalent
 
 R:        R2:
  +-----+    +-----+
