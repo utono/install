@@ -43,20 +43,81 @@ Save and close the file.
 
 ## Step 3: Identify the Gamepad Device
 
-Use the following commands to identify your gamepad's device:
+To identify your gamepad device, follow these steps:
 
+### **List Input Devices**
 ```bash
 ls /dev/input/
-evtest /dev/input/<your-device>
 ```
+Look for entries like `eventX` (e.g., `event19`) that correspond to input devices.
 
-Replace `<your-device>` with the correct device name (e.g., `event19`).
+### **Use `evtest` to Identify the Gamepad**
 
-On Ubuntu, you may need to install `evtest` first:
+1. Install `evtest` (if not already installed):
+   - **Arch Linux:**  
+     ```bash
+     sudo pacman -S evtest
+     ```
+   - **Ubuntu:**  
+     ```bash
+     sudo apt install evtest
+     ```
 
+2. Run `evtest` to list available devices:
+   ```bash
+   sudo evtest
+   ```
+   You will see a list of devices like:
+   ```
+   Available devices:
+   /dev/input/event3:  "AT Translated Set 2 keyboard"
+   /dev/input/event5:  "Logitech Gamepad F310"
+   /dev/input/event19: "Wireless Controller"
+   ```
+   Identify the device corresponding to your gamepad.
+
+3. Test the device:
+   ```bash
+   sudo evtest /dev/input/eventX
+   ```
+   Replace `eventX` with the correct event number for your gamepad. Press buttons on your gamepad to check if input events appear.
+
+### **Use `keyd monitor` to Identify the Device**
+
+If you are using `keyd`, you can monitor input events with:
+   ```bash
+   sudo keyd monitor
+   ```
+   This will display keypresses from all input devices, helping you confirm if your gamepad is being detected.
+
+### **Alternative: Use `cat` to Check Input**
+
+1. Run the following command:
+   ```bash
+   sudo cat /dev/input/eventX
+   ```
+   (Replace `eventX` with the correct device number.)
+
+2. Press buttons or move sticks on the gamepad to see raw output.
+
+### **Use `dmesg` to Find Device Name**
+After plugging in your gamepad, run:
 ```bash
-sudo apt install evtest
+dmesg | grep -i input
 ```
+This will list new input devices and their associated event numbers.
+
+### **Use `udevadm` to Get More Info**
+```bash
+udevadm info --query=all --name=/dev/input/eventX
+```
+Replace `eventX` with the identified event number to get more details about the device.
+
+Once you find the correct `eventX` for your gamepad, update your configuration to use it:
+```bash
+DEVICE_PATH='/dev/input/eventX'
+```
+Replace `eventX` with the correct device number (e.g., `/dev/input/event19`).
 
 ---
 
@@ -136,39 +197,17 @@ Restart=always
 WantedBy=default.target
 ```
 
-### What `gamepad_to_mpv.service` Does
-
-The `gamepad_to_mpv.service` systemd service automatically starts and runs the Python script that listens for gamepad input events. When a button is pressed on the gamepad, the script translates it into a corresponding command for MPV using its IPC server. This service ensures the gamepad remains functional as a remote controller for MPV, even after system reboots or MPV restarts.
-
-### How the Python Script Listens for Input
-
-The script's ability to listen for input events is facilitated by the `evdev` library, which:
-
-1. Uses `InputDevice.read_loop()` to continuously read input events from the gamepad.
-2. Utilizes `evdev.ecodes` and `categorize(event)` to interpret raw input events as key presses.
-3. Implements a `try-except` structure to keep the script running even if the device disconnects.
-4. Calls `os.path.exists(DEVICE_PATH)` to wait for the device to reconnect if it's temporarily unavailable.
-
 Enable and start the service:
 
 ```bash
 systemctl --user enable --now gamepad_to_mpv.service
 ```
 
-### Difference Between `daemon-reexec` and `daemon-reload`
-
-- `daemon-reload`: Reloads systemd manager configuration files without restarting running services.
-- `daemon-reexec`: Restarts the systemd user instance entirely, which can be useful if systemd binaries have been updated or if systemd is behaving unexpectedly.
-
-Neither command is exclusive to Ubuntu; both work on any system that uses `systemd`, including Arch Linux.
-
-If you experience issues with user services, try running:
+On Ubuntu, ensure that `systemd` user services are enabled:
 
 ```bash
 systemctl --user daemon-reexec
 ```
-
-This ensures that systemd is fully restarted and picks up any changes.
 
 ---
 
