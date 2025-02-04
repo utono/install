@@ -7,6 +7,7 @@ MPV_CONFIG_DIR="$USER_HOME/.config/mpv"
 MPV_SCRIPT_DIR="$MPV_CONFIG_DIR/scripts"
 SYSTEMD_USER_DIR="$USER_HOME/.config/systemd/user"
 DEVICE_PATH="/dev/input/event19"
+# chmod 666 /tmp/mpvsocket
 MPV_SOCKET="/tmp/mpvsocket"
 SERVICE_SOURCE="$USER_HOME/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service"
 SERVICE_DEST="$SYSTEMD_USER_DIR/gamepad_to_mpv.service"

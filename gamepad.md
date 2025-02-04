@@ -22,6 +22,11 @@ Add the following line:
 input-ipc-server=/tmp/mpvsocket
 ```
 
+```bash
+chmod 666 /tmp/mpvsocket
+```
+
+
 ---
 
 ## Step 3: Identify the Gamepad Device
