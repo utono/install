@@ -28,9 +28,13 @@ sudo loadkeys dvorak
 udisksctl mount -b /dev/sda  
 mkdir -p ~/utono  
 rsync -avl /run/media/####/utono/ ~/utono  
+pacman -Qe > ~/utono/install/paclists/explicitly-installed.csv
+systemctl list-units --type=service all > ~/utono/install/cachyos/services-all.md
+systemctl list-units --type=service > ~/utono/install/cachyos/services-active.md
+
 cd ~/utono/rpd  
 chmod +x keyd-configuration.sh  
-sudo sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd  
+sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd  
 <!-- localectl status   -->
 <!-- sudo localectl set-x11-keymap real_prog_dvorak   -->
 cat /etc/vconsole.conf  
@@ -82,6 +86,9 @@ Ctrl + Alt + F3
 x17 login: mlj  
 Password:  
 
+systemctl --user list-units --type=service --all
+systemctl --user status <service_name>.service
+
 mkdir -p ~/utono  
 chattr -V +C ~/utono  
 cd ~/utono  
@@ -94,16 +101,18 @@ chown -R "$USERNAME:$USERNAME" ~/utono
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj  
 
 ### Install Essential Packages  
-paru -S --needed blueman git-delta kitty libnotify socat starship stow zoxide ttf-jetbrains-mono-nerd  
+<!-- paru -S --needed blueman git-delta kitty libnotify ripgrep socat starship stow zoxide ttf-jetbrains-mono-nerd   -->
+
+sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
 
 (Optional: Install other fonts)
 
 paru -S ttf-firacode-nerd  
 
+### Dotfiles Setup  
+
 mkdir -p ~/.local/bin  
 chattr +V -C ~/.local/bin  
-
-### Dotfiles Setup  
 
 cd ~/tty-dotfiles/  
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
@@ -117,10 +126,9 @@ logout
 
 ## Post-Login Setup
 
-paru -Syu --needed neovim-nightly-bin
-sh $HOME/utono/ssh/sync-ssh-keys.sh  
-
 ### SSH Configuration  
+
+sh $HOME/utono/ssh/sync-ssh-keys.sh  
 
 mkdir -p ~/.ssh  
 chattr -V +C ~/.ssh  
@@ -128,10 +136,17 @@ rsync -av ~/utono/ssh/.ssh/ ~/.ssh/
 chmod 700 ~/.ssh  
 find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;  
 chmod 0600 ~/.ssh/id_ed25519  
+
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+echo $SSH_AUTH_SOCK
+
+cd ~/utono/ssh/.config/systemd/user
+ls -al
+systemctl --user enable --now ssh-agent
+systemctl --user status ssh-agent
+systemctl --user daemon-reexec
+systemctl --user daemon-reload
 pgrep ssh-agent  
-systemctl --user enable ssh-agent.service  
-systemctl --user start ssh-agent.service  
-systemctl --user status ssh-agent.service  
 ssh-add -l  
 ssh-add ~/.ssh/id_rsa  
 
@@ -166,7 +181,6 @@ Control + Zero
 
 cd ~/utono/rpd  
 hyprctl binds >> hyprctl-binds.md  
-sh $HOME/utono/user-config/link_hyprland_settings.sh  
 cd ~/utono/cachyos-hyprland-settings  
 git fetch upstream  
 git branch -r  
@@ -174,6 +188,8 @@ git merge upstream/master
 git merge upstream/master --allow-unrelated-histories  
 git add <file_with_conflicts_removed>  
 git commit  
+ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
+<!-- sh $HOME/utono/user-config/link_hyprland_settings.sh   -->
 
 ---
 
