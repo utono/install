@@ -1,31 +1,16 @@
 # Configuring Gamepad Input for MPV Using Evdev
 
-This guide helps set up a gamepad (acting as a keyboard) to control MPV on Arch Linux and Ubuntu using `evdev`.
-
 ---
 
 ## Step 1: Install Required Tools
 
-Ensure the following tools are installed:
-
-### Arch Linux
 ```bash
 sudo pacman -S python-evdev socat
 ```
 
-### Ubuntu
-```bash
-sudo apt update && sudo apt install python3-evdev socat
-```
-
-- `python-evdev`: For reading input events from devices.
-- `socat`: For sending JSON commands to MPV's IPC socket.
-
 ---
 
 ## Step 2: Enable MPV's IPC Server
-
-Edit the MPV configuration file:
 
 ```bash
 nvim ~/.config/mpv/mpv.conf
@@ -37,87 +22,37 @@ Add the following line:
 input-ipc-server=/tmp/mpvsocket
 ```
 
-Save and close the file.
-
 ---
 
 ## Step 3: Identify the Gamepad Device
 
-To identify your gamepad device, follow these steps:
-
-### **List Input Devices**
-```bash
-ls /dev/input/
-```
-Look for entries like `eventX` (e.g., `event19`) that correspond to input devices.
-
-### **Use `evtest` to Identify the Gamepad**
-
-1. Install `evtest` (if not already installed):
-   - **Arch Linux:**  
-     ```bash
-     sudo pacman -S evtest
-     ```
-   - **Ubuntu:**  
-     ```bash
-     sudo apt install evtest
-     ```
-
-2. Run `evtest` to list available devices:
-   ```bash
-   sudo evtest
-   ```
-   You will see a list of devices like:
-   ```
-   Available devices:
-   /dev/input/event3:  "AT Translated Set 2 keyboard"
-   /dev/input/event5:  "Logitech Gamepad F310"
-   /dev/input/event19: "Wireless Controller"
-   ```
-   Identify the device corresponding to your gamepad.
-
-3. Test the device:
-   ```bash
-   sudo evtest /dev/input/eventX
-   ```
-   Replace `eventX` with the correct event number for your gamepad. Press buttons on your gamepad to check if input events appear.
-
 ### **Use `keyd monitor` to Identify the Device**
 
-If you are using `keyd`, you can monitor input events with:
    ```bash
    sudo keyd monitor
    ```
-   This will display keypresses from all input devices, helping you confirm if your gamepad is being detected.
+Update ~/.config/mpv/scripts/gamepad_to_mpv.py:
 
-### **Alternative: Use `cat` to Check Input**
-
-1. Run the following command:
-   ```bash
-   sudo cat /dev/input/eventX
-   ```
-   (Replace `eventX` with the correct device number.)
-
-2. Press buttons or move sticks on the gamepad to see raw output.
-
-### **Use `dmesg` to Find Device Name**
-After plugging in your gamepad, run:
-```bash
-dmesg | grep -i input
-```
-This will list new input devices and their associated event numbers.
-
-### **Use `udevadm` to Get More Info**
-```bash
-udevadm info --query=all --name=/dev/input/eventX
-```
-Replace `eventX` with the identified event number to get more details about the device.
-
-Once you find the correct `eventX` for your gamepad, update your configuration to use it:
 ```bash
 DEVICE_PATH='/dev/input/eventX'
 ```
-Replace `eventX` with the correct device number (e.g., `/dev/input/event19`).
+
+### **Find the Gamepad Name**
+
+To correctly configure `udev` rules, find the exact name of your gamepad:
+
+```bash
+udevadm info --query=property --name=/dev/input/eventX | grep DEVNAME
+```
+
+Replace `eventX` with your actual gamepad event number (e.g., `event19`).
+The output will look like this:
+
+```bash
+DEVNAME="/dev/input/event19"
+```
+
+Use the `DEVNAME` value in the `udev` rule in the next step.
 
 ---
 
@@ -130,25 +65,55 @@ If you encounter "Permission denied" errors for the gamepad device (e.g., `/dev/
    ```bash
    ls -l /dev/input/event19
    ```
+   
    Confirm the device is in the `input` group.
 
-2. **Add User to the Input Group**
+2. **Confirm the Device is in the `input` Group**
+   
+   ```bash
+   udevadm info --query=property --name=/dev/input/event19 | grep GROUP
+   ```
+   
+   If the output includes `GROUP=input`, then the device belongs to the `input` group.
+
+3. **Add the Device to the `input` Group**
+   
+   If the device is not in the `input` group, create a custom `udev` rule:
+   
+   ```bash
+   sudo nvim /etc/udev/rules.d/99-gamepad.rules
+   ```
+   
+   Add the following line, replacing `Your Device Path` with the `DEVNAME` value found earlier:
+   
+   ```ini
+   KERNEL=="event*", ATTRS{DEVNAME}=="/dev/input/event19", GROUP="input", MODE="0660"
+   ```
+   
+   Save and exit, then reload `udev` rules:
+   
+   ```bash
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+   ```
+
+4. **Add User to the Input Group**
 
    ```bash
    sudo usermod -aG input $(whoami)
    ```
 
-3. **Log Out and Back In**
+5. **Log Out and Back In**
 
    Group changes take effect after re-logging.
 
-4. **Verify Group Membership**
+6. **Verify Group Membership**
 
    ```bash
    groups
    ```
 
-5. **Test Access**
+7. **Test Access**
 
    ```bash
    /usr/bin/python3 ~/.config/mpv/scripts/gamepad_to_mpv.py
@@ -156,45 +121,13 @@ If you encounter "Permission denied" errors for the gamepad device (e.g., `/dev/
 
 ---
 
-## Step 5: Create and Configure the Python Script
-
-Create a Python script to map gamepad inputs to MPV functions:
-
-```bash
-nvim ~/.config/mpv/scripts/gamepad_to_mpv.py
-```
-
-Paste the script from the original documentation here. Ensure `DEVICE_PATH` matches your device (e.g., `/dev/input/event19`).
-
-Make the script executable:
-
-```bash
-chmod +x ~/.config/mpv/scripts/gamepad_to_mpv.py
-```
-
----
-
 ## Step 6: Automate the Script with systemd
 
-Create a systemd service file:
+The systemd service file is located at `~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service`. Create a symlink to it in `~/.config/systemd/user` to ensure it is recognized by systemd:
 
 ```bash
-nvim ~/.config/systemd/user/gamepad_to_mpv.service
-```
-
-Add the following content:
-
-```ini
-[Unit]
-Description=Gamepad Input to MPV
-After=mpv.service
-
-[Service]
-ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/gamepad_to_mpv.py
-Restart=always
-
-[Install]
-WantedBy=default.target
+mkdir -p ~/.config/systemd/user
+ln -s ~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
 ```
 
 Enable and start the service:
