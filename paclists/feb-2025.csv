@@ -1,14 +1,17 @@
 # feb-2025.csv
 
 blueman
-# bluetuith-bin
+bluetuith-bin
+evtest
 git-delta
 kitty
+libinput
 libnotify
 neovim
+python-evdev
 ripgrep
 socat
 starship
 stow
 zoxide
-ttf-jetbrains-mono-nerd  
+ttf-jetbrains-mono-nerd
