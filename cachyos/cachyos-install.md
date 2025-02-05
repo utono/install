@@ -61,19 +61,11 @@ Password:
 
 ### SDDM Configuration
 
-sudo nvim /usr/share/sddm/scripts/Xsetup  
+cp -i $HOME/utono/system-config/sddm/usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts
+sudo mkdir -p /etc/sddm.conf.d
+echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/autologin.conf
 
-export XKB_DEFAULT_LAYOUT=real_prog_dvorak  
-setxkbmap -layout real_prog_dvorak -v  
-
-sudo nvim /etc/sddm.conf  
-
-[Autologin]  
-User=mlj  
-Session=hyprland  
-
-(Optional: Disable and mask SDDM if needed)
-
+.. (Optional) Disable and mask sddm
 [root@archiso /]# systemctl disable sddm  
 [root@archiso /]# systemctl mask sddm  
 
