@@ -24,13 +24,13 @@ Ctrl + Alt + F3
 x17 login: root  
 Password:  
 
+nmtui
 sudo loadkeys dvorak  
+paru -Syy
+paru -S udisks2
 udisksctl mount -b /dev/sda  
 mkdir -p ~/utono  
-rsync -avl /run/media/####/utono/ ~/utono  
-pacman -Qe > ~/utono/install/paclists/explicitly-installed.csv
-systemctl list-units --type=service all > ~/utono/install/cachyos/services-all.md
-systemctl list-units --type=service > ~/utono/install/cachyos/services-active.md
+rsync -avlp /run/media/####/utono/ ~/utono  
 
 cd ~/utono/rpd  
 chmod +x keyd-configuration.sh  
@@ -40,20 +40,24 @@ sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd
 cat /etc/vconsole.conf  
 nvim /etc/vconsole.conf  
     KEYMAP=real_prog_dvorak
-mkinitcpio -P  
 sudo loadkeys real_prog_dvorak  
 
+reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Qe > ~/utono/install/paclists/explicitly-installed.csv
+systemctl list-units --type=service all > ~/utono/install/cachyos/services-all.md
+systemctl list-units --type=service > ~/utono/install/cachyos/services-active.md
+mkinitcpio -P  
 reboot
+
+
+
+
+
+
+
 
 x17 login: root  
 Password:  
-
-### Bluetooth Setup
-
-sudo systemctl status bluetooth.service  
-sudo systemctl start bluetooth.service  
-sudo systemctl enable --now bluetooth.service  
-(Reboot might be necessary, wait ~30s before proceeding)
 
 ### SDDM Configuration
 
