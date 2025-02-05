@@ -85,16 +85,7 @@ Password:
 systemctl --user list-units --type=service --all
 systemctl --user status <service_name>.service
 
-mkdir -p ~/utono  
-chattr -V +C ~/utono  
-cd ~/utono  
-udisksctl mount -b /dev/sda  
-
-cd /run/media/mlj/#######/utono  
-rsync -avl . ~/utono  
-chown -R "$USERNAME:$USERNAME" ~/utono  
-
-sh ~/utono/user-config/sync-delete-repos-for-new-user.sh mlj  
+sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
 
 ### Install Essential Packages  
 <!-- paru -S --needed blueman git-delta kitty libnotify ripgrep socat starship stow zoxide ttf-jetbrains-mono-nerd   -->
@@ -108,7 +99,6 @@ paru -S ttf-firacode-nerd
 ### Dotfiles Setup  
 
 mkdir -p ~/.local/bin  
-chattr +V -C ~/.local/bin  
 
 cd ~/tty-dotfiles/  
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
@@ -156,6 +146,43 @@ reboot
 **Switch to TTY:**  
 Ctrl + Alt + F1  
 
+### Hyprland Bindings and Config Sync  
+
+cd ~/utono/rpd  
+hyprctl binds >> hyprctl-binds.md  
+
+cd ~/utono/user-config
+sh ~/utono/user-config/link_hyprland_settings.sh
+
+cd ~/utono/cachyos-hyprland-settings  
+git branch -r  
+git fetch upstream  
+git merge upstream/master  
+git merge upstream/master --allow-unrelated-histories  
+git add <file_with_conflicts_removed>  
+git commit  
+ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
+<!-- sh $HOME/utono/user-config/link_hyprland_settings.sh   -->
+
+### lid-behavior.conf
+
+sudo mkdir -p /etc/systemd/logind.conf.d
+sudo cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
+sudo systemctl restart systemd-logind
+sudo loginctl show-session | grep HandleLidSwitch
+
+### touchpad
+
+hyprctl devices
+nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
+
+
+
+
+
+
+### Hyprland
+
 hyprctl monitors  
 hyprctl keyword monitor ,1920x1200,,  
 hyprctl keyword input:kb_variant dvorak  
@@ -173,25 +200,6 @@ Control + Equals
 Control + Minus  
 Control + Zero  
 
-### Hyprland Bindings and Config Sync  
-
-cd ~/utono/rpd  
-hyprctl binds >> hyprctl-binds.md  
-cd ~/utono/cachyos-hyprland-settings  
-git fetch upstream  
-git branch -r  
-git merge upstream/master  
-git merge upstream/master --allow-unrelated-histories  
-git add <file_with_conflicts_removed>  
-git commit  
-ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
-<!-- sh $HOME/utono/user-config/link_hyprland_settings.sh   -->
-
-### lid-behavior.conf
-
-sudo cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
-sudo systemctl restart systemd-logind
-sudo loginctl show-logind | grep HandleLidSwitch
 
 
 

@@ -2,9 +2,11 @@
 
 blueman
 bluetuith-bin
+curl
 evtest
 git-delta
 kitty
+lftp
 libinput
 libnotify
 neovim
@@ -13,5 +15,6 @@ ripgrep
 socat
 starship
 stow
-zoxide
 ttf-jetbrains-mono-nerd
+wget
+zoxide
