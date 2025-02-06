@@ -4,80 +4,30 @@
 
 ## Step 1: Install Required Tools
 
-```bash
 sudo pacman -S python-evdev socat
-```
-
----
 
 ## Step 2: Enable MPV's IPC Server
 
-```bash
 nvim ~/.config/mpv/mpv.conf
-```
 
-Add the following line:
+   input-ipc-server=/tmp/mpvsocket
 
-```ini
-input-ipc-server=/tmp/mpvsocket
-```
-
-```bash
 chmod 666 /tmp/mpvsocket
-```
-
-
----
 
 ## Step 3: Identify the Gamepad Device
 
-### **Use `keyd monitor` to Identify the Device**
+bluetuith - pair gamepad
+reboot
+sudo keyd monitor
+   device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
 
-   ```bash
-   sudo keyd monitor
-   ```
-Update ~/.config/mpv/scripts/gamepad_to_mpv.py:
+nvim ~/.config/mpv/scripts/gamepad_to_mpv.py:
 
-```bash
-DEVICE_PATH='/dev/input/eventX'
-```
-
-### **Find the Gamepad Name**
-
-To correctly configure `udev` rules, find the exact name of your gamepad:
-
-```bash
-udevadm info --query=property --name=/dev/input/eventX | grep DEVNAME
-```
-
-Replace `eventX` with your actual gamepad event number (e.g., `event19`).
-The output will look like this:
-
-```bash
-DEVNAME="/dev/input/event19"
-```
-
-Use the `DEVNAME` value in the `udev` rule in the next step.
-
----
+   DEVICE_PATH='/dev/input/eventX'
 
 ## Step 4: Grant Permissions to Access the Gamepad Device
 
-If you encounter "Permission denied" errors for the gamepad device (e.g., `/dev/input/event19`):
-
-1. **Check Device Permissions**
-   
-   ```bash
-   ls -l /dev/input/event19
-   ```
-   
-   Confirm the device is in the `input` group.
-
-2. **Confirm the Device is in the `input` Group**
-   
-   ```bash
-   udevadm info --query=property --name=/dev/input/event19 | grep GROUP
-   ```
+udevadm info --query=property --name=/dev/input/event19 | grep GROUP
    
    If the output includes `GROUP=input`, then the device belongs to the `input` group.
 
@@ -86,6 +36,7 @@ If you encounter "Permission denied" errors for the gamepad device (e.g., `/dev/
    If the device is not in the `input` group, create a custom `udev` rule:
    
    ```bash
+   cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d/
    sudo nvim /etc/udev/rules.d/99-gamepad.rules
    ```
    
@@ -104,9 +55,7 @@ If you encounter "Permission denied" errors for the gamepad device (e.g., `/dev/
 
 4. **Add User to the Input Group**
 
-   ```bash
    sudo usermod -aG input $(whoami)
-   ```
 
 5. **Log Out and Back In**
 
@@ -139,12 +88,7 @@ Enable and start the service:
 
 ```bash
 systemctl --user enable --now gamepad_to_mpv.service
-```
-
-On Ubuntu, ensure that `systemd` user services are enabled:
-
-```bash
-systemctl --user daemon-reexec
+systemctl --user status gamepad_to_mpv.service
 ```
 
 ---

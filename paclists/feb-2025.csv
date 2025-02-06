@@ -9,12 +9,15 @@ kitty
 lftp
 libinput
 libnotify
+mpv
 neovim
 python-evdev
 ripgrep
 socat
 starship
 stow
+swayidle
+tree
 ttf-jetbrains-mono-nerd
 wget
 zoxide
