@@ -50,12 +50,6 @@ mkinitcpio -P
 reboot
 
 
-
-
-
-
-
-
 x17 login: root  
 Password:  
 
