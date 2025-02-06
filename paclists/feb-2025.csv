@@ -5,6 +5,7 @@ bluetuith-bin
 curl
 evtest
 git-delta
+hypridle
 kitty
 lftp
 libinput
@@ -16,7 +17,6 @@ ripgrep
 socat
 starship
 stow
-swayidle
 tree
 ttf-jetbrains-mono-nerd
 wget

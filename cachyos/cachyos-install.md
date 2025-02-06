@@ -162,7 +162,6 @@ ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
 
 mkdir -p /etc/systemd/logind.conf.d
 cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
-cp ~/utono/system-config/etc/systemd/logind.conf.d/10-display-idle.conf /etc/systemd/logind.conf.d
 systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
