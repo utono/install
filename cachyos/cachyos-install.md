@@ -1,5 +1,7 @@
 # CachyOS Install Guide
 
+https://wiki.archlinux.org/title/Keyboard_shortcuts
+
 ## Clone Repositories to USB Drive
 
 wipefs --all /dev/disk/by-id/usb-My_flash_drive  
@@ -30,11 +32,12 @@ paru -Syy
 paru -S udisks2
 udisksctl mount -b /dev/sda  
 mkdir -p ~/utono  
-rsync -avlp /run/media/####/utono/ ~/utono  
+rsync -avl /run/media/####/utono/ /root/utono
 
 cd ~/utono/rpd  
 chmod +x keyd-configuration.sh  
 sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd  
+loadkeys real_prog_dvorak
 <!-- localectl status   -->
 <!-- sudo localectl set-x11-keymap real_prog_dvorak   -->
 cat /etc/vconsole.conf  
@@ -55,7 +58,9 @@ Password:
 
 ### SDDM Configuration
 
+cp /usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts/Xsetup.bak
 cp -i $HOME/utono/system-config/sddm/usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts
+cat /etc/sddm.conf
 sudo mkdir -p /etc/sddm.conf.d
 echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/autologin.conf
 
@@ -76,13 +81,17 @@ Ctrl + Alt + F3
 x17 login: mlj  
 Password:  
 
+mkdir -p ~/utono
+chattr -V +C ~/utono
+rsync -avl /run/media/mlj/####-####/utono/ ~/utono
+
 systemctl --user list-units --type=service --all
 systemctl --user status <service_name>.service
 
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
 
 ### Install Essential Packages  
-<!-- paru -S --needed blueman git-delta kitty libnotify ripgrep socat starship stow zoxide ttf-jetbrains-mono-nerd   -->
+<!-- paru -S --needed blueman git-delta kitty libnotify neovim ripgrep socat starship stow zoxide ttf-jetbrains-mono-nerd   -->
 
 sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
 
@@ -99,7 +108,7 @@ stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 cd ~  
 mv .zshrc .zshrc.cachyos.bak  
 ln -sf ~/.config/shell/profile .zprofile  
-chsh -s /bin/zsh  
+chsh -s /usr/bin/zsh  
 logout  
 
 ---
@@ -108,7 +117,7 @@ logout
 
 ### SSH Configuration  
 
-sh $HOME/utono/ssh/sync-ssh-keys.sh  
+sh $HOME/utono/ssh/sync-ssh-keys.sh ~/utono
 
 mkdir -p ~/.ssh  
 chattr -V +C ~/.ssh  
@@ -133,6 +142,30 @@ ssh-add ~/.ssh/id_rsa
 sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
 reboot  
 
+
+
+
+
+
+
+
+
+
+### /etc
+
+mkdir -p /etc/sysctl.d
+cp ~/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
+sysctl --system
+cat /proc/sys/kernel/sysrq
+<!-- https://wiki.archlinux.org/title/Keyboard_shortcuts -->
+"Reboot Even If System Utterly Broken"
+
+mkdir -p /etc/systemd/logind.conf.d
+cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
+systemctl restart systemd-logind
+loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
+loginctl show-session | grep HandleLidSwitch
+
 ---
 
 ## Hyprland Configuration
@@ -147,6 +180,7 @@ hyprctl binds >> hyprctl-binds.md
 
 cd ~/utono/user-config
 sh ~/utono/user-config/link_hyprland_settings.sh
+<!-- ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr -->
 
 cd ~/utono/cachyos-hyprland-settings  
 git branch -r  
@@ -155,16 +189,6 @@ git merge upstream/master
 git merge upstream/master --allow-unrelated-histories  
 git add <file_with_conflicts_removed>  
 git commit  
-ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
-<!-- sh $HOME/utono/user-config/link_hyprland_settings.sh   -->
-
-### lid-behavior.conf
-
-mkdir -p /etc/systemd/logind.conf.d
-cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
-systemctl restart systemd-logind
-loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
-loginctl show-session | grep HandleLidSwitch
 
 ### touchpad
 

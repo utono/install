@@ -14,18 +14,29 @@ nvim ~/.config/mpv/mpv.conf
 
 chmod 666 /tmp/mpvsocket
 
-## Step 3: Identify the Gamepad Device
+## Step 4: Grant Permissions to Access the Gamepad Device
+
+bluetuith - pair gamepad
+sudo keyd monitor
+   device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
 
 bluetuith - pair gamepad
 reboot
 sudo keyd monitor
    device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
 
-nvim ~/.config/mpv/scripts/gamepad_to_mpv.py:
+bluetuith - pair gamepad
+reboot
+sudo keyd monitor
+   device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
+
+cat /proc/bus/input/devices
+
+   Handlers=event13
+
+nvim ~/.config/mpv/scripts/micro-to-mpv-19.py:
 
    DEVICE_PATH='/dev/input/eventX'
-
-## Step 4: Grant Permissions to Access the Gamepad Device
 
 udevadm info --query=property --name=/dev/input/event19 | grep GROUP
    
@@ -70,26 +81,20 @@ udevadm info --query=property --name=/dev/input/event19 | grep GROUP
 7. **Test Access**
 
    ```bash
-   /usr/bin/python3 ~/.config/mpv/scripts/gamepad_to_mpv.py
+   /usr/bin/python3 ~/.config/mpv/scripts/micro-to-mpv-19.py
    ```
 
 ---
 
 ## Step 6: Automate the Script with systemd
 
-The systemd service file is located at `~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service`. Create a symlink to it in `~/.config/systemd/user` to ensure it is recognized by systemd:
-
-```bash
 mkdir -p ~/.config/systemd/user
-ln -s ~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
-```
-
-Enable and start the service:
-
-```bash
+cp ~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
+# ln -s ~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
+systemctl --user daemon-reload
 systemctl --user enable --now gamepad_to_mpv.service
+reboot
 systemctl --user status gamepad_to_mpv.service
-```
 
 ---
 
