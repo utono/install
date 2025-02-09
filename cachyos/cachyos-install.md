@@ -3,7 +3,7 @@
 
 ## Clone Repositories to USB Drive
 
-wipefs --all /dev/disk/by-id/usb-My_flash_drive  
+wipefs --all /dev/sda
 sudo mkfs.fat -F 32 /dev/sda  
 
 paru -Syy
@@ -34,71 +34,41 @@ cd rpd/
 chmod +x keyd-configuration.sh  
 sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd  
 loadkeys real_prog_dvorak
-<!-- localectl status   -->
-<!-- sudo localectl set-x11-keymap real_prog_dvorak   -->
 cat /etc/vconsole.conf  
 nvim /etc/vconsole.conf  
     KEYMAP=real_prog_dvorak
 sudo loadkeys real_prog_dvorak  
 mkinitcpio -P  
 
-### SSH Keys
+### Install Essential Packages  
 
 paru -Syy
-paru -S udisks2
-udisksctl mount -b /dev/sda  
-rsync -avl /run/media/####/utono/ssh /root/utono
-cd /root/utono/ssh
-chmod +x sync-ssh-keys.sh
-./sync-ssh-keys.sh ~/utono
-
-    Could not open a connection to your authentication agent.
-    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-    echo $SSH_AUTH_SOCK
-    systemctl --user enable --now ssh-agent
-    systemctl --user status ssh-agent
-    systemctl --user daemon-reexec
-    systemctl --user daemon-reload
-
-
-### Dotfiles
-
-mkdir -p ~/.local/bin
-rsync -avl /run/media/####/utono/tty-dotfiles /root
-cd ~/tty-dotfiles
-paru -Sy stow
-stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
-
-### Shell
-
-cd ~  
-mv .zshrc .zshrc.cachyos.bak  
-ln -sf ~/.config/shell/profile .zprofile  
-chsh -s /usr/bin/zsh  
-paru -S --needed blueman git-delta kitty libnotify neovim ripgrep socat starship stow zoxide ttf-jetbrains-mono-nerd  
-logout
-
-### Clone/sync utono repositories and move them to proper locations
-
 cd ~/utono
-git clone https://github.com/utono/user-config.git
-cd ~/utono/user-config
-chmod +x utono-repo-sync.sh
-sh $HOME/utono/user-config/utono-repo-sync.sh ~/utono
-sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
+git clone https://github.com/utono/install.git
+sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
+
+(Optional: Install other fonts)
+
+paru -S ttf-firacode-nerd  
 
 ### SDDM Configuration
 
 cd /usr/share/sddm/scripts/
 cp Xsetup Xsetup.bak
-cp -i $HOME/utono/system-config/sddm/usr/share/sddm/scripts/Xsetup .
+cd ~/utono
+git clone https://github.com/utono/system-config.git
+cd system-config/sddm/usr/share/sddm/scripts
+cat Xsetup
+cp -i Xsetup /usr/share/sddm/scripts/
 cat /etc/sddm.conf
-sudo mkdir -p /etc/sddm.conf.d
-echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/autologin.conf
+cat /etc/sddm.conf.d/autologin.conf
 
-.. (Optional) Disable and mask sddm
-[root@archiso /]# systemctl disable sddm  
-[root@archiso /]# systemctl mask sddm  
+    sudo mkdir -p /etc/sddm.conf.d
+    echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/autologin.conf
+    
+    .. (Optional) Disable and mask sddm
+    [root@archiso /]# systemctl disable sddm  
+    [root@archiso /]# systemctl mask sddm  
 
 sudo systemctl restart sddm  
 reboot  
@@ -107,12 +77,12 @@ reboot
 
 See https://wiki.archlinux.org/title/Keyboard_shortcuts
 
+    "Reboot Even If System Utterly Broken"
+
 mkdir -p /etc/sysctl.d
 cp ~/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
 sysctl --system
 cat /proc/sys/kernel/sysrq
-<!-- https://wiki.archlinux.org/title/Keyboard_shortcuts -->
-"Reboot Even If System Utterly Broken"
 
 ### /etc/systemd/logind.conf.d/
 
@@ -122,22 +92,8 @@ systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
 
-### Install Essential Packages  
-
-sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
-
-(Optional: Install other fonts)
-
-paru -S ttf-firacode-nerd  
-
----
-
-## Login as User
-
 ### SSH Keys
 
-paru -Syy
-paru -S udisks2
 udisksctl mount -b /dev/sda  
 rsync -avl /run/media/####/utono/ssh ~/utono
 cd ~/utono/ssh
@@ -145,6 +101,7 @@ chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
 
     Could not open a connection to your authentication agent.
+
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
     echo $SSH_AUTH_SOCK
     systemctl --user enable --now ssh-agent
@@ -158,7 +115,6 @@ chmod +x sync-ssh-keys.sh
 mkdir -p ~/.local/bin
 rsync -avl /run/media/####/utono/tty-dotfiles ~
 cd ~/tty-dotfiles
-paru -Sy stow
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
 
 ### Shell
@@ -178,6 +134,18 @@ chmod +x utono-repo-sync.sh
 sh $HOME/utono/user-config/utono-repo-sync.sh ~/utono
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
 
+---
+
+## Login as User
+
+### SSH Keys
+
+### Dotfiles
+
+### Shell
+
+### Clone/sync utono repositories and move them to proper locations
+
 ## Hyprland Configuration
 
 **Switch to TTY:**  
@@ -187,7 +155,8 @@ Ctrl + Alt + F1
 
 cd ~/utono/user-config
 sh ~/utono/user-config/link_hyprland_settings.sh
-<!-- ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr -->
+    
+    ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
 
 .. (Optional)
     cd ~/utono/cachyos-hyprland-settings  
@@ -257,24 +226,18 @@ alsamixer
 
 ---
 
-systemctl --user list-units --type=service --all
-systemctl --user status <service_name>.service
-
 ## Post-Login Setup
+
+### Hyprland
+
+cd ~/utono/rpd  
+hyprctl binds >> hyprctl-binds.md  
 
 ### SSH Configuration  
 
-sh $HOME/utono/ssh/sync-ssh-keys.sh ~/utono
-
-mkdir -p ~/.ssh  
-chattr -V +C ~/.ssh  
-rsync -av ~/utono/ssh/.ssh/ ~/.ssh/  
 chmod 700 ~/.ssh  
 find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;  
 chmod 0600 ~/.ssh/id_ed25519  
-
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-echo $SSH_AUTH_SOCK
 
 cd ~/utono/ssh/.config/systemd/user
 ls -al
@@ -287,23 +250,12 @@ ssh-add -l
 ssh-add ~/.ssh/id_rsa  
 
 sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
-reboot  
-
-
-
-
-
-
-
-
-
-cd ~/utono/rpd  
-hyprctl binds >> hyprctl-binds.md  
 
 
 reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Qe > ~/utono/install/paclists/explicitly-installed.csv
 systemctl list-units --type=service all > ~/utono/install/cachyos/services-all.md
 systemctl list-units --type=service > ~/utono/install/cachyos/services-active.md
-mkinitcpio -P  
+systemctl --user list-units --type=service --all
+systemctl --user status <service_name>.service
 
