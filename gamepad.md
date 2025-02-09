@@ -2,11 +2,57 @@
 
 ---
 
-## Step 1: Install Required Tools
+## Essential Packages
 
 sudo pacman -S python-evdev socat
 
-## Step 2: Enable MPV's IPC Server
+## Get device id
+
+Start 'sudo keyd monitor' in a tab before pairing gamepad 
+in another tab using bluetuith.
+
+   sudo keyd monitor
+   bluetuith
+   sudo keyd monitor
+      device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/eventX)
+
+   nvim ~/.config/mpv/scripts/micro-to-mpv-X.py:
+
+      DEVICE_PATH='/dev/input/eventX'
+
+## Add the Device to the `input` Group**
+
+If the device is not in the `input` group, create a custom `udev` rule:
+
+   cd ~/utono/system-config/etc/udev/rules.d
+   cp 99-gamepad.rules /etc/udev/rules.d/
+   sudo nvim /etc/udev/rules.d/99-gamepad.rules
+
+Add the following line, replacing `Your Device Path` with the `DEVNAME` value found earlier:
+
+   KERNEL=="event*", ATTRS{DEVNAME}=="/dev/input/eventX", GROUP="input", MODE="0660"
+
+Save and exit, then reload `udev` rules:
+
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+
+   udevadm info --query=property --name=/dev/input/eventX | grep GROUP
+
+If the output includes `GROUP=input`, then the device belongs to the `input` group.
+
+## Add User to the Input Group
+
+   sudo usermod -aG input $(whoami)
+
+Log out and back in.
+Group changes take effect after re-logging.
+
+Verify Group Membership
+
+   groups
+
+## Enable MPV's IPC Server
 
 nvim ~/.config/mpv/mpv.conf
 
@@ -14,77 +60,16 @@ nvim ~/.config/mpv/mpv.conf
 
 chmod 666 /tmp/mpvsocket
 
-## Step 4: Grant Permissions to Access the Gamepad Device
+## Test python script
 
-Start sudo keyd monitor in a tab before pairing gamepad 
-in another pad using bluetuith.
+   cd ~/.config/mpv/scripts/
+   /usr/bin/python3 micro-to-mpv-X.py
 
-bluetuith - pair gamepad
-reboot
-sudo keyd monitor
-   device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
-
-cat /proc/bus/input/devices
-
-   Handlers=event13
-
-nvim ~/.config/mpv/scripts/micro-to-mpv-19.py:
-
-   DEVICE_PATH='/dev/input/eventX'
-
-udevadm info --query=property --name=/dev/input/event19 | grep GROUP
-   
-   If the output includes `GROUP=input`, then the device belongs to the `input` group.
-
-3. **Add the Device to the `input` Group**
-   
-   If the device is not in the `input` group, create a custom `udev` rule:
-   
-   ```bash
-   cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d/
-   sudo nvim /etc/udev/rules.d/99-gamepad.rules
-   ```
-   
-   Add the following line, replacing `Your Device Path` with the `DEVNAME` value found earlier:
-   
-   ```ini
-   KERNEL=="event*", ATTRS{DEVNAME}=="/dev/input/event19", GROUP="input", MODE="0660"
-   ```
-   
-   Save and exit, then reload `udev` rules:
-   
-   ```bash
-   sudo udevadm control --reload-rules
-   sudo udevadm trigger
-   ```
-
-4. **Add User to the Input Group**
-
-   sudo usermod -aG input $(whoami)
-
-5. **Log Out and Back In**
-
-   Group changes take effect after re-logging.
-
-6. **Verify Group Membership**
-
-   ```bash
-   groups
-   ```
-
-7. **Test Access**
-
-   ```bash
-   /usr/bin/python3 ~/.config/mpv/scripts/micro-to-mpv-19.py
-   ```
-
----
-
-## Step 6: Automate the Script with systemd
+## Automate the Script with systemd
 
 mkdir -p ~/.config/systemd/user
-cp ~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
-# ln -s ~/tty-dotfiles/systemd/.config/systemd/user/gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
+cd ~/tty-dotfiles/systemd/.config/systemd/user
+cp gamepad_to_mpv.service ~/.config/systemd/user/gamepad_to_mpv.service
 systemctl --user daemon-reload
 systemctl --user enable --now gamepad_to_mpv.service
 reboot
@@ -141,3 +126,9 @@ systemctl --user status gamepad_to_mpv.service
   ```
 
 This setup ensures the gamepad (acting as a keyboard) exclusively controls MPV.
+
+cat /proc/bus/input/devices
+
+   Handlers=event13
+
+
