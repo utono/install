@@ -52,6 +52,15 @@ cd /root/utono/ssh
 chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
 
+    Could not open a connection to your authentication agent.
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+    echo $SSH_AUTH_SOCK
+    systemctl --user enable --now ssh-agent
+    systemctl --user status ssh-agent
+    systemctl --user daemon-reexec
+    systemctl --user daemon-reload
+
+
 ### Dotfiles
 
 mkdir -p ~/.local/bin
@@ -77,7 +86,6 @@ cd ~/utono/user-config
 chmod +x utono-repo-sync.sh
 sh $HOME/utono/user-config/utono-repo-sync.sh ~/utono
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
-
 
 ### SDDM Configuration
 
@@ -114,22 +122,27 @@ systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
 
+### Install Essential Packages  
+
+sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
+
+(Optional: Install other fonts)
+
+paru -S ttf-firacode-nerd  
+
 ---
 
 ## Login as User
 
-**Switch to TTY:**  
-Ctrl + Alt + F3
+### SSH Keys
 
-x17 login: mlj  
-Password:  
-
-mkdir -p ~/utono
-chattr -V +C ~/utono
-rsync -avl /run/media/mlj/####-####/utono/ssh ~/utono
+paru -Syy
+paru -S udisks2
+udisksctl mount -b /dev/sda  
+rsync -avl /run/media/####/utono/ssh ~/utono
 cd ~/utono/ssh
+chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
-ssh-add ~/.ssh/id_ed25519
 
     Could not open a connection to your authentication agent.
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
@@ -139,30 +152,31 @@ ssh-add ~/.ssh/id_ed25519
     systemctl --user daemon-reexec
     systemctl --user daemon-reload
 
-rsync -avl /run/media/mlj/####-####/utono/tty-dotfiles ~
+
+### Dotfiles
+
 mkdir -p ~/.local/bin
+rsync -avl /run/media/####/utono/tty-dotfiles ~
 cd ~/tty-dotfiles
+paru -Sy stow
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
+
+### Shell
+
 cd ~  
 mv .zshrc .zshrc.cachyos.bak  
 ln -sf ~/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
 logout
+
+### Clone/sync utono repositories and move them to proper locations
+
 cd ~/utono
 git clone https://github.com/utono/user-config.git
 cd ~/utono/user-config
+chmod +x utono-repo-sync.sh
 sh $HOME/utono/user-config/utono-repo-sync.sh ~/utono
-
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
-
-### Install Essential Packages  
-<!-- paru -S --needed blueman git-delta kitty libnotify neovim ripgrep socat starship stow zoxide ttf-jetbrains-mono-nerd   -->
-
-sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
-
-(Optional: Install other fonts)
-
-paru -S ttf-firacode-nerd  
 
 ## Hyprland Configuration
 
@@ -171,20 +185,17 @@ Ctrl + Alt + F1
 
 ### Hyprland Bindings and Config Sync  
 
-cd ~/utono/rpd  
-hyprctl binds >> hyprctl-binds.md  
-
 cd ~/utono/user-config
 sh ~/utono/user-config/link_hyprland_settings.sh
 <!-- ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr -->
 
-cd ~/utono/cachyos-hyprland-settings  
-git branch -r  
-git fetch upstream  
-git merge upstream/master  
-git merge upstream/master --allow-unrelated-histories  
-git add <file_with_conflicts_removed>  
-git commit  
+.. (Optional)
+    cd ~/utono/cachyos-hyprland-settings  
+    git branch -r  
+    git fetch upstream  
+    git merge upstream/master --allow-unrelated-histories  
+    git add <file_with_conflicts_removed>  
+    git commit  
 
 ### touchpad
 
@@ -285,6 +296,9 @@ reboot
 
 
 
+
+cd ~/utono/rpd  
+hyprctl binds >> hyprctl-binds.md  
 
 
 reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist

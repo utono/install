@@ -16,14 +16,8 @@ chmod 666 /tmp/mpvsocket
 
 ## Step 4: Grant Permissions to Access the Gamepad Device
 
-bluetuith - pair gamepad
-sudo keyd monitor
-   device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
-
-bluetuith - pair gamepad
-reboot
-sudo keyd monitor
-   device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/event19)
+Start sudo keyd monitor in a tab before pairing gamepad 
+in another pad using bluetuith.
 
 bluetuith - pair gamepad
 reboot
