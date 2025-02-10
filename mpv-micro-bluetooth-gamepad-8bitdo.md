@@ -9,12 +9,9 @@
 
 R:        R2:
  +-----+    +-----+
- |  m  |    |  r  |
+ |  m  |    |  r  | pause / show-progress
  | (m) |    | (p) |
  +-----+    +-----+
-
-    ecodes.KEY_M: {"command": ["cycle", "pause"]},
-    ecodes.KEY_R: {"command": ["show-progress"]},
 
 L:        L2:
  +-----+    +-----+
@@ -25,35 +22,31 @@ L:        L2:
 Plus:
 
     +--------+
-    |    o   |
+    |    o   |  "script-message", add_chapter
     |   (r)  |
     +--------+
 
-    ecodes.KEY_O: {"command": ["script-message", "add_chapter"]},
-
 Minus:
     +--------+
-    |    n   |
+    |    n   |   "no-osd", "seek", 2, "exacts"
     |   (b)  |
     +--------+
 
-    ecodes.KEY_N: {"command": ["script-message", "remove_chapter"]},
-
 YXAB:
-           +----------------------------------+
-           |            e                     |
-           |     d (Remove Chapter)           |
-           +----------------------------------+
+              +------------+
+              |      h     |    "script-messages", "write_chapters"
+              |     (d)    |
+              +------------+
 
-+---------------+                          +--------------------------+
-|      G        |                          |           I              |
-|      q        |                          |           j              |
-+---------------+                          +--------------------------+
++------------+              +-----------+
+|      i     |              |     g     |    "add", "chapter", -1 / "add", "chapter", 1
+|     (c)    |              |    (i)    |
++------------+              +-----------+
 
-           +------------------------------------+
-           |           j                        |
-           |    (h -Write Chapters)             |
-           +------------------------------------+
+              +------------+
+              |      j     |    "show-progress"
+              |     (h)    |
+              +------------+
 
 Star:
     +--------+
@@ -63,23 +56,24 @@ Star:
 Home:
 
     +--------+
+    |  (s)   |  "no-osd", "seek", -2, "exacts"
     |   o    |
     +--------+
 
 d-pad:
           +----------+
           |          |
-          |     h    |  
+          |     c    |   "add", "volume", 2 
           |    (j)   |
           |          |
     +-----+----------+----- +
     |                       |
-    |  v                f   |  
+    |  e                f   | "show-progress" / "script-message", "remove_chapter" 
     | (.)              (u)  |
     |                       |
     +-----+----------+----- +
           |          |
-          |    d     |  
+          |    d     |  "add", "volume", -2
           |   (e)    |
           |          |
           +----------+

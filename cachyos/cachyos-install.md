@@ -37,8 +37,7 @@ loadkeys real_prog_dvorak
 cat /etc/vconsole.conf  
 nvim /etc/vconsole.conf  
     KEYMAP=real_prog_dvorak
-sudo loadkeys real_prog_dvorak  
-mkinitcpio -P  
+mkinitcpio -P
 
 ### Install Essential Packages  
 
@@ -46,6 +45,8 @@ paru -Syy
 cd ~/utono
 git clone https://github.com/utono/install.git
 sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
+
+    error: can't install AUR package as root
 
 (Optional: Install other fonts)
 
@@ -79,7 +80,7 @@ See https://wiki.archlinux.org/title/Keyboard_shortcuts
 
     "Reboot Even If System Utterly Broken"
 
-mkdir -p /etc/sysctl.d
+cd /etc/sysctl.d
 cp ~/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
 sysctl --system
 cat /proc/sys/kernel/sysrq
@@ -87,10 +88,33 @@ cat /proc/sys/kernel/sysrq
 ### /etc/systemd/logind.conf.d/
 
 mkdir -p /etc/systemd/logind.conf.d
+cd /etc/systemd/logind.conf.d
 cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
 systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
+
+
+
+
+
+
+
+
+### Dotfiles
+
+mkdir -p ~/.local/bin
+rsync -avl /run/media/####/utono/tty-dotfiles ~
+cd ~/tty-dotfiles
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
+
+### Shell
+
+cd ~  
+mv .zshrc .zshrc.cachyos.bak  
+ln -sf ~/.config/shell/profile .zprofile  
+chsh -s /usr/bin/zsh  
+logout
 
 ### SSH Keys
 
@@ -109,21 +133,6 @@ chmod +x sync-ssh-keys.sh
     systemctl --user daemon-reexec
     systemctl --user daemon-reload
 
-
-### Dotfiles
-
-mkdir -p ~/.local/bin
-rsync -avl /run/media/####/utono/tty-dotfiles ~
-cd ~/tty-dotfiles
-stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
-
-### Shell
-
-cd ~  
-mv .zshrc .zshrc.cachyos.bak  
-ln -sf ~/.config/shell/profile .zprofile  
-chsh -s /usr/bin/zsh  
-logout
 
 ### Clone/sync utono repositories and move them to proper locations
 
