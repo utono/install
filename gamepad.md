@@ -95,65 +95,53 @@ def find_device():
 
 ---
 
-## **Granting the Gamepad Access to the `input` Group**
+## **Managing the `micro-blue.service` Systemd Service**
 
-If the device is not in the `input` group, create a custom `udev` rule:
+To ensure the service starts automatically and can be managed manually, use the following commands:
 
-1. Navigate to the `udev` rules directory:
+1. **Reload the Systemd User Daemon** (use this after modifying systemd service files):
    ```bash
-   cd ~/utono/system-config/etc/udev/rules.d
-   cp 99-gamepad.rules /etc/udev/rules.d/
-   ```
-2. Edit the rule:
-   ```bash
-   sudo nvim /etc/udev/rules.d/99-gamepad.rules
-   ```
-   Add one of the following lines:
-   
-   **Option 1: Assign by `eventX` (not recommended due to changing event numbers)**
-   ```ini
-   KERNEL=="event*", ATTRS{DEVNAME}=="/dev/input/eventX", GROUP="input", MODE="0660"
-   ```
-   Replace `eventX` with the actual device event number.
-   
-   **Option 2: Assign by Vendor and Product ID (preferred method)**
-   ```ini
-   KERNEL=="event*", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", GROUP="input", MODE="0660"
-   ```
-   This ensures that the correct gamepad always gets assigned to the `input` group, even if the event number changes.
-
-3. Save and exit, then reload `udev` rules:
-   ```bash
-   sudo udevadm control --reload-rules
-   sudo udevadm trigger
+   systemctl --user daemon-reload
    ```
 
-4. Verify the change:
-   
-   **Option 1: Using `udevadm` with Vendor and Product ID**
+2. **Fully Restart the Systemd User Daemon** (use this when systemd itself is updated or behaving unexpectedly):
    ```bash
-   udevadm info --attribute-walk --name=/dev/input/eventX | grep -E 'ATTRS{id/vendor}|ATTRS{id/product}'
+   systemctl --user daemon-reexec
    ```
-   If the output includes the correct `id/vendor` and `id/product` values, the rule is correctly applied.
-   
-   **Option 2: Checking permissions directly**
+
+3. **Enable and Start the Service**
    ```bash
-   ls -l /dev/input/eventX
+   systemctl --user enable --now micro-blue.service
    ```
-   If the group listed is `input` and the permissions include `rw-rw----`, then the rule was applied successfully.
 
-5. **Ensure Your User is in the `input` Group**
+4. **Check the Service Status**
    ```bash
-   sudo usermod -aG input $(whoami)
+   systemctl --user status micro-blue.service
    ```
-   Log out and log back in for the changes to take effect.
 
-6. **Verify Group Membership**
+5. **Restart the Service**
    ```bash
-   groups | grep input
+   systemctl --user restart micro-blue.service
    ```
-   If `input` is listed, your user has the required permissions.
 
----
+6. **Stop the Service**
+   ```bash
+   systemctl --user stop micro-blue.service
+   ```
 
-This ensures that the gamepad has proper permissions and can be used automatically by MPV without requiring manual intervention.
+### **When to Use `daemon-reload` vs `daemon-reexec`**
+
+#### **`systemctl --user daemon-reload`**
+- **Purpose:** Reloads systemd’s configuration files **without restarting running services**.
+- **Use when:**
+  - Modifying or creating a new systemd service file.
+  - Updating an existing service but keeping running services untouched.
+
+#### **`systemctl --user daemon-reexec`**
+- **Purpose:** Fully restarts the systemd user instance, **restarting all user services**.
+- **Use when:**
+  - Systemd itself has been updated.
+  - Services are behaving unexpectedly and need a full reset.
+  - You need to refresh systemd’s internal state beyond just reloading unit files.
+
+These commands ensure that the gamepad integration service starts automatically and can be manually controlled when needed.
