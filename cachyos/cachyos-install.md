@@ -94,24 +94,18 @@ systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
 
-
-
-
-
-
-
-
 ### Dotfiles
 
 mkdir -p ~/.local/bin
 rsync -avl /run/media/####/utono/tty-dotfiles ~
 cd ~/tty-dotfiles
-stow --verbose=2 --no-folding bin-mlj git kitty shell starship  
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi
 
 ### Shell
 
 cd ~  
-mv .zshrc .zshrc.cachyos.bak  
+ls -al .zshrc
+    mv .zshrc .zshrc.cachyos.bak
 ln -sf ~/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
 logout
@@ -119,10 +113,13 @@ logout
 ### SSH Keys
 
 udisksctl mount -b /dev/sda  
+mkdir -p ~/utono
 rsync -avl /run/media/####/utono/ssh ~/utono
 cd ~/utono/ssh
 chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
+ssh-add ~/.ssh/id_ed25519
+ssh-add -l
 
     Could not open a connection to your authentication agent.
 
@@ -143,15 +140,23 @@ chmod +x utono-repo-sync.sh
 sh $HOME/utono/user-config/utono-repo-sync.sh ~/utono
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
 
+
+
+
+
+
+
+
 ---
 
 ## Login as User
 
-### SSH Keys
 
 ### Dotfiles
 
 ### Shell
+
+### SSH Keys
 
 ### Clone/sync utono repositories and move them to proper locations
 
@@ -175,10 +180,20 @@ sh ~/utono/user-config/link_hyprland_settings.sh
     git add <file_with_conflicts_removed>  
     git commit  
 
+### kitty scrollback
+
+nvim
+:Lazy 
+lsblk
+super+backlslash
+
 ### touchpad
 
 hyprctl devices
 nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
+
+    bind = $mainMod, Tab, exec, $hyprBin/touchpad_hyprland.sh ""
+    bind = $mainMod, S, exec, $hyprBin/touchpad_hyprland.sh ""
 
 ### bluetuith
 
