@@ -9,7 +9,7 @@ sudo mkfs.fat -F 32 /dev/sda
 paru -Syy
 paru -Sy udisks2
 udisksctl mount -b /dev/sda  
-~/utono/user-config/utono-repo-sync.sh ~/utono
+~/utono/user-config/utono-clone-repos.sh ~/utono
 rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono  
 
 eval $(ssh-agent)
@@ -137,7 +137,7 @@ cd ~/utono
 git clone https://github.com/utono/user-config.git
 cd ~/utono/user-config
 chmod +x utono-repo-sync.sh
-sh $HOME/utono/user-config/utono-repo-sync.sh ~/utono
+sh $HOME/utono/user-config/utono-clone-repos.sh ~/utono
 sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
 
 
@@ -168,7 +168,7 @@ Ctrl + Alt + F1
 ### Hyprland Bindings and Config Sync  
 
 cd ~/utono/user-config
-sh ~/utono/user-config/link_hyprland_settings.sh
+sh ~/utono/user-config/link-cachyos-hyprland-settings.sh
     
     ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
 
