@@ -38,7 +38,7 @@ To identify the gamepad device, follow these steps:
    device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/eventX)
    ```
 
-### **Finding the Vendor ID and Product ID**
+## **Finding the Vendor ID and Product ID**
 
 Instead of manually setting `/dev/input/eventX`, you can find your gamepad's **Vendor ID** and **Product ID** using:
 
@@ -60,6 +60,39 @@ I: Bus=0005 Vendor=2dc8 Product=9021 Version=011b
 - **Product ID**: `9021`
 
 You can then use these values in your script.
+
+
+## **Making the Gamepad Exclusive to MPV**
+
+To prevent other applications or the system from interpreting gamepad inputs, follow these steps:
+
+**1. Modify the Python Script to Grab the Device**
+Your script already includes `device.grab()`, which ensures the gamepad is exclusively used by the script while it is running. However, to make this setting persist, we need an additional step.
+
+**2. Create a `udev` Rule to Prevent System-wide Recognition**
+This step ensures the gamepad is not treated as a generic keyboard or joystick by the system.
+
+1. **Create/Edit the udev rule:**
+   ```bash
+   sudo nvim /etc/udev/rules.d/99-mpv-gamepad.rules
+   ```
+
+
+2. **Add the following combined rule, replacing Vendor and Product ID if needed:**
+   ```ini
+   # Assign the gamepad to the input group and set appropriate permissions
+   KERNEL=="event*", ATTRS{idVendor}=="2dc8", ATTRS{idProduct}=="9021", GROUP="input", MODE="0660"
+   
+   # Prevent the gamepad from being recognized as a keyboard or joystick by the system
+   SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_JOYSTICK}=""
+   ```
+
+3. **Reload the udev rules and replug the gamepad:**
+   ```bash
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+
+This prevents the gamepad from being recognized as a standard input device, ensuring only your script handles its input.
 
 ## ~/.config/mpv/python-scripts/micro-gamepad.py
 
@@ -214,7 +247,8 @@ Create the following systemd service file at `~/.config/systemd/user/micro-gamep
 ```ini
 [Unit]
 Description=8BitDo Mico gamepad as keyboard to MPV
-After=mpv.service
+# After=mpv.service
+Before=mpv.service
 
 [Service]
 ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/python-scripts/micro-gamepad.py
