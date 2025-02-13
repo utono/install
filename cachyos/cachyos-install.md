@@ -138,7 +138,7 @@ git clone https://github.com/utono/user-config.git
 cd ~/utono/user-config
 chmod +x utono-repo-sync.sh
 sh $HOME/utono/user-config/utono-clone-repos.sh ~/utono
-sh ~/utono/user-config/sync-delete-repos-for-new-user.sh 
+sh ~/utono/user-config/rsync-delete-repos-for-new-user.sh 
 
 
 

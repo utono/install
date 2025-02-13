@@ -10,6 +10,9 @@ Ensure the required dependencies are installed:
 sudo pacman -S python-evdev socat
 ```
 
+- **python-evdev**: Provides the ability to interact with input devices, allowing the script to capture gamepad events.
+- **socat**: Enables communication with MPV's IPC socket, allowing commands to be sent to MPV from the script.
+
 ---
 
 ## Get Device ID
@@ -21,6 +24,7 @@ To identify the gamepad device, follow these steps:
    ```bash
    sudo keyd monitor
    ```
+   This command listens for input events from all connected devices. It helps verify that the gamepad is detected and shows the event number (`eventX`) assigned to it. Look for an entry corresponding to your gamepad.
 
 2. **Pair the Gamepad**
    In another terminal, use `bluetuith` to pair your gamepad:
@@ -57,7 +61,7 @@ I: Bus=0005 Vendor=2dc8 Product=9021 Version=011b
 
 You can then use these values in your script.
 
-### **Dynamically Locating the Gamepad**
+## ~/.config/mpv/python-scripts/micro-gamepad.py
 
 Instead of manually setting `DEVICE_PATH='/dev/input/eventX'`, dynamically locate the gamepad using its **Vendor ID** and **Product ID**:
 
@@ -76,7 +80,7 @@ MPV_SOCKET = "/tmp/mpvsocket"
 
 
 def find_device():
-    """Find device path using vendor/product ID."""
+    """Find the gamepad device path using Vendor ID and Product ID."""
     for dev_path in list_devices():
         device = InputDevice(dev_path)
         sys_path = f"/sys/class/input/{os.path.basename(device.path)}/device/"
@@ -91,53 +95,186 @@ def find_device():
             continue
     return None
 
-... (rest of the script remains unchanged) ...
 
----
+def send_to_mpv(command):
+    retries = 5
+    for attempt in range(retries):
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+                sock.connect(MPV_SOCKET)
+                sock.sendall(json.dumps(command).encode() + b'\n')
+            return
+        except ConnectionRefusedError:
+            if attempt < retries - 1:
+                time.sleep(2)
+            else:
+                print("Error: MPV socket connection refused. Is MPV running with --input-ipc-server?")
+        except Exception as e:
+            print(f"Error sending command to MPV: {e}")
+            return
 
-## **Managing the `micro-blue.service` Systemd Service**
 
-To ensure the service starts automatically and can be managed manually, use the following commands:
+# if 'd' is the gamepad press, assign to real_prog_dvorak 'h'
+key_map = {
+    ecodes.KEY_M: {"command": ["cycle", "pause"]},
+    ecodes.KEY_R: {"command": ["show-progress"]},
+    ecodes.KEY_J: {"command": ["show-progress"]},
+    ecodes.KEY_I: {"command": ["add", "chapter", -1]},
+    ecodes.KEY_G: {"command": ["add", "chapter", 1]},
+    ecodes.KEY_O: {"command": ["script-message", "add_chapter"]},
+    ecodes.KEY_N: {"command": ["no-osd", "seek", 2, "exact"]},
+    ecodes.KEY_S: {"command": ["no-osd", "seek", -2, "exact"]},
+    ecodes.KEY_H: {"command": ["script-message", "write_chapters"]},
+    ecodes.KEY_F: {"command": ["script-message", "remove_chapter"]},
+    ecodes.KEY_E: {"command": ["show-progress"]},
+    ecodes.KEY_C: {"command": ["add", "volume", 2]},
+    ecodes.KEY_D: {"command": ["add", "volume", -2]},
+}
 
-1. **Reload the Systemd User Daemon** (use this after modifying systemd service files):
+
+def open_device():
+    """Find and open the gamepad device."""
+    while True:
+        device_path = find_device()
+        if device_path:
+            try:
+                device = InputDevice(device_path)
+                device.grab()
+                print(f"Listening to {device.name} at {device_path}...")
+                return device
+            except OSError as e:
+                if e.errno == 16:  # Device is busy
+                    print(f"Device {device_path} is busy. Retrying...")
+                    time.sleep(2)
+                else:
+                    print(f"Unhandled OSError: {e}")
+        else:
+            print("Gamepad not found. Retrying...")
+            time.sleep(2)
+
+
+def main():
+    """Main event loop for reading gamepad input and sending commands to MPV."""
+    while True:
+        device = open_device()
+        try:
+            for event in device.read_loop():
+                if event.type == ecodes.EV_KEY:
+                    key_event = categorize(event)
+                    if key_event.keystate == key_event.key_down:
+                        command = key_map.get(key_event.scancode)
+                        if command:
+                            send_to_mpv(command)
+        except OSError as e:
+            if e.errno == 19:
+                print("Device disconnected. Reinitializing...")
+                device.close()
+            else:
+                print(f"Unhandled OSError: {e}")
+
+
+if __name__ == "__main__":
+    main()
+
+```
+
+## **Testing `micro-gamepad.py` Before Configuring Systemd**
+
+Before setting up the systemd service, verify that `micro-gamepad.py` works correctly:
+
+1. **Ensure MPV is running with IPC enabled:**
+   ```bash
+   mpv --input-ipc-server=/tmp/mpvsocket your_video_file.mkv
+   ```
+
+2. **Run the script manually:**
+   ```bash
+   python3 ~/.config/mpv/python-scripts/micro-gamepad.py
+   ```
+
+3. **Test gamepad input:**
+   - Press buttons on the gamepad.
+   - Check if MPV responds as expected.
+   - Look for logs indicating successful command execution.
+
+4. **If MPV does not respond:**
+   - Ensure the MPV socket exists: `ls -l /tmp/mpvsocket`
+   - Manually send a command to MPV for testing:
+     ```bash
+     echo '{ "command": ["cycle", "pause"] }' | socat - /tmp/mpvsocket
+     ```
+   - Restart MPV and re-run the script.
+
+Once confirmed working, proceed with configuring systemd.
+
+## **micro-gamepad.service Systemd Configuration**
+
+Create the following systemd service file at `~/.config/systemd/user/micro-gamepad.service`:
+
+```ini
+[Unit]
+Description=8BitDo Mico gamepad as keyboard to MPV
+After=mpv.service
+
+[Service]
+ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/python-scripts/micro-gamepad.py
+# ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/micro-gamepad.py
+# ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/micro-to-mpv-26.py
+Restart=always
+Environment=PYTHONUNBUFFERED=1
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+```
+
+## **Placing the Service File**
+
+1. **Ensure the systemd user directory exists**:
+   ```bash
+   mkdir -p ~/.config/systemd/user
+   ```
+
+2. **Move the service file into place**:
+   ```bash
+   cp micro-gamepad.service ~/.config/systemd/user/micro-gamepad.service
+   ```
+
+3. **Reload systemd to recognize the new service**:
    ```bash
    systemctl --user daemon-reload
    ```
 
-2. **Fully Restart the Systemd User Daemon** (use this when systemd itself is updated or behaving unexpectedly):
+4. **Enable and Start the Service**
    ```bash
-   systemctl --user daemon-reexec
+   systemctl --user enable --now micro-gamepad.service
    ```
 
-3. **Enable and Start the Service**
+5. **Check the Service Status**
    ```bash
-   systemctl --user enable --now micro-blue.service
+   systemctl --user status micro-gamepad.service
    ```
 
-4. **Check the Service Status**
+6. **Restart the Service**
    ```bash
-   systemctl --user status micro-blue.service
+   systemctl --user restart micro-gamepad.service
    ```
 
-5. **Restart the Service**
+7. **Stop the Service**
    ```bash
-   systemctl --user restart micro-blue.service
+   systemctl --user stop micro-gamepad.service
    ```
 
-6. **Stop the Service**
-   ```bash
-   systemctl --user stop micro-blue.service
-   ```
+## **When to Use `daemon-reload` vs `daemon-reexec`**
 
-### **When to Use `daemon-reload` vs `daemon-reexec`**
-
-#### **`systemctl --user daemon-reload`**
+## **`systemctl --user daemon-reload`**
 - **Purpose:** Reloads systemd’s configuration files **without restarting running services**.
 - **Use when:**
   - Modifying or creating a new systemd service file.
   - Updating an existing service but keeping running services untouched.
 
-#### **`systemctl --user daemon-reexec`**
+## **`systemctl --user daemon-reexec`**
 - **Purpose:** Fully restarts the systemd user instance, **restarting all user services**.
 - **Use when:**
   - Systemd itself has been updated.
