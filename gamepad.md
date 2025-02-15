@@ -36,7 +36,13 @@ To identify the gamepad device, follow these steps:
    Once paired, return to the `keyd monitor` tab. You should see an output similar to:
    ```
    device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/eventX)
+
    ```
+4. **Test the Gamepad Input
+   ```
+    evtest /dev/input/eventX
+   ```
+
 
 ## **Finding the Vendor ID and Product ID**
 
@@ -44,6 +50,15 @@ Instead of manually setting `/dev/input/eventX`, you can find your gamepad's **V
 
 ```bash
 udevadm info --attribute-walk --name=/dev/input/eventX | grep -E 'ATTRS{id/vendor}|ATTRS{id/product}'
+looking at device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003/input/input26/event21':
+    KERNEL="event21"
+    ...
+looking at parent device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003/input/input26':
+    KERNEL="input26"
+    ...
+    ATTRS{id/product}=="9021"
+    ATTRS{id/vendor}=="2dc8"
+    ...
 ```
 
 Alternatively, you can find all input devices and their properties:
@@ -61,155 +76,142 @@ I: Bus=0005 Vendor=2dc8 Product=9021 Version=011b
 
 You can then use these values in your script.
 
-
 ## **Making the Gamepad Exclusive to MPV**
 
 To prevent other applications or the system from interpreting gamepad inputs, follow these steps:
 
-**1. Modify the Python Script to Grab the Device**
+1. **Modify the Python Script to Grab the Device**
 Your script already includes `device.grab()`, which ensures the gamepad is exclusively used by the script while it is running. However, to make this setting persist, we need an additional step.
 
-**2. Create a `udev` Rule to Prevent System-wide Recognition**
+2. **Create a `udev` Rule to Prevent System-wide Recognition**
 This step ensures the gamepad is not treated as a generic keyboard or joystick by the system.
 
-1. **Create/Edit the udev rule:**
-   ```bash
-   sudo nvim /etc/udev/rules.d/99-mpv-gamepad.rules
-   ```
+1. ``` cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d/
 
+2. ``` sudo nvim /etc/udev/rules.d/99-mpv-gamepad.rules
 
-2. **Add the following combined rule, replacing Vendor and Product ID if needed:**
-   ```ini
    # Assign the gamepad to the input group and set appropriate permissions
-   KERNEL=="event*", ATTRS{idVendor}=="2dc8", ATTRS{idProduct}=="9021", GROUP="input", MODE="0660"
-   
    # Prevent the gamepad from being recognized as a keyboard or joystick by the system
-   SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", ENV{ID_INPUT_KEYBOARD}="", ENV{ID_INPUT_JOYSTICK}=""
-   ```
 
-3. **Reload the udev rules and replug the gamepad:**
+   ``` SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", GROUP="input", MODE="0660"
+   ``` SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", ENV{ID_INPUT_KEYBOARD}="1", ENV{ID_INPUT_JOYSTICK}="1"
+
+3. **Turn off gamepad
+
+4. **Reload the udev rules and replug the gamepad:**
    ```bash
    sudo udevadm control --reload-rules
    sudo udevadm trigger
 
 This prevents the gamepad from being recognized as a standard input device, ensuring only your script handles its input.
 
+3. **Verify udev rules are applied:
+    ```bash
+    udevadm info --attribute-walk --name=/dev/input/eventX | grep -E "ATTRS{id/vendor}|ATTRS{id/product}"
+
+    If the correct Vendor ID (2DC8) and Product ID (9021) appear, the rule is applied.
+
+3. **Verify device permissions:
+    ```bash
+    ls -l /dev/input/event*
+
+    If your rule is working, the group should be input and permissions should be rw-rw----:
+        crw-rw---- 1 root input 13, 64 Feb  4 14:05 /dev/input/event27
+    ```
+
+3. **Verify gamepad is in 'input' group:
+    ```bash
+    udevadm info --query=property --name=/dev/input/eventX | grep GROUP
+   ```
+
+
+3. **Add gamepad to 'input' group:
+   ```
+   ls -l /dev/input/event*
+   crw-rw---- 1 root input 13, 64 Feb  4 14:05 /dev/input/event27
+
+   sudo nvim /etc/udev/rules.d/99-gamepad.rules
+      SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", GROUP="input", MODE="0660"
+      SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", ENV{ID_INPUT_KEYBOARD}="1", ENV{ID_INPUT_JOYSTICK}="1"
+
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+   udevadm info --attribute-walk --name=/dev/input/eventX | grep GROUP
+   GROUP=input
+   ```
+
+4. **Add Your User to the input Group
+   ```
+   groups $(whoami) | grep input
+   
+   sudo usermod -aG input $(whoami)
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+   reboot
+   
+   evtest /dev/input/eventX
+   ```
+
+
+
+
+
+
+
+
+## **Configuring MPV for IPC Communication**
+
+MPV needs to expose an **IPC (Inter-Process Communication) server** to receive commands from the gamepad script. This is done via `mpv.conf`.
+
+#### **1. Enable MPV's IPC Server**
+
+Edit your MPV configuration file:
+```bash
+nvim ~/.config/mpv/mpv.conf
+```
+
+Add the following line:
+```ini
+input-ipc-server=/tmp/mpvsocket
+```
+
+This creates a **socket file** at `/tmp/mpvsocket`, allowing external scripts (like the gamepad integration) to send commands to MPV.
+
+#### **2. Set Correct Permissions**
+
+Ensure MPV's socket file has appropriate permissions:
+```bash
+ls -al /tmp/mpvsocket
+srw------- - mlj 12 Feb 23:24 /tmp/mpvsocket
+chmod 666 /tmp/mpvsocket
+ls -al /tmp/mpvsocket
+srw-rw-rw- - mlj 12 Feb 23:24 /tmp/mpvsocket
+```
+
+This allows all users and processes to send commands to MPV.
+
+#### **3. Verify IPC Server is Running**
+
+Start MPV with any video file:
+```bash
+mpv your_video_file.mkv
+```
+
+Then check if the socket exists:
+```bash
+ls -l /tmp/mpvsocket
+```
+
+You can manually send test commands using `socat`:
+```bash
+echo '{ "command": ["cycle", "pause"] }' | socat - /tmp/mpvsocket
+```
+
+If MPV pauses, the IPC server is working correctly.
+
 ## ~/.config/mpv/python-scripts/micro-gamepad.py
 
 Instead of manually setting `DEVICE_PATH='/dev/input/eventX'`, dynamically locate the gamepad using its **Vendor ID** and **Product ID**:
-
-```python
-#!/usr/bin/env python3
-
-import os
-import socket
-import json
-import time
-from evdev import InputDevice, list_devices, categorize, ecodes
-
-VENDOR_ID = "2DC8"  # Your gamepad's Vendor ID
-PRODUCT_ID = "9021"  # Your gamepad's Product ID
-MPV_SOCKET = "/tmp/mpvsocket"
-
-
-def find_device():
-    """Find the gamepad device path using Vendor ID and Product ID."""
-    for dev_path in list_devices():
-        device = InputDevice(dev_path)
-        sys_path = f"/sys/class/input/{os.path.basename(device.path)}/device/"
-        try:
-            with open(f"{sys_path}id/vendor") as f:
-                vid = f.read().strip()
-            with open(f"{sys_path}id/product") as f:
-                pid = f.read().strip()
-            if vid.lower() == VENDOR_ID.lower() and pid.lower() == PRODUCT_ID.lower():
-                return dev_path
-        except FileNotFoundError:
-            continue
-    return None
-
-
-def send_to_mpv(command):
-    retries = 5
-    for attempt in range(retries):
-        try:
-            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-                sock.connect(MPV_SOCKET)
-                sock.sendall(json.dumps(command).encode() + b'\n')
-            return
-        except ConnectionRefusedError:
-            if attempt < retries - 1:
-                time.sleep(2)
-            else:
-                print("Error: MPV socket connection refused. Is MPV running with --input-ipc-server?")
-        except Exception as e:
-            print(f"Error sending command to MPV: {e}")
-            return
-
-
-# if 'd' is the gamepad press, assign to real_prog_dvorak 'h'
-key_map = {
-    ecodes.KEY_M: {"command": ["cycle", "pause"]},
-    ecodes.KEY_R: {"command": ["show-progress"]},
-    ecodes.KEY_J: {"command": ["show-progress"]},
-    ecodes.KEY_I: {"command": ["add", "chapter", -1]},
-    ecodes.KEY_G: {"command": ["add", "chapter", 1]},
-    ecodes.KEY_O: {"command": ["script-message", "add_chapter"]},
-    ecodes.KEY_N: {"command": ["no-osd", "seek", 2, "exact"]},
-    ecodes.KEY_S: {"command": ["no-osd", "seek", -2, "exact"]},
-    ecodes.KEY_H: {"command": ["script-message", "write_chapters"]},
-    ecodes.KEY_F: {"command": ["script-message", "remove_chapter"]},
-    ecodes.KEY_E: {"command": ["show-progress"]},
-    ecodes.KEY_C: {"command": ["add", "volume", 2]},
-    ecodes.KEY_D: {"command": ["add", "volume", -2]},
-}
-
-
-def open_device():
-    """Find and open the gamepad device."""
-    while True:
-        device_path = find_device()
-        if device_path:
-            try:
-                device = InputDevice(device_path)
-                device.grab()
-                print(f"Listening to {device.name} at {device_path}...")
-                return device
-            except OSError as e:
-                if e.errno == 16:  # Device is busy
-                    print(f"Device {device_path} is busy. Retrying...")
-                    time.sleep(2)
-                else:
-                    print(f"Unhandled OSError: {e}")
-        else:
-            print("Gamepad not found. Retrying...")
-            time.sleep(2)
-
-
-def main():
-    """Main event loop for reading gamepad input and sending commands to MPV."""
-    while True:
-        device = open_device()
-        try:
-            for event in device.read_loop():
-                if event.type == ecodes.EV_KEY:
-                    key_event = categorize(event)
-                    if key_event.keystate == key_event.key_down:
-                        command = key_map.get(key_event.scancode)
-                        if command:
-                            send_to_mpv(command)
-        except OSError as e:
-            if e.errno == 19:
-                print("Device disconnected. Reinitializing...")
-                device.close()
-            else:
-                print(f"Unhandled OSError: {e}")
-
-
-if __name__ == "__main__":
-    main()
-
-```
 
 ## **Testing `micro-gamepad.py` Before Configuring Systemd**
 

@@ -41,6 +41,9 @@ mkinitcpio -P
 
 ### Install Essential Packages  
 
+x17 login: mlj
+Password:  
+
 paru -Syy
 cd ~/utono
 git clone https://github.com/utono/install.git
@@ -94,10 +97,10 @@ systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
 
-### Dotfiles
+### /run/media/mlj/8C8E-606F/utono/tty-dotfiles
 
 mkdir -p ~/.local/bin
-rsync -avl /run/media/####/utono/tty-dotfiles ~
+rsync -avl /run/media/8C8E-606F/utono/tty-dotfiles ~
 cd ~/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi
 
@@ -110,7 +113,7 @@ ln -sf ~/.config/shell/profile .zprofile
 chsh -s /usr/bin/zsh  
 logout
 
-### SSH Keys
+### /run/media/mlj/8C8E-606F/utono/ssh
 
 udisksctl mount -b /dev/sda  
 mkdir -p ~/utono
@@ -136,7 +139,7 @@ ssh-add -l
 cd ~/utono
 git clone https://github.com/utono/user-config.git
 cd ~/utono/user-config
-chmod +x utono-repo-sync.sh
+chmod +x utono-clone-repos.sh
 sh $HOME/utono/user-config/utono-clone-repos.sh ~/utono
 sh ~/utono/user-config/rsync-delete-repos-for-new-user.sh 
 
