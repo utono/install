@@ -97,6 +97,7 @@ systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
 
+### Dotfiles
 ### /run/media/mlj/8C8E-606F/utono/tty-dotfiles
 
 mkdir -p ~/.local/bin
@@ -113,6 +114,7 @@ ln -sf ~/.config/shell/profile .zprofile
 chsh -s /usr/bin/zsh  
 logout
 
+### SSH Keys
 ### /run/media/mlj/8C8E-606F/utono/ssh
 
 udisksctl mount -b /dev/sda  
