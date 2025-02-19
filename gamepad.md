@@ -26,6 +26,14 @@ To identify the gamepad device, follow these steps:
    ```
    This command listens for input events from all connected devices. It helps verify that the gamepad is detected and shows the event number (`eventX`) assigned to it. Look for an entry corresponding to your gamepad.
 
+2. **Pair ERGO K860**
+
+   Type code show in the notification.
+   
+   ```bash
+   blueman-manager
+   ```
+
 2. **Pair the Gamepad**
    In another terminal, use `bluetuith` to pair your gamepad:
    ```bash
