@@ -38,8 +38,11 @@ cat /etc/vconsole.conf
 nvim /etc/vconsole.conf  
     KEYMAP=real_prog_dvorak
 mkinitcpio -P
+reboot
 
 ### Install Essential Packages  
+
+    Login in as mlj to use paru
 
 x17 login: mlj
 Password:  
@@ -55,7 +58,14 @@ sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
 
 paru -S ttf-firacode-nerd  
 
+exit
+
 ### SDDM Configuration
+
+Login as root until zsh is configured
+
+x17 login: root
+Password:  
 
 cd /usr/share/sddm/scripts/
 cp Xsetup Xsetup.bak
@@ -96,6 +106,18 @@ cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/system
 systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
+
+    HandleLidSwitch=ignore
+    HandleLidSwitchDocked=ignore
+
+
+
+
+
+
+
+
+
 
 ### Dotfiles
 ### /run/media/mlj/8C8E-606F/utono/tty-dotfiles
@@ -281,7 +303,7 @@ ssh-add ~/.ssh/id_rsa
 sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
 
 
-reflector --country 'YourCountry' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+sudo reflector --country 'United States' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Qe > ~/utono/install/paclists/explicitly-installed.csv
 systemctl list-units --type=service all > ~/utono/install/cachyos/services-all.md
 systemctl list-units --type=service > ~/utono/install/cachyos/services-active.md
