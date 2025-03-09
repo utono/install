@@ -42,6 +42,7 @@ reboot
 
 ### Install Essential Packages  
 
+    error: can't install AUR package as root
     Login in as mlj to use paru
 
 x17 login: mlj
@@ -51,8 +52,6 @@ paru -Syy
 cd ~/utono
 git clone https://github.com/utono/install.git
 sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
-
-    error: can't install AUR package as root
 
 (Optional: Install other fonts)
 
@@ -125,13 +124,14 @@ loginctl show-session | grep HandleLidSwitch
 mkdir -p ~/.local/bin
 rsync -avl /run/media/8C8E-606F/utono/tty-dotfiles ~
 cd ~/tty-dotfiles
-stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship
+stow --verbose=2 --no-folding yazi
 
 ### Shell
 
 cd ~  
 ls -al .zshrc
-    mv .zshrc .zshrc.cachyos.bak
+mv .zshrc .zshrc.cachyos.bak
 ln -sf ~/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
 logout
