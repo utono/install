@@ -49,6 +49,8 @@ x17 login: mlj
 Password:  
 
 paru -Syy
+mkdir -p ~/utono
+chattr -V +C ~/utono
 cd ~/utono
 git clone https://github.com/utono/install.git
 sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
@@ -74,7 +76,10 @@ cd system-config/sddm/usr/share/sddm/scripts
 cat Xsetup
 cp -i Xsetup /usr/share/sddm/scripts/
 cat /etc/sddm.conf
-cat /etc/sddm.conf.d/autologin.conf
+
+    [Autologin]
+    User=mlj
+    Session=hyprland
 
     sudo mkdir -p /etc/sddm.conf.d
     echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/autologin.conf
@@ -117,12 +122,15 @@ loginctl show-session | grep HandleLidSwitch
 
 
 
+## Login as User
 
 ### Dotfiles
 ### /run/media/mlj/8C8E-606F/utono/tty-dotfiles
 
 mkdir -p ~/.local/bin
-rsync -avl /run/media/8C8E-606F/utono/tty-dotfiles ~
+udisksctl mount -b /dev/sda
+cd /run/media/8C8E-606F/utono
+rsync -avl tty-dottfiles ~
 cd ~/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 stow --verbose=2 --no-folding yazi
@@ -141,7 +149,9 @@ logout
 
 udisksctl mount -b /dev/sda  
 mkdir -p ~/utono
-rsync -avl /run/media/####/utono/ssh ~/utono
+chattr -V +C ~/utono
+cd /run/media/8C8E-606F/utono
+rsync -avl ssh ~/utono
 cd ~/utono/ssh
 chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
@@ -176,17 +186,6 @@ sh ~/utono/user-config/rsync-delete-repos-for-new-user.sh
 
 ---
 
-## Login as User
-
-
-### Dotfiles
-
-### Shell
-
-### SSH Keys
-
-### Clone/sync utono repositories and move them to proper locations
-
 ## Hyprland Configuration
 
 **Switch to TTY:**  
@@ -196,8 +195,7 @@ Ctrl + Alt + F1
 
 cd ~/utono/user-config
 sh ~/utono/user-config/link-cachyos-hyprland-settings.sh
-    
-    ln -sf ~/utono/cachyos-hyprland-settings/etc/skel/.config/hypr ~/.config/hypr
+ls -al ~/.config
 
 .. (Optional)
     cd ~/utono/cachyos-hyprland-settings  
@@ -217,6 +215,9 @@ super+backlslash
 ### touchpad
 
 hyprctl devices
+nvim ~/.config/hypr/config/user-keybinds.conf
+    Uncomment bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
+
 nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
 
     bind = $mainMod, Tab, exec, $hyprBin/touchpad_hyprland.sh ""

@@ -57,21 +57,6 @@ To identify the gamepad device, follow these steps:
 Instead of manually setting `/dev/input/eventX`, you can find your gamepad's **Vendor ID** and **Product ID** using:
 
 ```bash
-udevadm info --attribute-walk --name=/dev/input/eventX | grep -E 'ATTRS{id/vendor}|ATTRS{id/product}'
-looking at device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003/input/input26/event21':
-    KERNEL="event21"
-    ...
-looking at parent device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003/input/input26':
-    KERNEL="input26"
-    ...
-    ATTRS{id/product}=="9021"
-    ATTRS{id/vendor}=="2dc8"
-    ...
-```
-
-Alternatively, you can find all input devices and their properties:
-
-```bash
 cat /proc/bus/input/devices
 ```
 
@@ -113,39 +98,25 @@ This step ensures the gamepad is not treated as a generic keyboard or joystick b
 
 This prevents the gamepad from being recognized as a standard input device, ensuring only your script handles its input.
 
+3. **Turn on gamepad
+
+3. **Verify device permissions:
+    ```bash
+    ls -l /dev/input/event*
+
+    If your rule is working, the permissions should be rw-rw----:
+        crw-rw---- 13,90 root 10 Mar 22:06 /dev/input/event26
+    ```
+
 3. **Verify udev rules are applied:
     ```bash
     udevadm info --attribute-walk --name=/dev/input/eventX | grep -E "ATTRS{id/vendor}|ATTRS{id/product}"
 
     If the correct Vendor ID (2DC8) and Product ID (9021) appear, the rule is applied.
 
-3. **Verify device permissions:
-    ```bash
-    ls -l /dev/input/event*
-
-    If your rule is working, the group should be input and permissions should be rw-rw----:
-        crw-rw---- 1 root input 13, 64 Feb  4 14:05 /dev/input/event27
-    ```
-
-3. **Verify gamepad is in 'input' group:
+3. **Verify gamepad is in 'input' subsystem:
     ```bash
     udevadm info --query=property --name=/dev/input/eventX | grep GROUP
-   ```
-
-
-3. **Add gamepad to 'input' group:
-   ```
-   ls -l /dev/input/event*
-   crw-rw---- 1 root input 13, 64 Feb  4 14:05 /dev/input/event27
-
-   sudo nvim /etc/udev/rules.d/99-gamepad.rules
-      SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", GROUP="input", MODE="0660"
-      SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", ENV{ID_INPUT_KEYBOARD}="1", ENV{ID_INPUT_JOYSTICK}="1"
-
-   sudo udevadm control --reload-rules
-   sudo udevadm trigger
-   udevadm info --attribute-walk --name=/dev/input/eventX | grep GROUP
-   GROUP=input
    ```
 
 4. **Add Your User to the input Group
@@ -159,13 +130,6 @@ This prevents the gamepad from being recognized as a standard input device, ensu
    
    evtest /dev/input/eventX
    ```
-
-
-
-
-
-
-
 
 ## **Configuring MPV for IPC Communication**
 
@@ -252,7 +216,7 @@ Once confirmed working, proceed with configuring systemd.
 
 ## **micro-gamepad.service Systemd Configuration**
 
-Create the following systemd service file at `~/.config/systemd/user/micro-gamepad.service`:
+ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/micro-gamepad.service ~/.config/systemd/user
 
 ```ini
 [Unit]
@@ -274,16 +238,6 @@ WantedBy=default.target
 ```
 
 ## **Placing the Service File**
-
-1. **Ensure the systemd user directory exists**:
-   ```bash
-   mkdir -p ~/.config/systemd/user
-   ```
-
-2. **Move the service file into place**:
-   ```bash
-   cp micro-gamepad.service ~/.config/systemd/user/micro-gamepad.service
-   ```
 
 3. **Reload systemd to recognize the new service**:
    ```bash
