@@ -19,7 +19,7 @@ L:        L2:
  | (t) |    | (n) |
  +-----+    +-----+
 
-Plus:
+Minus: Plus:
 
     +--------+
     |    o   |  "script-message", add_chapter
