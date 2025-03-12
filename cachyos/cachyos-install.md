@@ -134,6 +134,7 @@ rsync -avl tty-dottfiles ~
 cd ~/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 stow --verbose=2 --no-folding yazi
+chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/yt-dlp/*.sh
 
 ### Shell
 

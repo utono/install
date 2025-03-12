@@ -1,5 +1,54 @@
 # Configuring Gamepad Input for MPV Using Evdev
 
+   ```bash
+   sudo keyd monitor
+   blueman-manager
+   bluetuith
+   cat /proc/bus/input/devices
+   evtest /dev/input/eventX
+
+   cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d/
+   **Turn off gamepad
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+   **Turn on gamepad
+   ls -l /dev/input/event*
+              crw-rw---- 13,90 root 10 Mar 22:06 /dev/input/event26
+   udevadm info --attribute-walk --name=/dev/input/eventX | grep -E "ATTRS{id/vendor}|ATTRS{id/product}"
+   udevadm info --query=property --name=/dev/input/eventX | grep SUBSYSTEM
+
+   groups $(whoami) | grep input
+   sudo usermod -aG input $(whoami)
+   sudo udevadm control --reload-rules
+   sudo udevadm trigger
+   reboot
+   evtest /dev/input/eventX
+
+   nvim ~/.config/mpv/mpv.conf
+      input-ipc-server=/tmp/mpvsocket
+   ls -al /tmp/mpvsocket
+   srw------- - mlj 12 Feb 23:24 /tmp/mpvsocket
+   chmod 666 /tmp/mpvsocket
+   ls -al /tmp/mpvsocket
+   srw-rw-rw- - mlj 12 Feb 23:24 /tmp/mpvsocket
+
+   mpv your_video_file.mkv
+   ls -l /tmp/mpvsocket
+   python3 ~/.config/mpv/python-scripts/micro-gamepad.py
+   mpv your_video_file.mkv
+   echo '{ "command": ["cycle", "pause"] }' | socat - /tmp/mpvsocket
+
+   ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/micro-gamepad.service ~/.config/systemd/user
+   systemctl --user daemon-reload
+   systemctl --user enable --now micro-gamepad.service
+   systemctl --user status micro-gamepad.service
+   systemctl --user restart micro-gamepad.service
+   systemctl --user stop micro-gamepad.service
+
+
+
+   ```
+
 ---
 
 ## Essential Packages
@@ -116,7 +165,7 @@ This prevents the gamepad from being recognized as a standard input device, ensu
 
 3. **Verify gamepad is in 'input' subsystem:
     ```bash
-    udevadm info --query=property --name=/dev/input/eventX | grep GROUP
+    udevadm info --query=property --name=/dev/input/eventX | grep SUBSYSTEM
    ```
 
 4. **Add Your User to the input Group
@@ -216,7 +265,9 @@ Once confirmed working, proceed with configuring systemd.
 
 ## **micro-gamepad.service Systemd Configuration**
 
+```bash
 ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/micro-gamepad.service ~/.config/systemd/user
+```
 
 ```ini
 [Unit]
