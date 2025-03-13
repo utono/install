@@ -23,7 +23,7 @@ x17 login: root
 Password:  
 nmtui
 
-### keyd-configuration.sh
+### x17 login: root  keyd-configuration.sh
 
 sudo loadkeys dvorak  
 mkdir -p ~/utono  
@@ -40,7 +40,7 @@ nvim /etc/vconsole.conf
 mkinitcpio -P
 reboot
 
-### Install Essential Packages  
+### x17 login: mlj  Install Essential Packages  
 
     error: can't install AUR package as root
     Login in as mlj to use paru
@@ -55,6 +55,7 @@ cd ~/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F/utono
 rsync -avh --progress install ssh system-config user-config ~/utono
+rsync -avh --progress tty-dotfiles ~
 <!--git clone https://github.com/utono/install.git-->
 sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
 
@@ -64,7 +65,7 @@ paru -S ttf-firacode-nerd
 
 exit
 
-### shell
+### x17 login: root  shell
 
 Login as root until zsh is configured
 
@@ -87,7 +88,7 @@ ln -sf ~/.config/shell/profile .zprofile
 chsh -s /usr/bin/zsh  
 logout
 
-### SSH
+### x17 login: root  SSH
 
 cd ~/utono/ssh
 chmod +x sync-ssh-keys.sh
@@ -95,7 +96,7 @@ chmod +x sync-ssh-keys.sh
 ssh-add ~/.ssh/id_ed25519
 ssh-add -l
 
-### SDDM Configuration
+### x17 login: root  SDDM Configuration
 
 cd /usr/share/sddm/scripts/
 cp Xsetup Xsetup.bak
@@ -132,7 +133,7 @@ cat /etc/sddm.conf
 sudo systemctl restart sddm  
 reboot  
 
-### /etc/sysctl.d/
+### x17 login: root  /etc/sysctl.d/
 
 x17 login: root
 Password:  
@@ -146,7 +147,7 @@ cp ~/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
 sysctl --system
 cat /proc/sys/kernel/sysrq
 
-### /etc/systemd/logind.conf.d/
+### x17 login: root  /etc/systemd/logind.conf.d/
 
 x17 login: root
 Password:  
@@ -172,7 +173,7 @@ Password:
 mkdir -p ~/.local/bin
 udisksctl mount -b /dev/sda
 cd /run/media/8C8E-606F/utono
-rsync -avh --progress tty-dotfiles ~
+<!--rsync -avh --progress tty-dotfiles ~-->
 cd ~/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 stow --verbose=2 --no-folding yazi
