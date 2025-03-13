@@ -22,6 +22,10 @@
    sudo udevadm control --reload-rules
    sudo udevadm trigger
    reboot
+   groups
+
+      mlj sys network rfkill users video storage lp input audio wheel
+
    evtest /dev/input/eventX
 
    nvim ~/.config/mpv/mpv.conf

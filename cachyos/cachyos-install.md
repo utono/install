@@ -52,7 +52,10 @@ paru -Syy
 mkdir -p ~/utono
 chattr -V +C ~/utono
 cd ~/utono
-git clone https://github.com/utono/install.git
+udisksctl mount -b /dev/sda
+cd /run/media/mlj/8C8E-606F/utono
+rsync -avh --progress install ssh system-config user-config ~/utono
+<!--git clone https://github.com/utono/install.git-->
 sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
 
 (Optional: Install other fonts)
@@ -68,13 +71,46 @@ Login as root until zsh is configured
 x17 login: root
 Password:  
 
+mkdir -p ~/utono
+chattr -V +C ~/utono
+udisksctl mount -b /dev/sda
+cd /run/media/mlj/8C8E-606F/utono
+rsync -avh --progress ssh system-config user-config ~/utono
+rsync -avh --progress tty-dotfiles ~
+cd ~/tty-dotfiles
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship
+stow --verbose=2 --no-folding yazi
+cd
+ls -al .zshrc
+mv .zshrc .zshrc.cachyos.bak
+ln -sf ~/.config/shell/profile .zprofile  
+chsh -s /usr/bin/zsh  
+logout
+cd ~/utono/ssh
+chmod +x sync-ssh-keys.sh
+./sync-ssh-keys.sh ~/utono
+ssh-add ~/.ssh/id_ed25519
+ssh-add -l
+
 cd /usr/share/sddm/scripts/
 cp Xsetup Xsetup.bak
 cd ~/utono
-git clone https://github.com/utono/system-config.git
+<!--git clone https://github.com/utono/system-config.git-->
 cd system-config/sddm/usr/share/sddm/scripts
 cat Xsetup
 cp -i Xsetup /usr/share/sddm/scripts/
+
+    #!/bin/sh
+    
+    # Set display resolution and refresh rate
+    xrandr --output eDP-1 --mode 1920x1200 --rate 59.98
+    
+    # Set keyboard layout environment variable
+    export XKB_DEFAULT_LAYOUT=real_prog_dvorak
+    
+    # Apply keyboard layout settings
+    setxkbmap -layout real_prog_dvorak -v
+
 cat /etc/sddm.conf
 
     [Autologin]
@@ -93,6 +129,9 @@ reboot
 
 ### /etc/sysctl.d/
 
+x17 login: root
+Password:  
+
 See https://wiki.archlinux.org/title/Keyboard_shortcuts
 
     "Reboot Even If System Utterly Broken"
@@ -103,6 +142,9 @@ sysctl --system
 cat /proc/sys/kernel/sysrq
 
 ### /etc/systemd/logind.conf.d/
+
+x17 login: root
+Password:  
 
 mkdir -p /etc/systemd/logind.conf.d
 cd /etc/systemd/logind.conf.d
@@ -124,13 +166,16 @@ loginctl show-session | grep HandleLidSwitch
 
 ## Login as User
 
+x17 login: mlj
+Password:  
+
 ### Dotfiles
 ### /run/media/mlj/8C8E-606F/utono/tty-dotfiles
 
 mkdir -p ~/.local/bin
 udisksctl mount -b /dev/sda
 cd /run/media/8C8E-606F/utono
-rsync -avl tty-dottfiles ~
+rsync -avh --progress tty-dotfiles ~
 cd ~/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 stow --verbose=2 --no-folding yazi
@@ -149,10 +194,16 @@ logout
 ### /run/media/mlj/8C8E-606F/utono/ssh
 
 udisksctl mount -b /dev/sda  
+rm -rf ~/Music
+cd /run/media/mlj/8C8E-606F/Music
+rsync -avh --progress ./ ~/Music
+
+    -h: Human readable
+
 mkdir -p ~/utono
 chattr -V +C ~/utono
-cd /run/media/8C8E-606F/utono
-rsync -avl ssh ~/utono
+cd /run/media/mlj/8C8E-606F/utono
+rsync -avh --progress ssh ~/utono
 cd ~/utono/ssh
 chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
@@ -172,29 +223,14 @@ ssh-add -l
 ### Clone/sync utono repositories and move them to proper locations
 
 cd ~/utono
-git clone https://github.com/utono/user-config.git
+udisksctl mount -b /dev/sda
+cd /run/media/mlj/8C8E-606F/utono
+rsync -avh --progress ssh system-config user-config ~/utono
+<!--git clone https://github.com/utono/user-config.git-->
 cd ~/utono/user-config
 chmod +x utono-clone-repos.sh
 sh $HOME/utono/user-config/utono-clone-repos.sh ~/utono
 sh ~/utono/user-config/rsync-delete-repos-for-new-user.sh 
-
-
-
-
-
-
-
-
----
-
-## Hyprland Configuration
-
-**Switch to TTY:**  
-Ctrl + Alt + F1  
-
-### Hyprland Bindings and Config Sync  
-
-cd ~/utono/user-config
 sh ~/utono/user-config/link-cachyos-hyprland-settings.sh
 ls -al ~/.config
 
@@ -215,14 +251,14 @@ super+backlslash
 
 ### touchpad
 
+reboot
 hyprctl devices
 nvim ~/.config/hypr/config/user-keybinds.conf
     Uncomment bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
 
 nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
 
-    bind = $mainMod, Tab, exec, $hyprBin/touchpad_hyprland.sh ""
-    bind = $mainMod, S, exec, $hyprBin/touchpad_hyprland.sh ""
+    bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "ven_0488:00-0488:1072-touchpad"
 
 ### bluetuith
 
