@@ -23,7 +23,7 @@ x17 login: root
 Password:  
 nmtui
 
-### Keyboard layout
+### keyd-configuration.sh
 
 sudo loadkeys dvorak  
 mkdir -p ~/utono  
@@ -64,7 +64,7 @@ paru -S ttf-firacode-nerd
 
 exit
 
-### SDDM Configuration
+### shell
 
 Login as root until zsh is configured
 
@@ -86,11 +86,16 @@ mv .zshrc .zshrc.cachyos.bak
 ln -sf ~/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
 logout
+
+### SSH
+
 cd ~/utono/ssh
 chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh ~/utono
 ssh-add ~/.ssh/id_ed25519
 ssh-add -l
+
+### SDDM Configuration
 
 cd /usr/share/sddm/scripts/
 cp Xsetup Xsetup.bak
@@ -156,14 +161,6 @@ loginctl show-session | grep HandleLidSwitch
     HandleLidSwitch=ignore
     HandleLidSwitchDocked=ignore
 
-
-
-
-
-
-
-
-
 ## Login as User
 
 x17 login: mlj
@@ -190,8 +187,7 @@ ln -sf ~/.config/shell/profile .zprofile
 chsh -s /usr/bin/zsh  
 logout
 
-### SSH Keys
-### /run/media/mlj/8C8E-606F/utono/ssh
+### Music
 
 udisksctl mount -b /dev/sda  
 rm -rf ~/Music
@@ -199,6 +195,9 @@ cd /run/media/mlj/8C8E-606F/Music
 rsync -avh --progress ./ ~/Music
 
     -h: Human readable
+
+### SSH Keys
+### /run/media/mlj/8C8E-606F/utono/ssh
 
 mkdir -p ~/utono
 chattr -V +C ~/utono
@@ -225,7 +224,7 @@ ssh-add -l
 cd ~/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F/utono
-rsync -avh --progress ssh system-config user-config ~/utono
+rsync -avh --progress user-config ~/utono
 <!--git clone https://github.com/utono/user-config.git-->
 cd ~/utono/user-config
 chmod +x utono-clone-repos.sh
