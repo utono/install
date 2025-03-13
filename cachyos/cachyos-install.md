@@ -1,19 +1,55 @@
+```bash
 # CachyOS Install Guide
 
+## USB Drive
 
-## Clone Repositories to USB Drive
-
+paru -Sy udisks2
 wipefs --all /dev/sda
 sudo mkfs.fat -F 32 /dev/sda  
+udisksctl mount -b /dev/sda  
+rsync -avh --progress $HOME/utono /run/media/mlj/8C8E-606F
+
+## Live ISO
 
 paru -Syy
-paru -Sy udisks2
-udisksctl mount -b /dev/sda  
-~/utono/user-config/utono-clone-repos.sh ~/utono
-rsync -avl --progress ~/Music/{hilary-mantel,william_shakespeare} /run/media/mlj/956A-D24E/utono  
+mkdir -p $HOME/utono
+chattr -V +C $HOME/utono
+udisksctl mount -b /dev/sda
+cd /run/media/mlj/8C8E-606F/utono
+
+rsync -avh --progress ./{install,ssh,system-config,user-config} $HOME/utono
+rsync -avh --progress ./tty-dotfiles $HOME
+rsync -avh --progress ./kickstart-modular $HOME/.config/nvim
+rsync -avh --progress ./mpv-utono $HOME/.config/mpv
+
+cd $HOME/tty-dotfiles
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship -n
+stow --verbose=2 --no-folding yazi -n
+
+cd
+ls -al .zshrc
+mv .zshrc .zshrc.cachyos.bak
+ln -sf $HOME/.config/shell/profile .zprofile  
+chsh -s /usr/bin/zsh  
+
+logout
+
+$HOME/utono/user-config/utono-clone-repos.sh $HOME/utono
+mkdir -p $HOME/Music
+chattr -V +C $HOME/Music
+cd /run/media/mlj/956A-D24E/Music
+rsync -avl --progress ./{fussell-paul,harris-robert,mantel-hilary,shakespeare-william} $HOME/Music
+rsync -avl --progress ./harris-robert $HOME/Music
+cd ../utono
+rsync -avh --progress ./{install,ssh,system-config,user-config} $HOME/utono
+cd $HOME/utono/ssh
+chmod +x sync-ssh-keys.sh
+./sync-ssh-keys.sh $HOME/utono
+ssh-add $HOME/.ssh/id_ed25519
+ssh-add -l
 
 eval $(ssh-agent)
-ssh-add ~/.ssh/id_ed25519
+ssh-add $HOME/.ssh/id_ed25519
 
 ## Root Setup
 
@@ -26,13 +62,13 @@ nmtui
 ### x17 login: root  keyd-configuration.sh
 
 sudo loadkeys dvorak  
-mkdir -p ~/utono  
-chattr -V +C ~/utono
-cd ~/utono
+mkdir -p $HOME/utono  
+chattr -V +C $HOME/utono
+cd $HOME/utono
 git clone https://github.com/utono/rpd.git
 cd rpd/  
 chmod +x keyd-configuration.sh  
-sh ~/utono/rpd/keyd-configuration.sh ~/utono/rpd  
+sh $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd  
 loadkeys real_prog_dvorak
 cat /etc/vconsole.conf  
 nvim /etc/vconsole.conf  
@@ -49,15 +85,15 @@ x17 login: mlj
 Password:  
 
 paru -Syy
-mkdir -p ~/utono
-chattr -V +C ~/utono
-cd ~/utono
+mkdir -p $HOME/utono
+chattr -V +C $HOME/utono
+cd $HOME/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F/utono
-rsync -avh --progress install ssh system-config user-config ~/utono
-rsync -avh --progress tty-dotfiles ~
+rsync -avh --progress install ssh system-config user-config $HOME/utono
+rsync -avh --progress tty-dotfiles $HOME
 <!--git clone https://github.com/utono/install.git-->
-sh ~/utono/install/paclists/install_packages.sh feb-2025.csv
+sh $HOME/utono/install/paclists/install_packages.sh feb-2025.csv
 
 (Optional: Install other fonts)
 
@@ -72,35 +108,35 @@ Login as root until zsh is configured
 x17 login: root
 Password:  
 
-mkdir -p ~/utono
-chattr -V +C ~/utono
+mkdir -p $HOME/utono
+chattr -V +C $HOME/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F/utono
-rsync -avh --progress ssh system-config user-config ~/utono
-rsync -avh --progress tty-dotfiles ~
-cd ~/tty-dotfiles
+rsync -avh --progress ssh system-config user-config $HOME/utono
+rsync -avh --progress tty-dotfiles $HOME
+cd $HOME/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 stow --verbose=2 --no-folding yazi
 cd
 ls -al .zshrc
 mv .zshrc .zshrc.cachyos.bak
-ln -sf ~/.config/shell/profile .zprofile  
+ln -sf $HOME/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
 logout
 
 ### x17 login: root  SSH
 
-cd ~/utono/ssh
+cd $HOME/utono/ssh
 chmod +x sync-ssh-keys.sh
-./sync-ssh-keys.sh ~/utono
-ssh-add ~/.ssh/id_ed25519
+./sync-ssh-keys.sh $HOME/utono
+ssh-add $HOME/.ssh/id_ed25519
 ssh-add -l
 
 ### x17 login: root  SDDM Configuration
 
 cd /usr/share/sddm/scripts/
 cp Xsetup Xsetup.bak
-cd ~/utono
+cd $HOME/utono
 <!--git clone https://github.com/utono/system-config.git-->
 cd system-config/sddm/usr/share/sddm/scripts
 cat Xsetup
@@ -143,7 +179,7 @@ See https://wiki.archlinux.org/title/Keyboard_shortcuts
     "Reboot Even If System Utterly Broken"
 
 cd /etc/sysctl.d
-cp ~/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
+cp $HOME/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
 sysctl --system
 cat /proc/sys/kernel/sysrq
 
@@ -154,7 +190,7 @@ Password:
 
 mkdir -p /etc/systemd/logind.conf.d
 cd /etc/systemd/logind.conf.d
-cp ~/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
+cp $HOME/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
 systemctl restart systemd-logind
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 loginctl show-session | grep HandleLidSwitch
@@ -170,44 +206,44 @@ Password:
 ### Dotfiles
 ### /run/media/mlj/8C8E-606F/utono/tty-dotfiles
 
-mkdir -p ~/.local/bin
+mkdir -p $HOME/.local/bin
 udisksctl mount -b /dev/sda
 cd /run/media/8C8E-606F/utono
-<!--rsync -avh --progress tty-dotfiles ~-->
-cd ~/tty-dotfiles
+<!--rsync -avh --progress tty-dotfiles $HOME-->
+cd $HOME/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship
 stow --verbose=2 --no-folding yazi
-chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/yt-dlp/*.sh
+chmod +x $HOME/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/yt-dlp/*.sh
 
 ### Shell
 
-cd ~  
+cd $HOME  
 ls -al .zshrc
 mv .zshrc .zshrc.cachyos.bak
-ln -sf ~/.config/shell/profile .zprofile  
+ln -sf $HOME/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
 logout
 
 ### Music
 
 udisksctl mount -b /dev/sda  
-rm -rf ~/Music
+rm -rf $HOME/Music
 cd /run/media/mlj/8C8E-606F/Music
-rsync -avh --progress ./ ~/Music
+rsync -avh --progress ./ $HOME/Music
 
     -h: Human readable
 
 ### SSH Keys
 ### /run/media/mlj/8C8E-606F/utono/ssh
 
-mkdir -p ~/utono
-chattr -V +C ~/utono
+mkdir -p $HOME/utono
+chattr -V +C $HOME/utono
 cd /run/media/mlj/8C8E-606F/utono
-rsync -avh --progress ssh ~/utono
-cd ~/utono/ssh
+rsync -avh --progress ssh $HOME/utono
+cd $HOME/utono/ssh
 chmod +x sync-ssh-keys.sh
-./sync-ssh-keys.sh ~/utono
-ssh-add ~/.ssh/id_ed25519
+./sync-ssh-keys.sh $HOME/utono
+ssh-add $HOME/.ssh/id_ed25519
 ssh-add -l
 
     Could not open a connection to your authentication agent.
@@ -222,20 +258,20 @@ ssh-add -l
 
 ### Clone/sync utono repositories and move them to proper locations
 
-cd ~/utono
+cd $HOME/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F/utono
-rsync -avh --progress user-config ~/utono
+rsync -avh --progress user-config $HOME/utono
 <!--git clone https://github.com/utono/user-config.git-->
-cd ~/utono/user-config
+cd $HOME/utono/user-config
 chmod +x utono-clone-repos.sh
-sh $HOME/utono/user-config/utono-clone-repos.sh ~/utono
-sh ~/utono/user-config/rsync-delete-repos-for-new-user.sh 
-sh ~/utono/user-config/link-cachyos-hyprland-settings.sh
-ls -al ~/.config
+sh $HOME/utono/user-config/utono-clone-repos.sh $HOME/utono
+sh $HOME/utono/user-config/rsync-delete-repos-for-new-user.sh 
+sh $HOME/utono/user-config/link-cachyos-hyprland-settings.sh
+ls -al $HOME/.config
 
 .. (Optional)
-    cd ~/utono/cachyos-hyprland-settings  
+    cd $HOME/utono/cachyos-hyprland-settings  
     git branch -r  
     git fetch upstream  
     git merge upstream/master --allow-unrelated-histories  
@@ -253,7 +289,7 @@ super+backlslash
 
 reboot
 hyprctl devices
-nvim ~/.config/hypr/config/user-keybinds.conf
+nvim $HOME/.config/hypr/config/user-keybinds.conf
     Uncomment bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
 
 nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
@@ -319,16 +355,16 @@ alsamixer
 
 ### Hyprland
 
-cd ~/utono/rpd  
+cd $HOME/utono/rpd  
 hyprctl binds >> hyprctl-binds.md  
 
 ### SSH Configuration  
 
-chmod 700 ~/.ssh  
-find ~/.ssh -type f -name "id_*" -exec chmod 600 {} \;  
-chmod 0600 ~/.ssh/id_ed25519  
+chmod 700 $HOME/.ssh  
+find $HOME/.ssh -type f -name "id_*" -exec chmod 600 {} \;  
+chmod 0600 $HOME/.ssh/id_ed25519  
 
-cd ~/utono/ssh/.config/systemd/user
+cd $HOME/utono/ssh/.config/systemd/user
 ls -al
 systemctl --user enable --now ssh-agent
 systemctl --user status ssh-agent
@@ -336,15 +372,15 @@ systemctl --user daemon-reexec
 systemctl --user daemon-reload
 pgrep ssh-agent  
 ssh-add -l  
-ssh-add ~/.ssh/id_rsa  
+ssh-add $HOME/.ssh/id_rsa  
 
 sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
 
 
 sudo reflector --country 'United States' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
-pacman -Qe > ~/utono/install/paclists/explicitly-installed.csv
-systemctl list-units --type=service all > ~/utono/install/cachyos/services-all.md
-systemctl list-units --type=service > ~/utono/install/cachyos/services-active.md
+pacman -Qe > $HOME/utono/install/paclists/explicitly-installed.csv
+systemctl list-units --type=service all > $HOME/utono/install/cachyos/services-all.md
+systemctl list-units --type=service > $HOME/utono/install/cachyos/services-active.md
 systemctl --user list-units --type=service --all
 systemctl --user status <service_name>.service
-
+```
