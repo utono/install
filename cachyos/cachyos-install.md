@@ -10,10 +10,16 @@ udisksctl mount -b /dev/sda
 rsync -avh --progress $HOME/utono /run/media/mlj/8C8E-606F
 ```
 
+Since your destination is a FAT32-formatted USB drive (mkfs.fat -F 32), symlinks are not supported.
+Thus, using -l has no effect, and you should either:
+
+    - Let rsync follow the symlinks automatically.
+    - Use -L if you want to ensure the linked files are copied.
+
 ## Configure keyboard
 
-```shell
 Ctrl + Alt + F3
+```shell
 sudo loadkeys dvorak  
 mkdir -p $HOME/utono  
 chattr -V +C $HOME/utono
@@ -22,27 +28,28 @@ git clone https://github.com/utono/rpd.git
 cd rpd/  
 chmod +x keyd-configuration.sh  
 sh $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd  
-loadkeys real_prog_dvorak
+sudo loadkeys real_prog_dvorak
 cat /etc/vconsole.conf  
 nvim /etc/vconsole.conf  
     KEYMAP=real_prog_dvorak
-mkinitcpio -P
+sudo mkinitcpio -P
 git remote -v
 git remote set-url origin git@github.com:utono/rpd.git
 git remote -v
 reboot
 ```
-
 ## Sync USB drive's utono directory
 
 ```shell
+<!--sudo reflector --country 'United States' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist-->
+cachyos-rate-mirrors
+<!--arch-update-->
+paru -Sy udisks2
 mkdir -p $HOME/utono
 chattr -V +C $HOME/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F
 rsync -avh --progress utono $HOME/utono
-cd /run/media/mlj/8C8E-606F/utono/install/cachyos
-sh sync-utono.sh /run/media/mlj/8C8E-606F/utono
 ```
 
 ## Install Essential Packages As User
@@ -50,12 +57,13 @@ sh sync-utono.sh /run/media/mlj/8C8E-606F/utono
 ```shell
 paru -Syy
 cd $HOME/utono
-sh $HOME/utono/install/paclists/install_packages.sh feb-2025.csv
+bash $HOME/utono/install/paclists/install_packages.sh mar-2025.csv
 ```
 
 ## stow dotfiles
 
 ```shell
+mv $HOME/utono/tty-dotfiles $HOME
 cd $HOME/tty-dotfiles
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship -n
 stow --verbose=2 --no-folding yazi -n
@@ -117,6 +125,60 @@ Optional:
     git commit  
 ```
 
+## Configure GRUB to Use 1920x1440 Resolution
+
+### 1. Check Supported Resolutions
+
+Before setting the resolution, verify what your system supports:
+
+1. Reboot and enter the **GRUB command line** by pressing `c` at the GRUB menu.
+2. Run the following command:
+
+   ```shell
+   videoinfo
+   ```
+
+3. Look for **1920x1440** in the output. If it’s listed, proceed to the next step.
+
+### 2. Set GRUB Resolution
+
+Edit the GRUB configuration file:
+
+```shell
+sudo nvim /etc/default/grub
+```
+
+Find or add the following lines:
+
+```plaintext
+GRUB_GFXMODE=3840x2400
+GRUB_GFXMODE=600x400
+GRUB_GFXMODE=800x600
+GRUB_GFXMODE=1024x768
+* GRUB_GFXMODE=1280x1024
+GRUB_GFXMODE=1600x1200
+GRUB_GFXMODE=1920x1440
+GRUB_GFXPAYLOAD_LINUX=keep
+```
+
+### 3. Apply Changes
+
+Regenerate the GRUB configuration file:
+
+```shell
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+### 4. Reboot
+
+Restart your system to apply the changes:
+
+```shell
+reboot
+```
+
+This should force GRUB to use **1920x1440** resolution. If it doesn’t work, double-check `videoinfo` to confirm that your system supports it.
+
 ## Configure Snapper
 
 ### List Existing Btrfs Subvolumes
@@ -130,9 +192,15 @@ sudo btrfs subvolume list /
 Example output:
 
 ```plaintext
-ID 256 gen 95 top level 5 path @
-ID 257 gen 95 top level 5 path @home
-ID 258 gen 90 top level 5 path @.snapshots
+ID 256 gen 68 top level 5 path @
+ID 257 gen 68 top level 5 path @home
+ID 258 gen 67 top level 5 path @root
+ID 259 gen 23 top level 5 path @srv
+ID 260 gen 67 top level 5 path @cache
+ID 261 gen 67 top level 5 path @tmp
+ID 262 gen 68 top level 5 path @log
+ID 263 gen 24 top level 256 path var/lib/portables
+ID 264 gen 24 top level 256 path var/lib/machines
 ```
 
 ### Check Btrfs Mount Points
@@ -146,20 +214,30 @@ findmnt -nt btrfs
 Example output:
 
 ```plaintext
-/            /dev/nvme0n1p2[/@]            btrfs rw,noatime,compress=zstd
-/home        /dev/nvme0n1p2[/@home]        btrfs rw,noatime,compress=zstd
-/.snapshots  /dev/nvme0n1p2[/@.snapshots]  btrfs rw,noatime,compress=zstd
+/            /dev/nvme0n1p2[/@]      btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=256,subvol=/@
+├─/home      /dev/nvme0n1p2[/@home]  btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=257,subvol=/@home
+├─/var/log   /dev/nvme0n1p2[/@log]   btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=262,subvol=/@log
+├─/root      /dev/nvme0n1p2[/@root]  btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=258,subvol=/@root
+├─/srv       /dev/nvme0n1p2[/@srv]   btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=259,subvol=/@srv
+├─/var/cache /dev/nvme0n1p2[/@cache] btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=260,subvol=/@cache
+└─/var/tmp   /dev/nvme0n1p2[/@tmp]   btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=261,subvol=/@tmp
 ```
 
 ### Ensure Subvolume Setup
 
-Ensure the `@` subvolume is mounted at `/`, and `@.snapshots` exists. If `@.snapshots` is missing, create it:
+Ensure the `@` subvolume is mounted at `/`. Unlike some distributions, CachyOS does not create a dedicated `@.snapshots` subvolume. Snapper can be configured using an existing subvolume (e.g., `@root`) for snapshots. If preferred, create a separate snapshots subvolume:
 
 ```shell
-sudo btrfs subvolume create /.snapshots
+sudo btrfs subvolume create /@snapshots
 ```
 
 ### Create a Snapper Configuration
+
+Create a Snapper configuration for the home (`/home`) filesystem:
+
+```shell
+sudo snapper -c home create-config /home
+```
 
 Create a Snapper configuration for the root (`/`) filesystem:
 
@@ -190,21 +268,13 @@ To display existing snapshots, including their IDs, timestamps, descriptions, an
 sudo snapper -c root list
 ```
 
-Example output:
-
-```plaintext
-# | Type   | Pre # | Date                     | Cleanup  | Description     
----+--------+-------+--------------------------+----------+-----------------
-0  | single |       | 2025-03-14T12:01:23      |          | current         
-1  | pre    |       | 2025-03-14T13:05:10      | number   | pacman -S htop  
-2  | post   | 1     | 2025-03-14T13:05:15      | number   | pacman -S htop  
-```
-
 ### Set Permissions
 
+Ensure proper permissions for Snapper to function correctly:
+
 ```shell
-sudo chmod 750 /.snapshots
-sudo chown :mlj /.snapshots
+sudo chmod 750 /@snapshots
+sudo chown root:root /@snapshots
 ```
 
 ### Configure Snapper
@@ -215,7 +285,7 @@ Edit the Snapper configuration file:
 sudo nvim /etc/snapper/configs/root
 ```
 
-Add or modify the following settings:
+Modify or add the following settings:
 
 ```plaintext
 ALLOW_USERS="mlj"
@@ -241,6 +311,7 @@ sudo systemctl enable --now snapper-cleanup.timer
 This ensures that new snapshots appear in the GRUB boot menu automatically:
 
 ```shell
+sudo pacman -S grub-btrfs
 sudo systemctl enable --now grub-btrfsd
 ```
 
@@ -271,32 +342,10 @@ Ensure `grub-btrfsd` is running:
 sudo systemctl enable --now grub-btrfsd
 ```
 
-### Install htop (Example)
-
-```shell
-sudo pacman -S htop
-```
-
-### List Available Snapshots Again
-
-```shell
-sudo snapper -c root list
-```
-
-Example output:
-
-```plaintext
-# | Type   | Pre # | Date                     | Cleanup | Description
----+--------+-------+--------------------------+---------+------------
-0  | single |       | 2025-03-14T12:01:23      |         | current
-1  | pre    |       | 2025-03-14T13:05:10      | number  | pacman -S htop
-2  | post   | 1     | 2025-03-14T13:05:15      | number  | pacman -S htop
-```
-
 ### Perform a System Rollback
 
-Reboot your system and select snapshot `0` in GRUB.
-After booting into snapshot `0`, permanently revert your system:
+Reboot your system and select the desired snapshot in GRUB.
+After booting into the snapshot, permanently revert your system:
 
 ```shell
 sudo snapper -c root rollback 1
@@ -310,6 +359,8 @@ Before performing a system update, create a manual snapshot:
 ```shell
 sudo snapper -c root create --description "Before System Update"
 ```
+
+
 
 ## Configure $HOME/Music
 
