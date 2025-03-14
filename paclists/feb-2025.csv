@@ -2,12 +2,14 @@
 
 blueman
 bluetuith-bin
+btrfs-progs
 curl
 evtest
 fd
 ffmpeg
 fzf
 git-delta
+grub-btrfs
 hypridle
 hyprlock
 imagemagick
@@ -23,6 +25,8 @@ p7zip
 poppler
 python-evdev
 ripgrep
+snapper
+snap-pac
 socat
 starship
 stow

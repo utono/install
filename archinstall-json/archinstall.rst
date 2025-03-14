@@ -6,7 +6,11 @@ Switch to another terminal:
 
 .. code-block:: bash
 
-    Ctrl+fn+alt f2
+    **Switch to TTY:**  
+    Ctrl + Alt + F3
+    x17 login: root  
+    Password:  
+    nmtui
 
 USB Wiping, Formatting and Mounting:
 --------------------------------
