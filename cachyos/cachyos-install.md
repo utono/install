@@ -2,7 +2,8 @@
 
 ## Format USB drive and sync USB drive's utono directory
 
-```shell
+```bash
+sudo loadkeys dvorak  
 paru -Sy udisks2
 wipefs --all /dev/sda
 sudo mkfs.fat -F 32 /dev/sda  
@@ -16,62 +17,79 @@ Thus, using -l has no effect, and you should either:
     - Let rsync follow the symlinks automatically.
     - Use -L if you want to ensure the linked files are copied.
 
-## Configure keyboard
+## Create new user
 
+```bash
+sudo useradd -m -G wheel -s /usr/bin/zsh newuser
+sudo passwd newuser
+```
+
+## Delete user
+```bash
+sudo userdel -r newuser
+```
+
+## Configure keyboard
+```bash
 Ctrl + Alt + F3
-```shell
 sudo loadkeys dvorak  
+```
+
+## Configure keyboard
+```bash
 mkdir -p $HOME/utono  
 chattr -V +C $HOME/utono
 cd $HOME/utono
 git clone https://github.com/utono/rpd.git
 cd rpd/  
-chmod +x keyd-configuration.sh  
+chmod +x $HOME/utono/rpd/keyd-configuration.sh  
 sh $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd  
 sudo loadkeys real_prog_dvorak
-cat /etc/vconsole.conf  
-nvim /etc/vconsole.conf  
-    KEYMAP=real_prog_dvorak
 sudo mkinitcpio -P
+```
+
+Optional: 
+```bash
 git remote -v
 git remote set-url origin git@github.com:utono/rpd.git
 git remote -v
+    origin  git@github.com:utono/rpd.git (fetch)
+    origin  git@github.com:utono/rpd.git (push)
 reboot
 ```
-## Sync USB drive's utono directory
 
-```shell
-<!--sudo reflector --country 'United States' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist-->
-cachyos-rate-mirrors
+## Sync USB drive's utono directory
 <!--arch-update-->
+```bash
+cachyos-rate-mirrors
 paru -Sy udisks2
-mkdir -p $HOME/utono
-chattr -V +C $HOME/utono
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F
+mkdir -p ~/utono
+chattr -V +C ~/utono
 rsync -avh --progress utono $HOME/utono
 ```
 
 ## Install Essential Packages As User
 
-```shell
+```bash
 paru -Syy
-cd $HOME/utono
-bash $HOME/utono/install/paclists/install_packages.sh mar-2025.csv
+cd $HOME/utono/install/paclists
+bash install_packages.sh mar-2025.csv
 ```
 
 ## stow dotfiles
 
-```shell
+```bash
 mv $HOME/utono/tty-dotfiles $HOME
 cd $HOME/tty-dotfiles
-stow --verbose=2 --no-folding bin-mlj git kitty shell starship -n
-stow --verbose=2 --no-folding yazi -n
+mkdir -p $HOME/.local/bin
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi -n 2>&1 | tee stow-output.out
 ```
 
 ## Configure zsh
 
-```shell
+```bash
 cd
 ls -al .zshrc
 mv .zshrc .zshrc.cachyos.bak
@@ -81,19 +99,33 @@ logout
 ```
 Log in
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Configure ssh
 
-```shell
+```bash
 cd $HOME/utono/ssh
 chmod +x sync-ssh-keys.sh
-./sync-ssh-keys.sh $HOME/utono
+./sync-ssh-keys.sh "$HOME/utono" 2>&1 | tee -a sync-ssh-keys-output.out
 ssh-add $HOME/.ssh/id_ed25519
 ssh-add -l
 ```
 
 Helpful commands for ssh configuration:
 
-```shell
+```bash
     source ~/tty-dotfiles/shell/.config/shell/exports
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
     echo $SSH_AUTH_SOCK
@@ -105,18 +137,19 @@ Helpful commands for ssh configuration:
 
 ## Clone repositories and link hyprland settings:
 
-```shell
+```bash
 cd $HOME/utono/user-config
 chmod +x utono-clone-repos.sh
 sh $HOME/utono/user-config/utono-clone-repos.sh $HOME/utono
-sh $HOME/utono/user-config/rsync-delete-repos-for-new-user.sh 
-sh $HOME/utono/user-config/link-cachyos-hyprland-settings.sh
+sh "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
+sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
 ls -al $HOME/.config
+reboot
 ```
 
 Optional:
 
-```shell
+```bash
     cd $HOME/utono/cachyos-hyprland-settings  
     git branch -r  
     git fetch upstream  
@@ -125,26 +158,27 @@ Optional:
     git commit  
 ```
 
-## Configure GRUB to Use 1920x1440 Resolution
+## Configure GRUB to Use 1280x1024 Resolution
 
 ### 1. Check Supported Resolutions
 
 Before setting the resolution, verify what your system supports:
 
 1. Reboot and enter the **GRUB command line** by pressing `c` at the GRUB menu.
+
 2. Run the following command:
 
-   ```shell
+   ```bash
    videoinfo
    ```
 
-3. Look for **1920x1440** in the output. If it’s listed, proceed to the next step.
+3. Look for **1280x1024** in the output. If it’s listed, proceed to the next step.
 
 ### 2. Set GRUB Resolution
 
 Edit the GRUB configuration file:
 
-```shell
+```bash
 sudo nvim /etc/default/grub
 ```
 
@@ -165,7 +199,7 @@ GRUB_GFXPAYLOAD_LINUX=keep
 
 Regenerate the GRUB configuration file:
 
-```shell
+```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
@@ -173,11 +207,13 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 Restart your system to apply the changes:
 
-```shell
+```bash
 reboot
 ```
 
 This should force GRUB to use **1920x1440** resolution. If it doesn’t work, double-check `videoinfo` to confirm that your system supports it.
+
+---
 
 ## Configure Snapper
 
@@ -185,63 +221,37 @@ This should force GRUB to use **1920x1440** resolution. If it doesn’t work, do
 
 To display the current Btrfs subvolumes, run:
 
-```shell
+```bash
 sudo btrfs subvolume list /
-```
-
-Example output:
-
-```plaintext
-ID 256 gen 68 top level 5 path @
-ID 257 gen 68 top level 5 path @home
-ID 258 gen 67 top level 5 path @root
-ID 259 gen 23 top level 5 path @srv
-ID 260 gen 67 top level 5 path @cache
-ID 261 gen 67 top level 5 path @tmp
-ID 262 gen 68 top level 5 path @log
-ID 263 gen 24 top level 256 path var/lib/portables
-ID 264 gen 24 top level 256 path var/lib/machines
 ```
 
 ### Check Btrfs Mount Points
 
 To verify the mounted Btrfs subvolumes, use:
 
-```shell
+```bash
 findmnt -nt btrfs
-```
-
-Example output:
-
-```plaintext
-/            /dev/nvme0n1p2[/@]      btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=256,subvol=/@
-├─/home      /dev/nvme0n1p2[/@home]  btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=257,subvol=/@home
-├─/var/log   /dev/nvme0n1p2[/@log]   btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=262,subvol=/@log
-├─/root      /dev/nvme0n1p2[/@root]  btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=258,subvol=/@root
-├─/srv       /dev/nvme0n1p2[/@srv]   btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=259,subvol=/@srv
-├─/var/cache /dev/nvme0n1p2[/@cache] btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=260,subvol=/@cache
-└─/var/tmp   /dev/nvme0n1p2[/@tmp]   btrfs rw,noatime,compress=zstd:3,ssd,discard=async,space_cache=v2,commit=120,subvolid=261,subvol=/@tmp
 ```
 
 ### Ensure Subvolume Setup
 
-Ensure the `@` subvolume is mounted at `/`. Unlike some distributions, CachyOS does not create a dedicated `@.snapshots` subvolume. Snapper can be configured using an existing subvolume (e.g., `@root`) for snapshots. If preferred, create a separate snapshots subvolume:
+Ensure the `@` subvolume is mounted at `/`. If preferred, create a separate snapshots subvolume:
 
-```shell
+```bash
 sudo btrfs subvolume create /@snapshots
+```
+
+Verify with:
+
+```bash
+sudo btrfs subvolume list /
 ```
 
 ### Create a Snapper Configuration
 
-Create a Snapper configuration for the home (`/home`) filesystem:
-
-```shell
-sudo snapper -c home create-config /home
-```
-
 Create a Snapper configuration for the root (`/`) filesystem:
 
-```shell
+```bash
 sudo snapper -c root create-config /
 ```
 
@@ -249,22 +259,15 @@ sudo snapper -c root create-config /
 
 These correspond to the system locations where Snapper manages snapshots:
 
-```shell
+```bash
 ls /etc/snapper/configs/
-```
-
-Example output:
-
-```plaintext
-root
-home
 ```
 
 ### List Snapshots for a Specific Configuration
 
 To display existing snapshots, including their IDs, timestamps, descriptions, and types:
 
-```shell
+```bash
 sudo snapper -c root list
 ```
 
@@ -272,16 +275,19 @@ sudo snapper -c root list
 
 Ensure proper permissions for Snapper to function correctly:
 
-```shell
+```bash
 sudo chmod 750 /@snapshots
 sudo chown root:root /@snapshots
+ls -al /
 ```
 
 ### Configure Snapper
 
+#### Configure Snapper for Root
+
 Edit the Snapper configuration file:
 
-```shell
+```bash
 sudo nvim /etc/snapper/configs/root
 ```
 
@@ -289,19 +295,19 @@ Modify or add the following settings:
 
 ```plaintext
 ALLOW_USERS="mlj"
-TIMELINE_CREATE="yes"
-TIMELINE_CLEANUP="yes"
 NUMBER_CLEANUP="yes"
 NUMBER_MIN_AGE="1800"
 NUMBER_LIMIT="10"
 NUMBER_LIMIT_IMPORTANT="5"
+TIMELINE_CREATE="yes"
+TIMELINE_CLEANUP="yes"
 ```
 
 ### Enable Systemd Timers for Snapshots
 
 To ensure regular snapshot creation and cleanup, enable the necessary systemd timers:
 
-```shell
+```bash
 sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
 ```
@@ -310,57 +316,126 @@ sudo systemctl enable --now snapper-cleanup.timer
 
 This ensures that new snapshots appear in the GRUB boot menu automatically:
 
-```shell
-sudo pacman -S grub-btrfs
+```bash
+sudo pacman -Sy --needed grub-btrfs
 sudo systemctl enable --now grub-btrfsd
 ```
 
 ### Update GRUB Configuration
 
-This command generates a new GRUB boot configuration file (`grub.cfg`) and saves it to `/boot/grub/grub.cfg`. If `grub-btrfs` is enabled, it detects Btrfs snapshots and adds them to the GRUB menu for rollback options:
+Generate a new GRUB boot configuration file:
 
-```shell
+```bash
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
 If GRUB does not detect installed OSes:
 
-```shell
+```bash
 sudo os-prober
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
 If `os-prober` is disabled, enable it in `/etc/default/grub`:
 
-```plaintext
+```bash
 GRUB_DISABLE_OS_PROBER=false
 ```
 
 Ensure `grub-btrfsd` is running:
 
-```shell
+```bash
 sudo systemctl enable --now grub-btrfsd
 ```
 
 ### Perform a System Rollback
 
-Reboot your system and select the desired snapshot in GRUB.
-After booting into the snapshot, permanently revert your system:
+Reboot your system and select the desired snapshot in GRUB. After booting into the snapshot, permanently revert your system:
 
-```shell
+```bash
 sudo snapper -c root rollback 1
 reboot
+```
+
+### Delete Snapper Configuration for Home
+
+To delete the Snapper configuration for home and remove all associated snapshots:
+
+```bash
+sudo snapper -c home delete-config
+```
+
+To delete all snapshots:
+
+```bash
+sudo rm -rf /.snapshots/home
+```
+
+If Snapper created subvolumes for snapshots, list and delete them manually:
+
+```bash
+sudo btrfs subvolume list / | grep '@snapshots/home'
+sudo btrfs subvolume delete /@snapshots/home/*
+sudo btrfs subvolume delete /@snapshots/home
 ```
 
 ### Create a Manual Snapshot
 
 Before performing a system update, create a manual snapshot:
 
-```shell
+```bash
 sudo snapper -c root create --description "Before System Update"
 ```
 
+### Common Snapper Commands
 
+#### Create a Snapshot
+
+```bash
+sudo snapper -c root create --description "Snapshot Description"
+```
+
+#### List Snapshots
+
+```bash
+sudo snapper -c root list
+```
+
+#### Delete a Snapshot
+
+```bash
+sudo snapper -c root delete <snapshot_number>
+```
+
+#### Undo Changes from a Specific Snapshot
+
+```bash
+sudo snapper -c root undochange <snapshot_number>
+```
+
+#### Rollback to a Specific Snapshot
+
+```bash
+sudo snapper -c root rollback <snapshot_number>
+```
+
+#### Show Snapshot Details
+
+```bash
+sudo snapper -c root status <snapshot_number>
+```
+
+#### Compare Two Snapshots
+
+```bash
+sudo snapper -c root diff <snapshot_1> <snapshot_2>
+```
+
+Before performing a system update, create a manual snapshot:
+
+```bash
+sudo snapper -c root create --description "Before System Update"
+```
 
 ## Configure $HOME/Music
 
@@ -368,7 +443,7 @@ sudo snapper -c root create --description "Before System Update"
 
 Ensure the `Music` directory exists and disable copy-on-write (CoW):
 
-```shell
+```bash
 mkdir -p $HOME/Music
 chattr -V +C $HOME/Music
 ```
@@ -377,14 +452,14 @@ chattr -V +C $HOME/Music
 
 Navigate to the external drive and sync selected artist directories to `Music`:
 
-```shell
+```bash
 cd /run/media/mlj/956A-D24E/Music
 rsync -avh --progress ./{fussell-paul,harris-robert,mantel-hilary,shakespeare-william} $HOME/Music
 ```
 
 If necessary, re-sync `harris-robert` separately:
 
-```shell
+```bash
 rsync -avh --progress ./harris-robert $HOME/Music
 ```
 
@@ -394,7 +469,7 @@ rsync -avh --progress ./harris-robert $HOME/Music
 
 Reboot your system and check available input devices:
 
-```shell
+```bash
 hyprctl devices
 ```
 
@@ -402,13 +477,15 @@ hyprctl devices
 
 Edit the user keybindings configuration:
 
-```shell
+```bash
+chmod +x $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
 nvim $HOME/.config/hypr/config/user-keybinds.conf
 ```
 
 Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
 
 ```plaintext
+bind = $mainMod, A, exec, $hyprBin/touchpad_hyprland.sh "ven_04f3:00-04f3:32aa-touchpad"
 bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
 ```
 
@@ -416,7 +493,7 @@ bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-t
 
 If necessary, edit the touchpad script:
 
-```shell
+```bash
 nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
 ```
 
@@ -430,19 +507,19 @@ Before using Bluetuith, press the **Bluetooth pairing button** on the Sonos spea
 
 Check the status of the Bluetooth service:
 
-```shell
+```bash
 systemctl status bluetooth
 ```
 
 If necessary, restart the service:
 
-```shell
+```bash
 systemctl restart bluetooth
 ```
 
 Enable Bluetooth service to start on boot:
 
-```shell
+```bash
 sudo systemctl enable bluetooth
 ```
 
@@ -450,19 +527,19 @@ sudo systemctl enable bluetooth
 
 Check recent logs for Bluetooth-related messages:
 
-```shell
+```bash
 journalctl -u bluetooth --no-pager --since "1 hour ago"
 ```
 
 Inspect kernel messages for Bluetooth-related events:
 
-```shell
+```bash
 dmesg | grep -i bluetooth
 ```
 
 Display Bluetooth controller details:
 
-```shell
+```bash
 bluetoothctl show
 ```
 
@@ -484,25 +561,25 @@ For more details on emergency reboot shortcuts, see:
 
 Navigate to the sysctl configuration directory:
 
-```shell
+```bash
 cd /etc/sysctl.d
 ```
 
 Copy the system configuration file:
 
-```shell
+```bash
 cp $HOME/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
 ```
 
 Apply the new sysctl settings:
 
-```shell
+```bash
 sysctl --system
 ```
 
 Verify the current Sysrq value:
 
-```shell
+```bash
 cat /proc/sys/kernel/sysrq
 ```
 
@@ -512,13 +589,13 @@ cat /proc/sys/kernel/sysrq
 
 Ensure the directory exists:
 
-```shell
+```bash
 mkdir -p /etc/systemd/logind.conf.d
 ```
 
 Navigate to the directory:
 
-```shell
+```bash
 cd /etc/systemd/logind.conf.d
 ```
 
@@ -526,7 +603,7 @@ cd /etc/systemd/logind.conf.d
 
 Copy the lid behavior configuration:
 
-```shell
+```bash
 cp $HOME/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
 ```
 
@@ -534,7 +611,7 @@ cp $HOME/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/sy
 
 Restart the systemd-logind service:
 
-```shell
+```bash
 systemctl restart systemd-logind
 ```
 
@@ -542,13 +619,13 @@ systemctl restart systemd-logind
 
 Check the current session's idle action setting:
 
-```shell
+```bash
 loginctl show-session $(loginctl | grep $(whoami) | awk '{print $1}') --property=IdleAction
 ```
 
 Check the lid switch behavior:
 
-```shell
+```bash
 loginctl show-session | grep HandleLidSwitch
 ```
 
@@ -593,19 +670,19 @@ setxkbmap -layout real_prog_dvorak -v
 
 View existing SDDM configuration:
 
-```shell
+```bash
 cat /etc/sddm.conf
 ```
 
 Ensure autologin settings are applied:
 
-```shell
+```bash
 sudo mkdir -p /etc/sddm.conf.d
 ```
 
-Create the autologin configuration:
+### (Optional) Create the autologin configuration:
 
-```shell
+```bash
 echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/autologin.conf
 ```
 
@@ -613,14 +690,14 @@ echo -e "[Autologin]\nUser=mlj\nSession=hyprland" | sudo tee /etc/sddm.conf.d/au
 
 To disable and prevent SDDM from starting:
 
-```shell
+```bash
 sudo systemctl disable sddm  
 sudo systemctl mask sddm  
 ```
 
 ### Restart SDDM and Reboot
 
-```shell
+```bash
 sudo systemctl restart sddm  
 reboot  
 ```
