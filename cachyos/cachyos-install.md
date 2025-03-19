@@ -35,26 +35,6 @@ Ctrl + Alt + F3
 sudo loadkeys dvorak  
 ```
 
-Optional:
-## ~/utono/install/cachyos/keyboard.sh
-```bash
-CachyOS 6.13.7-2-cachyos (tty3)
-
-xps17-2 login: root
-Password:
-
-[root@xps17-2 ~] pacman -Syu
-[root@xps17-2 ~] pacman -S udisks2
-[root@xps17-2 ~] udisksctl mount -b /dev/sda
-[root@xps17-2 ~] mkdir -p $HOME/utono
-[root@xps17-2 ~] chattr -V +C $HOME/utono
-[root@xps17-2 ~] rsync -avh --progress /run/media/root/8C8E-606F/utono
-[root@xps17-2 ~] cd $HOME/utono/install/cachyos
-[root@xps17-2 ~] chmod +x keyboard.sh
-[root@xps17-2 ~] ./keyboard.sh
-
-``` 
-
 ## Configure keyboard
 ```bash
 mkdir -p $HOME/utono  
