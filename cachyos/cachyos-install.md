@@ -37,19 +37,29 @@ sudo loadkeys dvorak
 
 ## Configure keyboard
 ```bash
-mkdir -p $HOME/utono  
-chattr -V +C $HOME/utono
-cd $HOME/utono
-git clone https://github.com/utono/rpd.git
-cd rpd/  
-chmod +x $HOME/utono/rpd/keyd-configuration.sh  
-sh $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd  
-sudo loadkeys real_prog_dvorak
-sudo mkinitcpio -P
+CachyOS 6.13.7-2-cachyos (tty3)
+
+xps17-2 login: root
+Password:
+
+[root@xps17-2 ~] cachyos-rate-mirrors
+[root@xps17-2 ~] pacman -Syu
+[root@xps17-2 ~] pacman -S udisks2
+[root@xps17-2 ~] udisksctl mount -b /dev/sda
+[root@xps17-2 ~] mkdir -p $HOME/utono
+[root@xps17-2 ~] chattr -V +C $HOME/utono
+[root@xps17-2 ~] rsync -avh --progress /run/media/root/8C8E-606F/utono/ $HOME/utono
+[root@xps17-2 ~] cd $HOME/utono/rpd
+[root@xps17-2 ~] chmod +x $HOME/utono/rpd/keyd-configuration.sh  
+[root@xps17-2 ~] bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
+[root@xps17-2 ~] sudo loadkeys real_prog_dvorak
+[root@xps17-2 ~] sudo mkinitcpio -P
+[root@xps17-2 ~] reboot
 ```
 
 Optional: 
 ```bash
+git clone https://github.com/utono/rpd.git
 git remote -v
 git remote set-url origin git@github.com:utono/rpd.git
 git remote -v
@@ -61,8 +71,6 @@ reboot
 ## Sync USB drive's utono directory
 <!--arch-update-->
 ```bash
-cachyos-rate-mirrors
-paru -Sy udisks2
 udisksctl mount -b /dev/sda
 cd /run/media/mlj/8C8E-606F
 mkdir -p ~/utono
