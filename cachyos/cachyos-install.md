@@ -37,24 +37,20 @@ sudo loadkeys dvorak
 
 ## Configure keyboard
 ```bash
-CachyOS 6.13.7-2-cachyos (tty3)
 
-xps17-2 login: root
-Password:
-
-[root@xps17-2 ~] cachyos-rate-mirrors
-[root@xps17-2 ~] pacman -Syu
-[root@xps17-2 ~] pacman -S udisks2
-[root@xps17-2 ~] udisksctl mount -b /dev/sda
-[root@xps17-2 ~] mkdir -p $HOME/utono
-[root@xps17-2 ~] chattr -V +C $HOME/utono
-[root@xps17-2 ~] rsync -avh --progress /run/media/root/8C8E-606F/utono/ $HOME/utono
-[root@xps17-2 ~] cd $HOME/utono/rpd
-[root@xps17-2 ~] chmod +x $HOME/utono/rpd/keyd-configuration.sh  
-[root@xps17-2 ~] bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
-[root@xps17-2 ~] sudo loadkeys real_prog_dvorak
-[root@xps17-2 ~] sudo mkinitcpio -P
-[root@xps17-2 ~] reboot
+cachyos-rate-mirrors
+pacman -Syu
+pacman -S udisks2
+udisksctl mount -b /dev/sda
+mkdir -p $HOME/utono
+chattr -V +C $HOME/utono
+rsync -avh --progress /run/media/root/8C8E-606F/utono/ $HOME/utono
+cd $HOME/utono/rpd
+chmod +x $HOME/utono/rpd/keyd-configuration.sh  
+bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
+sudo loadkeys real_prog_dvorak
+sudo mkinitcpio -P
+reboot
 ```
 
 Optional: 
@@ -68,58 +64,17 @@ git remote -v
 reboot
 ```
 
-## Sync USB drive's utono directory
-<!--arch-update-->
-```bash
-udisksctl mount -b /dev/sda
-cd /run/media/mlj/8C8E-606F
-mkdir -p ~/utono
-chattr -V +C ~/utono
-rsync -avh --progress utono $HOME/utono
-```
-
 ## Install Essential Packages As User
+
+xps17-2 login: mlj
+Password:
 
 ```bash
 paru -Syy
 cd $HOME/utono/install/paclists
 bash install_packages.sh mar-2025.csv
+nvim
 ```
-
-## stow dotfiles
-
-```bash
-mv $HOME/utono/tty-dotfiles $HOME
-cd $HOME/tty-dotfiles
-mkdir -p $HOME/.local/bin
-stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi -n 2>&1 | tee stow-output.out
-```
-
-## Configure zsh
-
-```bash
-cd
-ls -al .zshrc
-mv .zshrc .zshrc.cachyos.bak
-ln -sf $HOME/.config/shell/profile .zprofile  
-chsh -s /usr/bin/zsh  
-logout
-```
-Log in
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ## Configure ssh
 
@@ -143,16 +98,42 @@ Helpful commands for ssh configuration:
     systemctl --user daemon-reload
 ```
 
-## Clone repositories and link hyprland settings:
+## Clone repositories
 
 ```bash
 cd $HOME/utono/user-config
 chmod +x utono-clone-repos.sh
-sh $HOME/utono/user-config/utono-clone-repos.sh $HOME/utono
-sh "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
-sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
+bash $HOME/utono/user-config/utono-clone-repos.sh $HOME/utono
+bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
 ls -al $HOME/.config
 reboot
+```
+
+## stow dotfiles
+
+```bash
+mv $HOME/utono/tty-dotfiles $HOME
+cd $HOME/tty-dotfiles
+mkdir -p $HOME/.local/bin
+stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi -n 2>&1 | tee stow-output.out
+```
+
+## Configure zsh
+
+```bash
+cd
+ls -al .zshrc
+mv .zshrc .zshrc.cachyos.bak
+ln -sf $HOME/.config/shell/profile .zprofile  
+chsh -s /usr/bin/zsh  
+logout
+```
+Log in
+
+## Hyprland
+
+```bash
+sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
 ```
 
 Optional:
@@ -165,7 +146,6 @@ Optional:
     git add <file_with_conflicts_removed>  
     git commit  
 ```
-
 ## Configure GRUB to Use 1280x1024 Resolution
 
 ### 1. Check Supported Resolutions
@@ -220,230 +200,6 @@ reboot
 ```
 
 This should force GRUB to use **1920x1440** resolution. If it doesn’t work, double-check `videoinfo` to confirm that your system supports it.
-
----
-
-## Configure Snapper
-
-### List Existing Btrfs Subvolumes
-
-To display the current Btrfs subvolumes, run:
-
-```bash
-sudo btrfs subvolume list /
-```
-
-### Check Btrfs Mount Points
-
-To verify the mounted Btrfs subvolumes, use:
-
-```bash
-findmnt -nt btrfs
-```
-
-### Ensure Subvolume Setup
-
-Ensure the `@` subvolume is mounted at `/`. If preferred, create a separate snapshots subvolume:
-
-```bash
-sudo btrfs subvolume create /@snapshots
-```
-
-Verify with:
-
-```bash
-sudo btrfs subvolume list /
-```
-
-### Create a Snapper Configuration
-
-Create a Snapper configuration for the root (`/`) filesystem:
-
-```bash
-sudo snapper -c root create-config /
-```
-
-### List Available Snapper Configurations
-
-These correspond to the system locations where Snapper manages snapshots:
-
-```bash
-ls /etc/snapper/configs/
-```
-
-### List Snapshots for a Specific Configuration
-
-To display existing snapshots, including their IDs, timestamps, descriptions, and types:
-
-```bash
-sudo snapper -c root list
-```
-
-### Set Permissions
-
-Ensure proper permissions for Snapper to function correctly:
-
-```bash
-sudo chmod 750 /@snapshots
-sudo chown root:root /@snapshots
-ls -al /
-```
-
-### Configure Snapper
-
-#### Configure Snapper for Root
-
-Edit the Snapper configuration file:
-
-```bash
-sudo nvim /etc/snapper/configs/root
-```
-
-Modify or add the following settings:
-
-```plaintext
-ALLOW_USERS="mlj"
-NUMBER_CLEANUP="yes"
-NUMBER_MIN_AGE="1800"
-NUMBER_LIMIT="10"
-NUMBER_LIMIT_IMPORTANT="5"
-TIMELINE_CREATE="yes"
-TIMELINE_CLEANUP="yes"
-```
-
-### Enable Systemd Timers for Snapshots
-
-To ensure regular snapshot creation and cleanup, enable the necessary systemd timers:
-
-```bash
-sudo systemctl enable --now snapper-timeline.timer
-sudo systemctl enable --now snapper-cleanup.timer
-```
-
-### Enable GRUB Integration
-
-This ensures that new snapshots appear in the GRUB boot menu automatically:
-
-```bash
-sudo pacman -Sy --needed grub-btrfs
-sudo systemctl enable --now grub-btrfsd
-```
-
-### Update GRUB Configuration
-
-Generate a new GRUB boot configuration file:
-
-```bash
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-If GRUB does not detect installed OSes:
-
-```bash
-sudo os-prober
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-If `os-prober` is disabled, enable it in `/etc/default/grub`:
-
-```bash
-GRUB_DISABLE_OS_PROBER=false
-```
-
-Ensure `grub-btrfsd` is running:
-
-```bash
-sudo systemctl enable --now grub-btrfsd
-```
-
-### Perform a System Rollback
-
-Reboot your system and select the desired snapshot in GRUB. After booting into the snapshot, permanently revert your system:
-
-```bash
-sudo snapper -c root rollback 1
-reboot
-```
-
-### Delete Snapper Configuration for Home
-
-To delete the Snapper configuration for home and remove all associated snapshots:
-
-```bash
-sudo snapper -c home delete-config
-```
-
-To delete all snapshots:
-
-```bash
-sudo rm -rf /.snapshots/home
-```
-
-If Snapper created subvolumes for snapshots, list and delete them manually:
-
-```bash
-sudo btrfs subvolume list / | grep '@snapshots/home'
-sudo btrfs subvolume delete /@snapshots/home/*
-sudo btrfs subvolume delete /@snapshots/home
-```
-
-### Create a Manual Snapshot
-
-Before performing a system update, create a manual snapshot:
-
-```bash
-sudo snapper -c root create --description "Before System Update"
-```
-
-### Common Snapper Commands
-
-#### Create a Snapshot
-
-```bash
-sudo snapper -c root create --description "Snapshot Description"
-```
-
-#### List Snapshots
-
-```bash
-sudo snapper -c root list
-```
-
-#### Delete a Snapshot
-
-```bash
-sudo snapper -c root delete <snapshot_number>
-```
-
-#### Undo Changes from a Specific Snapshot
-
-```bash
-sudo snapper -c root undochange <snapshot_number>
-```
-
-#### Rollback to a Specific Snapshot
-
-```bash
-sudo snapper -c root rollback <snapshot_number>
-```
-
-#### Show Snapshot Details
-
-```bash
-sudo snapper -c root status <snapshot_number>
-```
-
-#### Compare Two Snapshots
-
-```bash
-sudo snapper -c root diff <snapshot_1> <snapshot_2>
-```
-
-Before performing a system update, create a manual snapshot:
-
-```bash
-sudo snapper -c root create --description "Before System Update"
-```
 
 ## Configure $HOME/Music
 
@@ -715,7 +471,9 @@ reboot
 
 
 
-
+## Firefox
+about:config
+browser.gesture.pinch.threshold     50
 
 ## Hyprland
 

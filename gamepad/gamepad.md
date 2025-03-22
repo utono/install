@@ -129,8 +129,18 @@ To prevent other applications or the system from interpreting gamepad inputs, fo
 1. **Modify the Python Script to Grab the Device**
 Your script already includes `device.grab()`, which ensures the gamepad is exclusively used by the script while it is running. However, to make this setting persist, we need an additional step.
 
-2. **Create a `udev` Rule to Prevent System-wide Recognition**
-This step ensures the gamepad is not treated as a generic keyboard or joystick by the system.
+## 🛂 Create Udev Rule
+
+A custom udev rule is required to ensure that:
+
+The device is assigned correct permissions so your script can access it.
+
+You can exclusively grab the device in your script before GNOME or system-level components do.
+
+GNOME and other system-level input handlers (like mutter, gnome-settings-daemon, or libinput) are effectively bypassed once the device is grabbed.
+
+⚠️ Note: udev rules alone do not block GNOME from reading the device. They enable your script to open and grab the device first. Once grabbed using device.grab() in Python, other processes (like GNOME Shell) can no longer see the input events.
+
 
 1. ``` cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d/
 
