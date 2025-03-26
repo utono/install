@@ -115,6 +115,7 @@ reboot
 mv $HOME/utono/tty-dotfiles $HOME
 cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
+# https://github.com/ahkohd/eza-preview.yazi
 stow --verbose=2 --no-folding bin-mlj git kitty shell starship yazi -n 2>&1 | tee stow-output.out
 ```
 
