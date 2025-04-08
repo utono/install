@@ -72,9 +72,9 @@ sig_file=$(find "$src_dir" -maxdepth 1 -type f -name "$(basename "$iso_file").si
 # If a signature file was found, verify the GPG signature
 if [[ -n "$sig_file" ]]; then
   echo "Importing GPG key for signature verification..."
-  if ! gpg --keyserver hkps://keys.openpgp.org --recv-key 8F43FC374CD4CEEA19CEE323E3D8752ACDF595A1; then
+  if ! gpg --keyserver hkps://keys.openpgp.org --recv-key F3B607488DB35A47; then
     echo "Primary keyserver failed. Trying alternative keyserver..."
-    if ! gpg --keyserver hkps://keyserver.ubuntu.com --recv-key 8F43FC374CD4CEEA19CEE323E3D8752ACDF595A1; then
+    if ! gpg --keyserver hkps://keyserver.ubuntu.com --recv-key F3B607488DB35A47; then
       echo "❌ Error: Failed to retrieve GPG key. Please check your network or try again later."
       exit 1
     fi
