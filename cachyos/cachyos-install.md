@@ -142,6 +142,10 @@ Optional:
 ```bash
     cd $HOME/utono/cachyos-hyprland-settings  
     git branch -r  
+    git remote -v
+    # git remote set-url origin git@github.com:utono/cachyos-hyprland-settings.git
+    git remote add upstream git@github.com:CachyOS/cachyos-hyprland-settings.git
+    git branch -r  
     git fetch upstream  
     git merge upstream/master --allow-unrelated-histories  
     git add <file_with_conflicts_removed>  
