@@ -8,6 +8,7 @@ evtest
 fd
 ffmpeg
 fzf
+go
 git-delta
 grub-btrfs
 hypridle
@@ -39,4 +40,5 @@ wget
 yazi-nightly-bin
 yt-dlp
 zathura-git
+zathura-pdf-mupdf-git
 zoxide
