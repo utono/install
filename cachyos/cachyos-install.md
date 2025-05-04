@@ -12,6 +12,7 @@ udisksctl mount -b /dev/sda
 rm -rf /run/media/mlj/8C8E-606F/utono
 mkdir -p /run/media/mlj/8C8E-606F/utono
 sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
+sh ~/utono/user-config/utono-update-repos.sh /run/media/mlj/8C8E-606F/utono
 ```
 
 Since your destination is a FAT32-formatted USB drive (mkfs.fat -F 32), symlinks are not supported.
@@ -53,6 +54,7 @@ chmod +x $HOME/utono/rpd/keyd-configuration.sh
 bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
 sudo loadkeys real_prog_dvorak
 sudo mkinitcpio -P
+sudo loadkeys real_prog_dvorak
 reboot
 ```
 
@@ -79,6 +81,17 @@ bash install_packages.sh mar-2025.csv
 nvim
 ```
 
+## Configure utono repos
+
+```bash
+bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
+ls -al $HOME/.config
+cd ~/.config
+rm -rf nvim
+git clone https://github.com/utono/nvim-temp.git nvim
+reboot
+```
+
 ## stow dotfiles
 
 ```bash
@@ -100,14 +113,6 @@ exit
 ```
 Log in
 
-## Configure utono repos
-
-```bash
-bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
-ls -al $HOME/.config
-reboot
-```
-
 ## Configure ssh
 
 ```bash
@@ -125,6 +130,7 @@ chmod +x sync-ssh-keys.sh
 
 ssh-add $HOME/.ssh/id_ed25519
 ssh-add -l
+```
 
 ## Hyprland
 
