@@ -8,7 +8,10 @@ paru -Sy udisks2
 wipefs --all /dev/sda
 sudo mkfs.fat -F 32 /dev/sda  
 udisksctl mount -b /dev/sda  
-rsync -avh --progress $HOME/utono /run/media/mlj/8C8E-606F
+# rsync -avh --progress $HOME/utono /run/media/mlj/8C8E-606F -n
+rm -rf /run/media/mlj/8C8E-606F/utono
+mkdir -p /run/media/mlj/8C8E-606F/utono
+sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
 ```
 
 Since your destination is a FAT32-formatted USB drive (mkfs.fat -F 32), symlinks are not supported.
@@ -76,47 +79,13 @@ bash install_packages.sh mar-2025.csv
 nvim
 ```
 
-## Configure ssh
-
-```bash
-cd $HOME/utono/ssh
-chmod +x sync-ssh-keys.sh
-./sync-ssh-keys.sh "$HOME/utono" 2>&1 | tee -a sync-ssh-keys-output.out
-ssh-add $HOME/.ssh/id_ed25519
-ssh-add -l
-```
-
-Helpful commands for ssh configuration:
-
-```bash
-    source ~/tty-dotfiles/shell/.config/shell/exports
-    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-    echo $SSH_AUTH_SOCK
-    systemctl --user enable --now ssh-agent
-    systemctl --user status ssh-agent
-    systemctl --user daemon-reexec
-    systemctl --user daemon-reload
-```
-
-## Clone repositories
-
-```bash
-cd $HOME/utono/user-config
-chmod +x utono-clone-repos.sh
-bash $HOME/utono/user-config/utono-clone-repos.sh $HOME/utono
-bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
-ls -al $HOME/.config
-reboot
-```
-
 ## stow dotfiles
 
 ```bash
-mv $HOME/utono/tty-dotfiles $HOME
 cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
-stow --verbose=2 --no-folding bat bin-mlj git kitty shell starship yazi -n 2>&1 | tee stow-output.out
+stow --verbose=2 --no-folding bat bin-mlj git kitty ksb shell starship yazi -n 2>&1 | tee stow-output.out
 ```
 
 ## Configure zsh
@@ -127,9 +96,35 @@ ls -al .zshrc
 mv .zshrc .zshrc.cachyos.bak
 ln -sf $HOME/.config/shell/profile .zprofile  
 chsh -s /usr/bin/zsh  
-logout
+exit
 ```
 Log in
+
+## Configure utono repos
+
+```bash
+bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
+ls -al $HOME/.config
+reboot
+```
+
+## Configure ssh
+
+```bash
+cd $HOME/utono/ssh
+chmod +x sync-ssh-keys.sh
+./sync-ssh-keys.sh "$HOME/utono" 2>&1 | tee -a sync-ssh-keys-output.out
+
+    source ~/tty-dotfiles/shell/.config/shell/exports
+    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+    echo $SSH_AUTH_SOCK
+    systemctl --user enable --now ssh-agent
+    systemctl --user status ssh-agent
+    systemctl --user daemon-reexec
+    systemctl --user daemon-reload
+
+ssh-add $HOME/.ssh/id_ed25519
+ssh-add -l
 
 ## Hyprland
 
@@ -213,8 +208,9 @@ This should force GRUB to use **1920x1440** resolution. If it doesn’t work, do
 Ensure the `Music` directory exists and disable copy-on-write (CoW):
 
 ```bash
-mkdir -p $HOME/Music
-chattr -V +C $HOME/Music
+rm -rf {Documents,Downloads,Music,Pictures,Videos}
+mkdir -p {Documents,Downloads,Music,Pictures,Videos}
+chattr -V +C {Documents,Downloads,Music,Pictures,Videos}
 ```
 
 ### Sync Music Files
@@ -247,7 +243,7 @@ hyprctl devices
 Edit the user keybindings configuration:
 
 ```bash
-chmod +x $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
+chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
 nvim $HOME/.config/hypr/config/user-keybinds.conf
 ```
 
@@ -263,7 +259,7 @@ bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-t
 If necessary, edit the touchpad script:
 
 ```bash
-nvim $HOME/tty-dotfiles/hypr/.config/hypr/bin/touchpad_hyprland.sh
+nvim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
 ```
 
 ## Bluetuith - Connecting Sonos Speakers
@@ -290,6 +286,11 @@ Enable Bluetooth service to start on boot:
 
 ```bash
 sudo systemctl enable bluetooth
+```
+
+### blueman-manager and bluetuith
+```bash
+
 ```
 
 ### Debugging Bluetooth Issues
@@ -415,7 +416,7 @@ cat Xsetup  # View current Xsetup script
 cp Xsetup Xsetup.bak  # Backup existing Xsetup
 
 # Copy the custom Xsetup script
-cp -i $HOME/utono/system-config/sddm/usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts/
+cp -i $HOME/utono/system-config/usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts/
 
 cat Xsetup  # Verify new Xsetup script
 ```
