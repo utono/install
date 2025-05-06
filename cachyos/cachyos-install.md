@@ -55,6 +55,7 @@ bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
 sudo loadkeys real_prog_dvorak
 sudo mkinitcpio -P
 sudo loadkeys real_prog_dvorak
+sudo systemctl restart keyd
 reboot
 ```
 
@@ -78,7 +79,6 @@ Password:
 paru -Syy
 cd $HOME/utono/install/paclists
 bash install_packages.sh mar-2025.csv
-nvim
 ```
 
 ## Configure utono repos
@@ -89,7 +89,7 @@ ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
 git clone https://github.com/utono/nvim-temp.git nvim
-reboot
+nvim
 ```
 
 ## stow dotfiles
@@ -99,6 +99,9 @@ cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
 stow --verbose=2 --no-folding bat bin-mlj git kitty ksb shell starship yazi -n 2>&1 | tee stow-output.out
+ya pack -l
+ya pack -a ahkohd/eza-preview
+ya pack -a h-hg/yamb
 ```
 
 ## Configure zsh

@@ -1,9 +1,22 @@
 # Configuring Gamepad Input for MPV Using Evdev
 
+Start keyd monitor before connecting gamepad via
+bluetooth to get device id:
+
    ```bash
    sudo keyd monitor
    blueman-manager
    bluetuith
+   ```
+      Expected output for sudo keyd monitor:
+
+         keyd virtual keyboard   0fac:0ade:efba1ddf   i down
+         keyd virtual keyboard   0fac:0ade:efba1ddf   i up
+         device added: 2dc8:9021:27abd54c 8BitDo Micro gamepad Keyboard (/dev/input/eventX)
+         DELL097D:00 04F3:311C Touchpad   04F3:311c:e17c7309   i up
+         DELL097D:00 04F3:311C Touchpad   04F3:311c:e17c7309   i up
+
+   ```bash
    cat /proc/bus/input/devices
    evtest /dev/input/eventX
 
