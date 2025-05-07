@@ -49,20 +49,11 @@ Home:
     +--------+
 
 d-pad:
-          +----------+
-          |          |
-          |     c    |   "add", "volume", 2 
-          |    (j)   |
-          |          |
-    +-----+----------+----- +
-    |                       |
-    | LEFT              f   | "no-osd", "seek", -5, "exact" / "script-message", "remove_chapter" 
-    | (.)              (u)  |
-    |                       |
-    +-----+----------+----- +
-          |          |
-          |    d     |  "add", "volume", -2
-          |   (e)    |
-          |          |
-          +----------+
+          +-----+
+          |  c  |   "add", "volume", 2 
+    +-----+-----+----+
+    |  e          f  | "script-message", "remove_chapter" / "no-osd", "seek", -5, "exact"
+    +-----+-----+----+
+          |  d  |  "add", "volume", -2
+          +-----+
 
