@@ -41,7 +41,6 @@ sudo loadkeys dvorak
 
 ## Configure keyboard
 ```bash
-
 cachyos-rate-mirrors
 pacman -Syu
 pacman -S udisks2
@@ -55,6 +54,7 @@ bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
 sudo loadkeys real_prog_dvorak
 sudo mkinitcpio -P
 sudo loadkeys real_prog_dvorak
+sudo systemctl restart keyd
 reboot
 ```
 
@@ -77,8 +77,8 @@ Password:
 ```bash
 paru -Syy
 cd $HOME/utono/install/paclists
+chmod +x install_packages.sh
 bash install_packages.sh mar-2025.csv
-nvim
 ```
 
 ## Configure utono repos
@@ -89,7 +89,7 @@ ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
 git clone https://github.com/utono/nvim-temp.git nvim
-reboot
+nvim
 ```
 
 ## stow dotfiles
@@ -99,6 +99,9 @@ cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
 stow --verbose=2 --no-folding bat bin-mlj git kitty ksb shell starship yazi -n 2>&1 | tee stow-output.out
+ya pack -l
+ya pack -a ahkohd/eza-preview
+ya pack -a h-hg/yamb
 ```
 
 ## Configure zsh
@@ -132,26 +135,6 @@ ssh-add $HOME/.ssh/id_ed25519
 ssh-add -l
 ```
 
-## Hyprland
-
-```bash
-sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
-```
-
-Optional:
-
-```bash
-    cd $HOME/utono/cachyos-hyprland-settings  
-    git branch -r  
-    git remote -v
-    # git remote set-url origin git@github.com:utono/cachyos-hyprland-settings.git
-    git remote add upstream git@github.com:CachyOS/cachyos-hyprland-settings.git
-    git branch -r  
-    git fetch upstream  
-    git merge upstream/master --allow-unrelated-histories  
-    git add <file_with_conflicts_removed>  
-    git commit  
-```
 ## Configure GRUB to Use 1280x1024 Resolution
 
 ### 1. Check Supported Resolutions
@@ -232,91 +215,6 @@ If necessary, re-sync `harris-robert` separately:
 
 ```bash
 rsync -avh --progress ./harris-robert $HOME/Music
-```
-
-## Configure Touchpad
-
-### Verify Touchpad Device
-
-Reboot your system and check available input devices:
-
-```bash
-hyprctl devices
-```
-
-### Configure Keybinding
-
-Edit the user keybindings configuration:
-
-```bash
-chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
-nvim $HOME/.config/hypr/config/user-keybinds.conf
-```
-
-Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
-
-```plaintext
-bind = $mainMod, A, exec, $hyprBin/touchpad_hyprland.sh "ven_04f3:00-04f3:32aa-touchpad"
-bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
-```
-
-### Update Touchpad Script
-
-If necessary, edit the touchpad script:
-
-```bash
-nvim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
-```
-
-## Bluetuith - Connecting Sonos Speakers
-
-### Pairing Instructions
-
-Before using Bluetuith, press the **Bluetooth pairing button** on the Sonos speakers to enable pairing mode.
-
-### Verify and Manage Bluetooth Service
-
-Check the status of the Bluetooth service:
-
-```bash
-systemctl status bluetooth
-```
-
-If necessary, restart the service:
-
-```bash
-systemctl restart bluetooth
-```
-
-Enable Bluetooth service to start on boot:
-
-```bash
-sudo systemctl enable bluetooth
-```
-
-### blueman-manager and bluetuith
-```bash
-
-```
-
-### Debugging Bluetooth Issues
-
-Check recent logs for Bluetooth-related messages:
-
-```bash
-journalctl -u bluetooth --no-pager --since "1 hour ago"
-```
-
-Inspect kernel messages for Bluetooth-related events:
-
-```bash
-dmesg | grep -i bluetooth
-```
-
-Display Bluetooth controller details:
-
-```bash
-bluetoothctl show
 ```
 
 ## Configure /etc/sysctl.d/
@@ -476,6 +374,110 @@ sudo systemctl mask sddm
 ```bash
 sudo systemctl restart sddm  
 reboot  
+```
+
+## Hyprland
+
+```bash
+sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
+```
+
+Optional:
+
+```bash
+    cd $HOME/utono/cachyos-hyprland-settings  
+    git branch -r  
+    git remote -v
+    # git remote set-url origin git@github.com:utono/cachyos-hyprland-settings.git
+    git remote add upstream git@github.com:CachyOS/cachyos-hyprland-settings.git
+    git branch -r  
+    git fetch upstream  
+    git merge upstream/master --allow-unrelated-histories  
+    git add <file_with_conflicts_removed>  
+    git commit  
+```
+## Configure Touchpad
+
+### Verify Touchpad Device
+
+Reboot your system and check available input devices:
+
+```bash
+hyprctl devices
+```
+### Configure Keybinding
+
+Edit the user keybindings configuration:
+
+```bash
+chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
+nvim $HOME/.config/hypr/config/user-keybinds.conf
+```
+
+Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
+
+```plaintext
+bind = $mainMod, A, exec, $hyprBin/touchpad_hyprland.sh "ven_04f3:00-04f3:32aa-touchpad"
+bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
+```
+
+### Update Touchpad Script
+
+If necessary, edit the touchpad script:
+
+```bash
+nvim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
+```
+
+## Bluetuith - Connecting Sonos Speakers
+
+### Pairing Instructions
+
+Before using Bluetuith, press the **Bluetooth pairing button** on the Sonos speakers to enable pairing mode.
+
+### Verify and Manage Bluetooth Service
+
+Check the status of the Bluetooth service:
+
+```bash
+systemctl status bluetooth
+```
+
+If necessary, restart the service:
+
+```bash
+systemctl restart bluetooth
+```
+
+Enable Bluetooth service to start on boot:
+
+```bash
+sudo systemctl enable bluetooth
+```
+
+### blueman-manager and bluetuith
+```bash
+
+```
+
+### Debugging Bluetooth Issues
+
+Check recent logs for Bluetooth-related messages:
+
+```bash
+journalctl -u bluetooth --no-pager --since "1 hour ago"
+```
+
+Inspect kernel messages for Bluetooth-related events:
+
+```bash
+dmesg | grep -i bluetooth
+```
+
+Display Bluetooth controller details:
+
+```bash
+bluetoothctl show
 ```
 
 
