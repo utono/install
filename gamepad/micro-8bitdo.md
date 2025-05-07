@@ -44,7 +44,7 @@ Star:
 Home:
 
     +--------+
-    |  (s)   |  "no-osd", "seek", -2, "exacts"
+    |  (s)   |  "no-osd", "seek", -2, "exact"
     |   o    |
     +--------+
 
@@ -56,7 +56,7 @@ d-pad:
           |          |
     +-----+----------+----- +
     |                       |
-    |  e                f   | "show-progress" / "script-message", "remove_chapter" 
+    | LEFT              f   | "no-osd", "seek", -5, "exact" / "script-message", "remove_chapter" 
     | (.)              (u)  |
     |                       |
     +-----+----------+----- +
