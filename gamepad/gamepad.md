@@ -51,16 +51,16 @@ bluetooth to get device id:
 
    mpv your_video_file.mkv
    ls -l /tmp/mpvsocket
-   python3 ~/.config/mpv/python-scripts/micro-gamepad.py
+   python3 ~/.config/mpv/python-scripts/mpv-micro-gamepad.py
    mpv your_video_file.mkv
    echo '{ "command": ["cycle", "pause"] }' | socat - /tmp/mpvsocket
 
-   ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/micro-gamepad.service ~/.config/systemd/user
+   ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/mpv-micro-gamepad.service ~/.config/systemd/user
    systemctl --user daemon-reload
-   systemctl --user enable --now micro-gamepad.service
-   systemctl --user status micro-gamepad.service
-   systemctl --user restart micro-gamepad.service
-   systemctl --user stop micro-gamepad.service
+   systemctl --user enable --now mpv-micro-gamepad.service
+   systemctl --user status mpv-micro-gamepad.service
+   systemctl --user restart mpv-micro-gamepad.service
+   systemctl --user stop mpv-micro-gamepad.service
 
 
 
@@ -257,13 +257,13 @@ echo '{ "command": ["cycle", "pause"] }' | socat - /tmp/mpvsocket
 
 If MPV pauses, the IPC server is working correctly.
 
-## ~/.config/mpv/python-scripts/micro-gamepad.py
+## ~/.config/mpv/python-scripts/mpv-micro-gamepad.py
 
 Instead of manually setting `DEVICE_PATH='/dev/input/eventX'`, dynamically locate the gamepad using its **Vendor ID** and **Product ID**:
 
-## **Testing `micro-gamepad.py` Before Configuring Systemd**
+## **Testing `mpv-micro-gamepad.py` Before Configuring Systemd**
 
-Before setting up the systemd service, verify that `micro-gamepad.py` works correctly:
+Before setting up the systemd service, verify that `mpv-micro-gamepad.py` works correctly:
 
 1. **Ensure MPV is running with IPC enabled:**
    ```bash
@@ -272,7 +272,7 @@ Before setting up the systemd service, verify that `micro-gamepad.py` works corr
 
 2. **Run the script manually:**
    ```bash
-   python3 ~/.config/mpv/python-scripts/micro-gamepad.py
+   python3 ~/.config/mpv/python-scripts/mpv-micro-gamepad.py
    ```
 
 3. **Test gamepad input:**
@@ -290,10 +290,10 @@ Before setting up the systemd service, verify that `micro-gamepad.py` works corr
 
 Once confirmed working, proceed with configuring systemd.
 
-## **micro-gamepad.service Systemd Configuration**
+## **mpv-micro-gamepad.service Systemd Configuration**
 
 ```bash
-ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/micro-gamepad.service ~/.config/systemd/user
+ln -sf ~/tty-dotfiles/systemd/.config/systemd/user/mpv-micro-gamepad.service ~/.config/systemd/user
 ```
 
 ```ini
@@ -303,8 +303,8 @@ Description=8BitDo Mico gamepad as keyboard to MPV
 Before=mpv.service
 
 [Service]
-ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/python-scripts/micro-gamepad.py
-# ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/micro-gamepad.py
+ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/python-scripts/mpv-micro-gamepad.py
+# ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/mpv-micro-gamepad.py
 # ExecStart=/usr/bin/python3 /home/mlj/.config/mpv/scripts/micro-to-mpv-26.py
 Restart=always
 Environment=PYTHONUNBUFFERED=1
@@ -324,22 +324,22 @@ WantedBy=default.target
 
 4. **Enable and Start the Service**
    ```bash
-   systemctl --user enable --now micro-gamepad.service
+   systemctl --user enable --now mpv-micro-gamepad.service
    ```
 
 5. **Check the Service Status**
    ```bash
-   systemctl --user status micro-gamepad.service
+   systemctl --user status mpv-micro-gamepad.service
    ```
 
 6. **Restart the Service**
    ```bash
-   systemctl --user restart micro-gamepad.service
+   systemctl --user restart mpv-micro-gamepad.service
    ```
 
 7. **Stop the Service**
    ```bash
-   systemctl --user stop micro-gamepad.service
+   systemctl --user stop mpv-micro-gamepad.service
    ```
 
 ## **When to Use `daemon-reload` vs `daemon-reexec`**
