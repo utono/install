@@ -16,6 +16,19 @@ If you'd like to undo the udev rules and start from scratch:
 sudo rm /etc/udev/rules.d/99-gamepad.rules
 sudo udevadm control --reload-rules
 sudo udevadm trigger
+
+```
+```bash
+ cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules .
+'/home/mlj/utono/system-config/etc/udev/rules.d/99-gamepad.rules' -> './99-gamepad.rules'
+cp: cannot create regular file './99-gamepad.rules': Permission denied
+
+ sudo cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules .
+[sudo] password for mlj: 
+
+ sudo udevadm control --reload-rules                              
+
+ sudo udevadm trigger               
 ```
 
 You should also remove your systemd user services:
