@@ -26,6 +26,7 @@ neovim
 p7zip
 poppler
 python-evdev
+python-psutil
 ripgrep
 snapper
 snap-pac
