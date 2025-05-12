@@ -411,6 +411,7 @@ Edit the user keybindings configuration:
 
 ```bash
 chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
+chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/scripts/*
 nvim $HOME/.config/hypr/config/user-keybinds.conf
 ```
 
