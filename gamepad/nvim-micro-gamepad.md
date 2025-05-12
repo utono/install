@@ -1,3 +1,66 @@
+## 🎮 How Gamepad Input Is Isolated to Neovim and MPV
+
+To ensure gamepad input affects only Neovim and MPV (and not any other app), this setup uses **low-level input
+access**, **custom Python logic**, and **systemd user services**. Here's how isolation is achieved:
+
+---
+
+### 🔒 Direct Reading from `/dev/input/event*`
+
+Instead of letting the gamepad behave like a normal keyboard, the `nvim-micro-gamepad.py` script opens the device
+file (e.g., `/dev/input/event26`) and listens directly to raw input events. To prevent these events from being
+received by any other process, the device is **exclusively grabbed** using `evdev`:
+
+* The script calls `device.grab()` where `device` is an `evdev.InputDevice` instance
+* Once grabbed, **no other program can read from the gamepad**, not even the desktop environment
+
+This is critical for ensuring keystrokes from the gamepad are not interpreted by any window manager or other input
+handler. It creates a "monopoly" on input: only the Python script sees the events.
+
+---
+
+### ⚙️ systemd Path and Timer Units
+
+To ensure the script runs only when MPV is active, a pair of systemd units are used:
+
+* `nvim-micro-gamepad.path`: Watches for `/tmp/mpvsocket` (MPV IPC socket)
+* `nvim-micro-gamepad.service`: Starts the script when MPV is running
+* `nvim-micro-gamepad-stop.timer`: Periodically checks if the socket is gone and stops the service
+
+This guarantees:
+
+* The gamepad isn’t read or grabbed unless MPV is running
+* The service is automatically cleaned up when MPV exits
+
+---
+
+### 🧠 Socket-Based Targeting of MPV and Neovim
+
+MPV and Neovim are controlled **only via their respective Unix sockets**:
+
+* MPV: `/tmp/mpvsocket`
+* Neovim: `/tmp/nvim.sock` (or dynamic variant via `nvim-listen`)
+
+The script sends:
+
+* JSON commands to MPV via socket or `socat`
+* Key-like strings (e.g. `"j"`, `"k"`) to Neovim via its `--server` API
+
+Since all commands are socket-targeted, no other application can receive them accidentally.
+
+---
+
+### ✅ Summary
+
+| Mechanism                | Role in Isolation                            |
+| ------------------------ | -------------------------------------------- |
+| `device.grab()`          | Prevents system-wide key propagation         |
+| MPV socket path check    | Ensures script runs only when MPV is active  |
+| systemd path/timer units | Start/stop service as MPV appears/disappears |
+| IPC socket targeting     | Restricts delivery to MPV and Neovim only    |
+
+Together, these components form a sandbox: your gamepad operates *only* inside MPV and Neovim.
+
 # Neovim + MPV Gamepad Integration with Systemd
 
 This guide sets up a Bluetooth keyboard-style gamepad (e.g. 8BitDo Micro) to:
