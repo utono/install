@@ -18,19 +18,6 @@ sudo udevadm control --reload-rules
 sudo udevadm trigger
 
 ```
-```bash
- cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules .
-'/home/mlj/utono/system-config/etc/udev/rules.d/99-gamepad.rules' -> './99-gamepad.rules'
-cp: cannot create regular file './99-gamepad.rules': Permission denied
-
- sudo cp ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules .
-[sudo] password for mlj: 
-
- sudo udevadm control --reload-rules                              
-
- sudo udevadm trigger               
-```
-
 You should also remove your systemd user services:
 
 ```bash
@@ -119,24 +106,17 @@ You should see `input` listed among your groups.
 
 ## ✅ 5. Create Udev Rule
 
-```bash
-sudo nano /etc/udev/rules.d/99-gamepad.rules
-```
-
-Paste:
-
-```udev
-SUBSYSTEM=="input", ATTRS{id/vendor}=="2dc8", ATTRS{id/product}=="9021", GROUP="input", MODE="0660"
-```
-
 Apply:
 
 ```bash
+cp -v ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d
+'/home/mlj/utono/system-config/etc/udev/rules.d/99-gamepad.rules' -> './99-gamepad.rules'
+cp: cannot create regular file './99-gamepad.rules': Permission denied
+
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 sudo udevadm settle
 ```
-
 Then turn the gamepad off and on.
 
 ---
@@ -157,54 +137,29 @@ chmod 666 /tmp/mpvsocket
 
 ---
 
-## ✅ 7. Save Gamepad Script
+## ✅ 7. symlink gamepad Script
 
 ```bash
-mkdir -p ~/.config/mpv/python-scripts
-nano ~/.config/mpv/python-scripts/nvim-micro-gamepad.py
+cd ~/tty-dotfiles
+stow --verbose --no-folding bin-mlj
+ls -al ~/.local/bin/bin-mlj/gamepad 
+   lrwxrwxrwx - mlj 11 May 13:07  mpv-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/mpv-micro-gamepad.py
+   lrwxrwxrwx - mlj 11 May 13:07  nvim-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
+   lrwxrwxrwx - mlj 11 May 13:07  zero-to-mpv-19.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/zero-to-mpv-19.py
 ```
-
-Paste the final `nvim-micro-gamepad.py` script.
-
-Make it executable:
-
-```bash
-chmod +x ~/.config/mpv/python-scripts/nvim-micro-gamepad.py
-```
-
-Symlink to `~/.local/bin`:
-
-```bash
-mkdir -p ~/.local/bin
-ln -sf ~/.config/mpv/python-scripts/nvim-micro-gamepad.py ~/.local/bin/nvim-micro-gamepad
-```
-
 ---
 
 ## ✅ 8. Create systemd Service
 
 ```bash
-mkdir -p ~/.config/systemd/user
-nano ~/.config/systemd/user/nvim-micro-gamepad.service
+stow --verbose --no-folding systemd -n
+   MKDIR: .config/systemd/user
+   LINK: .config/systemd/user/mpv-micro-gamepad.service => ../../../tty-dotfiles/systemd/.config/systemd/user/mpv-micro-gamepad.service
+   LINK: .config/systemd/user/nvim-micro-gamepad-stop.service => ../../../tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad-stop.service
+   LINK: .config/systemd/user/nvim-micro-gamepad-stop.timer => ../../../tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad-stop.timer
+   LINK: .config/systemd/user/nvim-micro-gamepad.path => ../../../tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad.path
+   LINK: .config/systemd/user/nvim-micro-gamepad.service => ../../../tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad.service
 ```
-
-Paste:
-
-```ini
-[Unit]
-Description=Gamepad-to-Neovim+MPV bridge (8BitDo Micro)
-After=graphical-session.target
-
-[Service]
-ExecStart=%h/.config/mpv/python-scripts/nvim-micro-gamepad.py
-Restart=on-failure
-RestartSec=2
-Environment=PATH=%h/.local/bin:/usr/bin:/bin
-
-[Install]
-WantedBy=default.target
-```
-
 Enable and start:
 
 ```bash
