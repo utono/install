@@ -38,7 +38,6 @@ sudo userdel -r newuser
 Ctrl + Alt + F3
 sudo loadkeys dvorak  
 ```
-
 ## Configure keyboard
 ```bash
 cachyos-rate-mirrors
