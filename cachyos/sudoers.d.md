@@ -55,7 +55,7 @@ If you maintain your sudoers files in version control (e.g., in `~/utono/system-
 
 ```bash
 sudo install -m 440 -o root -g root $HOME/utono/system-config/etc/sudoers.d/00_wheel_nopasswd /etc/sudoers.d/
-sudo visudo -c  # Validate the syntax
+sudo visudo -c
 ```
 
 ---
