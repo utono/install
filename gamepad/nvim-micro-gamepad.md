@@ -100,13 +100,13 @@ Reboot or log out/in to fully clear any device group permissions.
 ## ✅ 1. Install Required Packages
 
 ```bash
-sudo pacman -S python-evdev python-psutil socat blueman bluetuith
+sudo pacman -S --needed python-evdev python-psutil socat
 ```
 
 If you're using Hyprland:
 
 ```bash
-sudo pacman -S hyprland jq
+sudo pacman -S --needed hyprland jq
 ```
 
 ---
@@ -115,7 +115,7 @@ sudo pacman -S hyprland jq
 
 ```bash
 sudo keyd monitor
-blueman-manager  # or bluetuith
+blueman-manager
 ```
 
 Look for:
@@ -172,7 +172,7 @@ You should see `input` listed among your groups.
 Apply:
 
 ```bash
-cp -v ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d
+sudo cp -v ~/utono/system-config/etc/udev/rules.d/99-gamepad.rules /etc/udev/rules.d
 '/home/mlj/utono/system-config/etc/udev/rules.d/99-gamepad.rules' -> './99-gamepad.rules'
 cp: cannot create regular file './99-gamepad.rules': Permission denied
 
@@ -209,6 +209,7 @@ ls -al ~/.local/bin/bin-mlj/gamepad
    lrwxrwxrwx - mlj 11 May 13:07  mpv-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/mpv-micro-gamepad.py
    lrwxrwxrwx - mlj 11 May 13:07  nvim-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
    lrwxrwxrwx - mlj 11 May 13:07  zero-to-mpv-19.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/zero-to-mpv-19.py
+chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
 ```
 ---
 
@@ -229,6 +230,7 @@ Enable and start:
 systemctl --user daemon-reexec
 systemctl --user daemon-reload
 systemctl --user enable --now nvim-micro-gamepad.service
+Created symlink '/home/mlj/.config/systemd/user/default.target.wants/nvim-micro-gamepad.service' -> '/home/mlj/tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad.service'
 ```
 
 ---
@@ -298,7 +300,11 @@ systemctl --user enable --now nvim-micro-gamepad-stop.timer
 ## ✅ 10. Start Neovim with Socket
 
 ```bash
+chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/nvim/nvim-listen
+chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/nvim/*
 nvim --listen /tmp/nvim.sock
+which on
+on: aliased to nvim-listen
 ```
 
 Or create a wrapper:
@@ -313,23 +319,15 @@ exec nvim --listen "$SOCKET" "$@"
 Save it as:
 
 ```bash
-mkdir -p ~/.local/bin
-nano ~/.local/bin/nvim-listen
-chmod +x ~/.local/bin/nvim-listen
+mkdir -p ~/.local/bin/bin-mlj/nvim
+nano -p ~/.local/bin/bin-mlj/nvim/nvim-listen
 ```
 
 Alias it:
 
 ```bash
-echo 'alias nvim="nvim-listen"' >> ~/.bashrc  # or ~/.zshrc
+echo 'alias on="nvim-listen"' >> ~/.bashrc  # or ~/.zshrc
 source ~/.bashrc
-```
-
-Temporarily bypass:
-
-```bash
-\nvim file.txt
-/usr/bin/nvim file.txt
 ```
 
 Or set socket discovery explicitly:

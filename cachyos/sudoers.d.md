@@ -87,7 +87,7 @@ Try the following commands:
 
 ```bash
 sudo -k  # Reset sudo timestamp
-sudo loadkeys  # Should not prompt for password
+pacman -Syy
 ```
 
 > You must use `sudo` even when password is not required unless you're using a frontend like `udisksctl`.

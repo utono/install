@@ -1,3 +1,7 @@
+## Audio for xps17-2tb
+
+paru -S linux-firmware
+
 # CachyOS Install Guide
 
 ## Format USB drive and sync USB drive's utono directory
@@ -33,6 +37,12 @@ sudo passwd newuser
 sudo userdel -r newuser
 ```
 
+## Login as user 'mlj'
+```
+xps17-2 login: mlj
+Password:
+```
+
 ## Configure keyboard
 ```bash
 Ctrl + Alt + F3
@@ -46,7 +56,7 @@ pacman -S udisks2
 udisksctl mount -b /dev/sda
 mkdir -p $HOME/utono
 chattr -V +C $HOME/utono
-rsync -avh --progress /run/media/root/8C8E-606F/utono/ $HOME/utono
+rsync -avh --progress /run/media/mlj/8C8E-606F/utono/ $HOME/utono
 cd $HOME/utono/rpd
 chmod +x $HOME/utono/rpd/keyd-configuration.sh  
 bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
@@ -87,7 +97,8 @@ bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsy
 ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
-git clone https://github.com/utono/nvim-temp.git nvim
+mv ~/utono/nvim-temp nvim
+    git clone https://github.com/utono/nvim-temp.git nvim
 nvim
 ```
 
@@ -241,7 +252,7 @@ cd /etc/sysctl.d
 Copy the system configuration file:
 
 ```bash
-cp $HOME/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
+cp /home/mlj/utono/system-config/etc/sysctl.d/99-sysrq.conf /etc/sysctl.d/
 ```
 
 Apply the new sysctl settings:
@@ -277,7 +288,7 @@ cd /etc/systemd/logind.conf.d
 Copy the lid behavior configuration:
 
 ```bash
-cp $HOME/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
+cp /home/mlj/utono/system-config/etc/systemd/logind.conf.d/lid-behavior.conf /etc/systemd/logind.conf.d
 ```
 
 ### Apply Changes
@@ -395,6 +406,10 @@ Optional:
     git add <file_with_conflicts_removed>  
     git commit  
 ```
+```bash
+nvim ~/.config/hypr/hyprland.conf
+```
+
 ## Configure Touchpad
 
 ### Verify Touchpad Device
@@ -541,7 +556,6 @@ sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)
 
 ## pacman
 
-sudo reflector --country 'United States' --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
 pacman -Qe > $HOME/utono/install/paclists/explicitly-installed.csv
 systemctl list-units --type=service all > $HOME/utono/install/cachyos/services-all.md
 systemctl list-units --type=service > $HOME/utono/install/cachyos/services-active.md
