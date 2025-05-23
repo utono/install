@@ -1,3 +1,6 @@
+## SONOS 92D2 80:4A:F2:C1:92:D2
+Short press to reconnect
+
 ## 🔧 Connecting Bluetooth Devices Using `bluetoothctl`
 
 ### 📘 Common `bluetoothctl` Commands

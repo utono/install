@@ -1,14 +1,16 @@
-# feb-2025.csv
+# may-2025.csv
 
 blueman
-bluetuith-bin
+# bluetuith-bin
 btrfs-progs
 curl
 evtest
 fd
 ffmpeg
 fzf
+go
 git-delta
+gnome-calculator
 grub-btrfs
 hypridle
 hyprlock
@@ -20,10 +22,12 @@ lftp
 libinput
 libnotify
 mpv
+myrepos
 neovim
 p7zip
 poppler
 python-evdev
+python-psutil
 ripgrep
 snapper
 snap-pac
@@ -33,10 +37,12 @@ stow
 trash-cli
 tree
 ttf-jetbrains-mono-nerd
+ttf-firacode-nerd
 udisks2
 vobcopy
 wget
 yazi-nightly-bin
 yt-dlp
 zathura-git
+zathura-pdf-mupdf-git
 zoxide
