@@ -16,7 +16,10 @@ udisksctl mount -b /dev/sda
 rm -rf /run/media/mlj/8C8E-606F/utono
 mkdir -p /run/media/mlj/8C8E-606F/utono
 sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
-sh ~/utono/user-config/utono-update-repos.sh /run/media/mlj/8C8E-606F/utono
+cp -r /run/media/mlj/8C8E-606F/utono/ffmetadata /run/media/mlj/8C8E-606F/Music
+rm -rf /run/media/mlj/8C8E-606F/utono/ffmetadata
+rsync -avh ~/Music/shakespeare-william /run/media/mlj/8C8E-606F/Music/shakespeare-william --dry-run
+# sh ~/utono/user-config/utono-update-repos.sh /run/media/mlj/8C8E-606F/utono
 ```
 
 Since your destination is a FAT32-formatted USB drive (mkfs.fat -F 32), symlinks are not supported.
@@ -46,13 +49,10 @@ Password:
 ## Configure keyboard
 ```bash
 Ctrl + Alt + F3
-sudo loadkeys dvorak  
-```
-## Configure keyboard
-```bash
+sudo loadkeys dvorak
 cachyos-rate-mirrors
-pacman -Syu
-pacman -S udisks2
+sudo pacman -Syu
+sudo pacman -S udisks2
 udisksctl mount -b /dev/sda
 mkdir -p $HOME/utono
 chattr -V +C $HOME/utono
@@ -109,9 +109,9 @@ cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
 stow --verbose=2 --no-folding bat bin-mlj git kitty ksb shell starship yazi -n 2>&1 | tee stow-output.out
-ya pack -l
-ya pack -a ahkohd/eza-preview
-ya pack -a h-hg/yamb
+ya pkg list
+ya pkg add ahkohd/eza-preview
+ya pkg add h-hg/yamb
 ```
 
 ## Configure zsh
@@ -330,7 +330,7 @@ cat Xsetup  # View current Xsetup script
 cp Xsetup Xsetup.bak  # Backup existing Xsetup
 
 # Copy the custom Xsetup script
-cp -i $HOME/utono/system-config/usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts/
+cp -i /home/mlj/utono/system-config/usr/share/sddm/scripts/Xsetup /usr/share/sddm/scripts/
 
 cat Xsetup  # Verify new Xsetup script
 ```

@@ -1,6 +1,6 @@
 # may-2025.csv
 
-blueman
+# blueman
 # bluetuith-bin
 btrfs-progs
 curl
@@ -34,6 +34,7 @@ snap-pac
 socat
 starship
 stow
+swayidle
 trash-cli
 tree
 ttf-jetbrains-mono-nerd
