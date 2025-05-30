@@ -7,7 +7,7 @@ access**, **custom Python logic**, and **systemd user services**. Here's how iso
 
 ### 🔒 Direct Reading from `/dev/input/event*`
 
-Instead of letting the gamepad behave like a normal keyboard, the `nvim-micro-gamepad.py` script opens the device
+Instead of letting the gamepad behave like a normal keyboard, the `$HOME/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py` script opens the device
 file (e.g., `/dev/input/event26`) and listens directly to raw input events. To prevent these events from being
 received by any other process, the device is **exclusively grabbed** using `evdev`:
 
@@ -23,9 +23,9 @@ handler. It creates a "monopoly" on input: only the Python script sees the event
 
 To ensure the script runs only when MPV is active, a pair of systemd units are used:
 
-* `nvim-micro-gamepad.path`: Watches for `/tmp/mpvsocket` (MPV IPC socket)
-* `nvim-micro-gamepad.service`: Starts the script when MPV is running
-* `nvim-micro-gamepad-stop.timer`: Periodically checks if the socket is gone and stops the service
+* `$HOME/tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad.path`: Watches for `/tmp/mpvsocket` (MPV IPC socket)
+* `$HOME/tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad.service`: Starts the script when MPV is running
+* `$HOME/tty-dotfiles/systemd/.config/systemd/user/nvim-micro-gamepad-stop.timer`: Periodically checks if the socket is gone and stops the service
 
 This guarantees:
 
@@ -343,3 +343,112 @@ export NVIM_LISTEN_ADDRESS=/tmp/nvim.sock
 * Press gamepad buttons to send commands to MPV or add chapters
 * Chapter titles come from the focused Neovim line
 * Logs: `journalctl --user -u nvim-micro-gamepad.service -f`
+
+---
+
+## ⚠️ What To Do When You Change `nvim-micro-gamepad.py`
+
+Any change to your gamepad integration script **requires reloading the systemd service** and possibly restarting your input permissions.
+**If you edit or replace**
+`$HOME/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py`,
+follow these steps **to ensure the new code is in effect**:
+
+---
+
+### 1. Resymlink or Restow (If Moved/Renamed)
+
+If you’ve moved, renamed, or restructured the file, update the symlink with GNU Stow:
+
+```bash
+cd ~/tty-dotfiles
+stow --verbose --no-folding bin-mlj
+```
+
+---
+
+### 2. Make Sure Script Is Executable
+
+```bash
+chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
+```
+
+---
+
+### 3. **Reload and Restart the systemd User Service**
+
+This ensures systemd picks up the new version and restarts it if it’s already running:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user restart nvim-micro-gamepad.service
+```
+
+If you’re using the path or timer unit for MPV auto-activation, also restart those if necessary:
+
+```bash
+systemctl --user restart nvim-micro-gamepad.path
+systemctl --user restart nvim-micro-gamepad-stop.timer
+```
+
+---
+
+### 4. (Optional) Check Journal for Errors
+
+Immediately after restart, check for Python errors, import issues, or device grab failures:
+
+```bash
+journalctl --user -u nvim-micro-gamepad.service -f
+```
+
+---
+
+### 5. **If You Modified Device Access Logic:**
+
+If your change affects which `/dev/input/event*` device is opened or how permissions are handled:
+
+* **Power cycle the gamepad** (off/on) if it disconnects.
+* If you changed the udev rule, reload rules and unplug/replug or power cycle the gamepad:
+
+```bash
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+---
+
+### 6. **If the Script Fails To Start or Can’t Grab the Device**
+
+* Make sure no old script instance is running (`ps aux | grep nvim-micro-gamepad` and `kill` if needed)
+* If the device is already grabbed, only a system reboot or full power-cycle will fully release it.
+
+---
+
+### 7. **Summary Table**
+
+| Action                                                | When Required                                 |
+| ----------------------------------------------------- | --------------------------------------------- |
+| `stow` or relink                                      | After moving/renaming the script              |
+| `chmod +x`                                            | If the script isn’t executable                |
+| `systemctl --user daemon-reload`                      | After editing the script                      |
+| `systemctl --user restart nvim-micro-gamepad.service` | After every change (code, path, permissions)  |
+| `journalctl --user -u nvim-micro-gamepad.service -f`  | Debug Python or device issues                 |
+| `sudo udevadm control --reload-rules`                 | If you modified device permissions/udev rules |
+| Power cycle device                                    | If device remains grabbed/locked              |
+
+---
+
+**If the service still won’t run after editing:**
+
+* Double-check the path, permissions, and that the device is present.
+* Try disabling/enabling the user service:
+
+  ```bash
+  systemctl --user disable --now nvim-micro-gamepad.service
+  systemctl --user enable --now nvim-micro-gamepad.service
+  ```
+* Log out/in or reboot if all else fails.
+
+---
+
+Add this right after your setup steps (or as an appendix), so you always have a reliable post-edit checklist for updating and testing your gamepad script integration!
+
