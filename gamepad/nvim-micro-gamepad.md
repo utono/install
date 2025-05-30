@@ -88,7 +88,7 @@ systemctl --user disable --now nvim-micro-gamepad.service
 systemctl --user disable --now nvim-micro-gamepad.path
 systemctl --user disable --now nvim-micro-gamepad-stop.timer
 rm ~/.config/systemd/user/nvim-micro-gamepad.*
-rm ~/.config/mpv/python-scripts/nvim-micro-gamepad.py
+rm $HOME/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
 ```
 
 ⚠️ **Do not enable `nvim-micro-gamepad-stop.service` directly.** It is triggered only by its timer and is not meant to run standalone.
@@ -115,7 +115,7 @@ sudo pacman -S --needed hyprland jq
 
 ```bash
 sudo keyd monitor
-blueman-manager
+bluetootctl
 ```
 
 Look for:
