@@ -19,6 +19,108 @@ handler. It creates a "monopoly" on input: only the Python script sees the event
 
 ---
 
+### 🎯 How the Gamepad Is Identified and Grabbed
+
+Before exclusive grabbing can occur, the gamepad must be precisely identified. This is done via **udev rules**, **manual inspection of `/dev/input/event*`**, and **Python `evdev` matching**.
+
+#### 🔎 Device Detection and Matching
+
+The Python script does *not* assume a fixed device path. Instead, it dynamically scans all available input devices:
+
+```python
+from evdev import InputDevice, list_devices
+
+for path in list_devices():
+    dev = InputDevice(path)
+    if dev.name == "8BitDo Micro gamepad Keyboard" and dev.info.vendor == 0x2dc8 and dev.info.product == 0x9021:
+        gamepad = dev
+        break
+```
+
+This ensures robust identification even if the gamepad enumerates to a different `/dev/input/eventX` on reboot.
+
+#### 📎 Why Vendor and Product ID?
+
+The `vendor` and `product` IDs (e.g. `2dc8:9021`) uniquely identify the hardware. Even if the device name is ambiguous (some gamepads register as "Keyboard"), these IDs guarantee exact matching.
+
+You can discover them with:
+
+```bash
+sudo evtest
+# or
+sudo udevadm info --attribute-walk --name=/dev/input/event26
+```
+
+#### 🔐 Exclusive Access with `grab()`
+
+Once identified, the script opens the device and **calls `gamepad.grab()`**, which:
+
+* Locks the device from all other applications, including X11/Wayland
+* Prevents unintended input leaks to desktops, terminals, games, etc.
+* Allows the script to safely intercept **only relevant key presses**
+
+This is critical to isolating input to Neovim and MPV and is the linchpin of the sandboxed architecture.
+
+---
+
+### ⚙️ systemd Path and Timer Units
+
+To ensure the script runs only when MPV is active, a pair of systemd units are used:
+
+* `nvim-micro-gamepad.path`: Watches for `/tmp/mpvsocket` (MPV IPC socket)
+* `nvim-micro-gamepad.service`: Starts the script when MPV is running
+* `nvim-micro-gamepad-stop.timer`: Periodically checks if the socket is gone and stops the service
+
+This guarantees:
+
+* The gamepad isn’t read or grabbed unless MPV is running
+* The service is automatically cleaned up when MPV exits
+
+---
+
+### 🧠 Socket-Based Targeting of MPV and Neovim
+
+MPV and Neovim are controlled **only via their respective Unix sockets**:
+
+* MPV: `/tmp/mpvsocket`
+* Neovim: `/tmp/nvim.sock` (or dynamic variant via `nvim-listen`)
+
+The script sends:
+
+* JSON commands to MPV via socket or `socat`
+* Key-like strings (e.g. "j", "k") to Neovim via its `--server` API
+
+Since all commands are socket-targeted, no other application can receive them accidentally.
+
+---
+
+### ✅ Summary
+
+| Mechanism                | Role in Isolation                            |
+| ------------------------ | -------------------------------------------- |
+| `device.grab()`          | Prevents system-wide key propagation         |
+| MPV socket path check    | Ensures script runs only when MPV is active  |
+| systemd path/timer units | Start/stop service as MPV appears/disappears |
+| IPC socket targeting     | Restricts delivery to MPV and Neovim only    |
+
+Together, these components form a sandbox: your gamepad operates *only* inside MPV and Neovim.
+
+---
+
+### 🔒 Direct Reading from `/dev/input/event*`
+
+Instead of letting the gamepad behave like a normal keyboard, the `nvim-micro-gamepad.py` script opens the device
+file (e.g., `/dev/input/event26`) and listens directly to raw input events. To prevent these events from being
+received by any other process, the device is **exclusively grabbed** using `evdev`:
+
+* The script calls `device.grab()` where `device` is an `evdev.InputDevice` instance
+* Once grabbed, **no other program can read from the gamepad**, not even the desktop environment
+
+This is critical for ensuring keystrokes from the gamepad are not interpreted by any window manager or other input
+handler. It creates a "monopoly" on input: only the Python script sees the events.
+
+---
+
 ### ⚙️ systemd Path and Timer Units
 
 To ensure the script runs only when MPV is active, a pair of systemd units are used:
