@@ -1,5 +1,102 @@
 ## SONOS 92D2 80:4A:F2:C1:92:D2
+
 Short press to reconnect
+
+# 🟦 `bluetoothctl` Cheat Sheet
+
+A quick reference for managing Bluetooth devices using the `bluetoothctl` interactive shell.
+
+---
+
+## 🔧 Basic Workflow
+
+```bash
+bluetoothctl
+power on
+agent on
+default-agent
+scan on
+pair <MAC>
+trust <MAC>
+connect <MAC>
+```
+
+---
+
+## 🔍 Device Discovery
+
+| Command          | Description                        |
+| ---------------- | ---------------------------------- |
+| `scan on`        | Start scanning for nearby devices  |
+| `scan off`       | Stop scanning                      |
+| `devices`        | List discovered devices            |
+| `paired-devices` | List devices that are paired       |
+| `info <dev>`     | Show details for a specific device |
+
+---
+
+## 🔗 Pairing and Connecting
+
+| Command            | Description             |
+| ------------------ | ----------------------- |
+| `pair <dev>`       | Pair with device        |
+| `trust <dev>`      | Mark device as trusted  |
+| `untrust <dev>`    | Remove trust            |
+| `connect <dev>`    | Connect to a device     |
+| `disconnect <dev>` | Disconnect from device  |
+| `remove <dev>`     | Remove device from list |
+
+---
+
+## ⚙️ Controller Configuration
+
+| Command                        | Description                            |
+| ------------------------------ | -------------------------------------- |
+| `list`                         | List available controllers             |
+| `select <ctrl>`                | Select a default controller            |
+| `show`                         | Show controller info                   |
+| `power on/off`                 | Turn Bluetooth on/off                  |
+| `pairable on/off`              | Set controller pairable                |
+| `discoverable on/off`          | Set controller discoverable            |
+| `discoverable-timeout <value>` | Timeout for discoverability in seconds |
+
+---
+
+## 🧪 Experimental / Other Commands
+
+| Command         | Description                |
+| --------------- | -------------------------- |
+| `agent on/off`  | Enable/disable agent       |
+| `default-agent` | Make current agent default |
+| `block <dev>`   | Block a device             |
+| `unblock <dev>` | Unblock a device           |
+| `version`       | Show Bluetooth version     |
+| `quit`          | Exit `bluetoothctl`        |
+| `help`          | Show help menu             |
+
+---
+
+## 📌 Example: Pairing a New Device
+
+```bash
+bluetoothctl
+power on
+agent on
+default-agent
+scan on
+# Wait for device to appear
+pair AA:BB:CC:DD:EE:FF
+trust AA:BB:CC:DD:EE:FF
+connect AA:BB:CC:DD:EE:FF
+```
+
+---
+
+## 📁 Notes
+
+* Replace `<dev>` with the MAC address of the Bluetooth device.
+* Use `tab` for auto-completion within the shell.
+* Some actions may require elevated privileges (use `sudo bluetoothctl`).
 
 ## 🔧 Connecting Bluetooth Devices Using `bluetoothctl`
 
