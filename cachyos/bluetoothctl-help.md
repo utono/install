@@ -11,7 +11,7 @@ A quick reference for managing Bluetooth devices using the `bluetoothctl` intera
 ## 🔧 Basic Workflow
 
 ```bash
-bluetoothctl
+sudo bluetoothctl
 power on
 agent on
 default-agent
@@ -79,7 +79,7 @@ connect <MAC>
 ## 📌 Example: Pairing a New Device
 
 ```bash
-bluetoothctl
+sudo bluetoothctl
 power on
 agent on
 default-agent
@@ -98,9 +98,9 @@ connect AA:BB:CC:DD:EE:FF
 * Use `tab` for auto-completion within the shell.
 * Some actions may require elevated privileges (use `sudo bluetoothctl`).
 
-## 🔧 Connecting Bluetooth Devices Using `bluetoothctl`
+## 🔧 Connecting Bluetooth Devices Using `sudo bluetoothctl`
 
-### 📘 Common `bluetoothctl` Commands
+### 📘 Common `sudo bluetoothctl` Commands
 
 Run this first:
 

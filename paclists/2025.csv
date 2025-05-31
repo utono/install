@@ -29,6 +29,7 @@ poppler
 python-evdev
 python-openai
 python-psutil
+python-uinput
 ripgrep
 snapper
 snap-pac
