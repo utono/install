@@ -29,7 +29,6 @@ poppler
 python-evdev
 python-openai
 python-psutil
-python-uinput
 ripgrep
 snapper
 snap-pac
@@ -37,6 +36,8 @@ socat
 starship
 stow
 swayidle
+task
+taskwarrior-tui
 trash-cli
 tree
 ttf-jetbrains-mono-nerd
@@ -44,6 +45,7 @@ ttf-firacode-nerd
 udisks2
 vobcopy
 wget
+yadm
 yazi-nightly-bin
 yt-dlp
 zathura-git
