@@ -186,10 +186,19 @@ sudo udevadm trigger
 You should also remove your systemd user services:
 
 ```bash
+
 systemctl --user disable --now nvim-micro-gamepad.service
+systemctl --user stop nvim-micro-gamepad.service
 systemctl --user disable --now nvim-micro-gamepad.path
+systemctl --user stop nvim-micro-gamepad.service
 systemctl --user disable --now nvim-micro-gamepad-stop.timer
+systemctl --user stop nvim-micro-gamepad-stop.timer
+
 rm ~/.config/systemd/user/nvim-micro-gamepad.*
+
+systemctl --user daemon-reload
+systemctl --user status
+
 rm $HOME/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
 ```
 
@@ -216,21 +225,106 @@ sudo pacman -S --needed hyprland jq
 ## ✅ 2. Identify the Gamepad
 
 ```bash
-sudo keyd monitor
-bluetootctl
-```
+sudo bluetoothctl
 
-Look for:
-
-```
-device added: 2dc8:9021:... 8BitDo Micro gamepad Keyboard (/dev/input/event26)
-```
+ sudo libinput list-devices | grep -A 5 Keyboard
+Device:                  8BitDo Micro gamepad Keyboard
+Kernel:                  /dev/input/event21
+Id:                      bluetooth:2dc8:9021
+Group:                   16
+Seat:                    seat0, default
+Capabilities:            keyboard pointer 
 
 Note:
 
 * Vendor ID: `2dc8`
 * Product ID: `9021`
-* Device path: `/dev/input/event26`
+* Device path: `/dev/input/event21`
+
+ ls -l /dev/input/event21                               
+crw-rw---- 13,85 root  1 Jun 13:37  /dev/input/event21
+
+ udevadm info --name=/dev/input/event21 --attribute-walk
+
+...
+  looking at device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003/input/input26/event21':
+    KERNEL=="event21"
+    SUBSYSTEM=="input"
+    DRIVER==""
+    ATTR{power/control}=="auto"
+    ATTR{power/runtime_active_time}=="0"
+    ATTR{power/runtime_status}=="unsupported"
+    ATTR{power/runtime_suspended_time}=="0"
+
+  looking at parent device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003/input/input26':
+    KERNELS=="input26"
+    SUBSYSTEMS=="input"
+    DRIVERS==""
+    ATTRS{capabilities/abs}=="100000000"
+    ATTRS{capabilities/ev}=="12001f"
+    ATTRS{capabilities/ff}=="0"
+    ATTRS{capabilities/key}=="3f00033fff 0 0 483ffff17aff32d bfd4444600000000 1 130ff38b17d007 ffff7bfad941dfff ffbeffdfffefffff fffffffffffffffe"
+    ATTRS{capabilities/led}=="1f"
+    ATTRS{capabilities/msc}=="10"
+    ATTRS{capabilities/rel}=="1040"
+    ATTRS{capabilities/snd}=="0"
+    ATTRS{capabilities/sw}=="0"
+    ATTRS{id/bustype}=="0005"
+
+    ATTRS{id/product}=="9021"
+    ATTRS{id/vendor}=="2dc8"
+
+    ATTRS{id/version}=="0100"
+    ATTRS{inhibited}=="0"
+    ATTRS{name}=="8BitDo Micro gamepad Keyboard"
+    ATTRS{phys}=="98:59:7a:f7:60:ec"
+    ATTRS{power/control}=="auto"
+    ATTRS{power/runtime_active_time}=="0"
+    ATTRS{power/runtime_status}=="unsupported"
+    ATTRS{power/runtime_suspended_time}=="0"
+    ATTRS{properties}=="0"
+    ATTRS{uniq}=="e4:17:d8:5e:f4:f6"
+
+  looking at parent device '/devices/virtual/misc/uhid/0005:2DC8:9021.0003':
+    KERNELS=="0005:2DC8:9021.0003"
+    SUBSYSTEMS=="hid"
+    DRIVERS=="hid-generic"
+    ATTRS{country}=="21"
+    ATTRS{power/control}=="auto"
+    ATTRS{power/runtime_active_time}=="0"
+    ATTRS{power/runtime_status}=="unsupported"
+    ATTRS{power/runtime_suspended_time}=="0"
+lines 1-52
+
+ sudo evtest
+
+No device specified, trying to scan all of /dev/input/event*
+Available devices:
+/dev/input/event0:           Lid Switch
+/dev/input/event1:           Power Button
+/dev/input/event10:         VEN_04F3:00 04F3:32AA Mouse
+/dev/input/event11:         VEN_04F3:00 04F3:32AA Touchpad
+/dev/input/event12:         Dell Privacy Driver
+/dev/input/event13:         Dell WMI hotkeys
+/dev/input/event14:         PS/2 Generic Mouse
+/dev/input/event15:         sof-soundwire Headset Jack
+/dev/input/event16:         sof-soundwire HDMI/DP,pcm=5
+/dev/input/event17:         sof-soundwire HDMI/DP,pcm=6
+/dev/input/event18:         sof-soundwire HDMI/DP,pcm=7
+/dev/input/event19:         keyd virtual keyboard
+/dev/input/event2:           Sleep Button
+/dev/input/event20:         keyd virtual pointer
+/dev/input/event21:         8BitDo Micro gamepad Keyboard
+/dev/input/event3:           Power Button
+/dev/input/event4:           AT Translated Set 2 keyboard
+/dev/input/event5:           Video Bus
+/dev/input/event6:           Video Bus
+/dev/input/event7:           Intel HID events
+/dev/input/event8:           Intel HID 5 button array
+/dev/input/event9:           PC Speaker
+Select the device event number [0-21]: 
+
+```
 
 ---
 
@@ -307,10 +401,12 @@ chmod 666 /tmp/mpvsocket
 ```bash
 cd ~/tty-dotfiles
 stow --verbose --no-folding bin-mlj
-ls -al ~/.local/bin/bin-mlj/gamepad 
-   lrwxrwxrwx - mlj 11 May 13:07  mpv-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/mpv-micro-gamepad.py
-   lrwxrwxrwx - mlj 11 May 13:07  nvim-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
-   lrwxrwxrwx - mlj 11 May 13:07  zero-to-mpv-19.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/zero-to-mpv-19.py
+ pwd                
+/home/mlj/.local/bin/bin-mlj/gamepad
+ la               
+lrwxrwxrwx - mlj 31 May 04:26  add_chapter_from_nvim.sh -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/add_chapter_from_nvim.sh
+lrwxrwxrwx - mlj 31 May 04:26  nvim-micro-gamepad.py -> ../../../../tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
+
 chmod +x ~/tty-dotfiles/bin-mlj/.local/bin/bin-mlj/gamepad/nvim-micro-gamepad.py
 ```
 ---
