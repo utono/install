@@ -69,7 +69,7 @@ reboot
 
 Optional: 
 ```bash
-git clone https://github.com/utono/rpd.git
+git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/rpd.git
 git remote -v
 git remote set-url origin git@github.com:utono/rpd.git
 git remote -v
@@ -98,7 +98,7 @@ ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
 mv ~/utono/nvim-temp nvim
-    git clone https://github.com/utono/nvim-temp.git nvim
+    git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
 nvim
 ```
 
