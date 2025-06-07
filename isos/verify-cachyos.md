@@ -36,7 +36,7 @@ wget -O "cachyos-desktop-linux-${ISO_DATE}.iso.sig" "https://iso.cachyos.org/lat
 
 To ensure the ISO's integrity, use the following script, which lets you select both the `.iso` and `.sha256` files interactively:
 
-### Bash Script (`verify_iso_fzf.sh`)
+### Bash Script (`/home/mlj/utono/install/isos/verify_iso_fzf.sh`)
 
 ```bash
 #!/usr/bin/env bash
