@@ -108,7 +108,7 @@ nvim
 cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
-stow --verbose=2 --no-folding bat bin-mlj git kitty ksb shell starship yazi -n 2>&1 | tee stow-output.out
+stow --verbose=2 --no-folding bat bin-mlj git kitty ksb mako shell starship yazi -n 2>&1 | tee stow-output.out
 ya pkg list
 ya pkg add ahkohd/eza-preview
 ya pkg add h-hg/yamb
@@ -390,6 +390,9 @@ reboot
 
 ```bash
 sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
+cat ~/.config/mako
+trash ~/.config/mako
+stow --verbose=2 --no-folding mako -n 2>&1 | tee stow-output.out
 ```
 
 Optional:
