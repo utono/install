@@ -13,8 +13,9 @@ wipefs --all /dev/sda
 sudo mkfs.fat -F 32 /dev/sda  
 udisksctl mount -b /dev/sda  
 # rsync -avh --progress $HOME/utono /run/media/mlj/8C8E-606F -n
-rm -rf /run/media/mlj/8C8E-606F/utono
-mkdir -p /run/media/mlj/8C8E-606F/utono
+cd8
+rm -rf utono
+mkdir -p utono
 sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
 cp -r /run/media/mlj/8C8E-606F/utono/ffmetadata /run/media/mlj/8C8E-606F/Music
 rm -rf /run/media/mlj/8C8E-606F/utono/ffmetadata
