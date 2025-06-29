@@ -3,7 +3,9 @@
 # blueman
 # bluetuith-bin
 btrfs-progs
+calibre
 curl
+downgrade
 dysk
 evtest
 fd
@@ -24,6 +26,7 @@ libinput
 libnotify
 mpv
 myrepos
+neofetch
 neovide
 neovim
 neovim-remote
@@ -36,6 +39,7 @@ ripgrep
 snapper
 snap-pac
 socat
+# sof-firmware: installed by default
 starship
 stow
 swayidle

@@ -1,7 +1,3 @@
-## Audio for xps17-2tb
-
-paru -S linux-firmware
-
 # CachyOS Install Guide
 
 ## Format USB drive and sync USB drive's utono directory
@@ -88,7 +84,7 @@ Password:
 paru -Syy
 cd $HOME/utono/install/paclists
 chmod +x install_packages.sh
-bash install_packages.sh mar-2025.csv
+bash install_packages.sh 2025.csv
 ```
 
 ## Configure utono repos
@@ -99,7 +95,11 @@ ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
 mv ~/utono/nvim-temp nvim
-    git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
+
+    Or, as an alternatives:
+
+        git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
+
 nvim
 ```
 
@@ -109,6 +109,7 @@ nvim
 cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
+trash ~/.config/mako
 stow --verbose=2 --no-folding bat bin-mlj git kitty ksb mako shell starship yazi -n 2>&1 | tee stow-output.out
 ya pkg list
 ya pkg add ahkohd/eza-preview
@@ -134,7 +135,7 @@ cd $HOME/utono/ssh
 chmod +x sync-ssh-keys.sh
 ./sync-ssh-keys.sh "$HOME/utono" 2>&1 | tee -a sync-ssh-keys-output.out
 
-    source ~/tty-dotfiles/shell/.config/shell/exports
+    source ~/.config/shell/exports
     export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
     echo $SSH_AUTH_SOCK
     systemctl --user enable --now ssh-agent
@@ -177,9 +178,9 @@ GRUB_GFXMODE=3840x2400
 GRUB_GFXMODE=600x400
 GRUB_GFXMODE=800x600
 GRUB_GFXMODE=1024x768
-* GRUB_GFXMODE=1280x1024
+GRUB_GFXMODE=1280x1024
 GRUB_GFXMODE=1600x1200
-GRUB_GFXMODE=1920x1440
+* GRUB_GFXMODE=1920x1440
 GRUB_GFXPAYLOAD_LINUX=keep
 ```
 
@@ -412,6 +413,9 @@ Optional:
 ```
 ```bash
 nvim ~/.config/hypr/hyprland.conf
+cd ~/.config/hypr/bin
+chmod +x *.sh
+reboot
 ```
 
 ## Configure Touchpad
@@ -497,6 +501,22 @@ Display Bluetooth controller details:
 
 ```bash
 bluetoothctl show
+```
+
+### Configure audio
+```
+paru -S linux-firmware
+paru -Sy sof-firmware
+sudo mkinitcpio -P
+lsmod | grep snd_sof
+aplay -l
+    expected output:
+    card 0: sofhdadsp [sof-hda-dsp], device 0: ...
+```
+```
+dmesg | grep -i sof
+sudo pacman -S alsa-utils
+    Run alsamixer to unmute and adjust levels
 ```
 
 
