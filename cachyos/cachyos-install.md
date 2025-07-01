@@ -53,7 +53,8 @@ sudo pacman -S udisks2
 udisksctl mount -b /dev/sda
 mkdir -p $HOME/utono
 chattr -V +C $HOME/utono
-rsync -avh --progress /run/media/mlj/8C8E-606F/utono/ $HOME/utono
+cd /run/media/mlj/8C8E-606F/utono/
+rsync -avh --progress ./ $HOME/utono
 cd $HOME/utono/rpd
 chmod +x $HOME/utono/rpd/keyd-configuration.sh  
 bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
@@ -94,7 +95,7 @@ bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsy
 ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
-mv ~/utono/nvim-temp nvim
+mv ~/utono/nvim-temp/ nvim
 
     Or, as an alternatives:
 
@@ -132,12 +133,12 @@ Log in
 
 ```bash
 cd $HOME/utono/ssh
-chmod +x sync-ssh-keys.sh
+chmod +x *.sh
 ./sync-ssh-keys.sh "$HOME/utono" 2>&1 | tee -a sync-ssh-keys-output.out
 
     source ~/.config/shell/exports
-    export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
-    echo $SSH_AUTH_SOCK
+        export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+        echo $SSH_AUTH_SOCK
     systemctl --user enable --now ssh-agent
     systemctl --user status ssh-agent
     systemctl --user daemon-reexec
@@ -415,114 +416,16 @@ Optional:
 nvim ~/.config/hypr/hyprland.conf
 cd ~/.config/hypr/bin
 chmod +x *.sh
+cd ~/.config/hypr/scripts/
+chmod +x *
 reboot
-```
-
-## Configure Touchpad
-
-### Verify Touchpad Device
-
-Reboot your system and check available input devices:
-
-```bash
-hyprctl devices
-```
-### Configure Keybinding
-
-Edit the user keybindings configuration:
-
-```bash
-chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
-chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/scripts/*
-nvim $HOME/.config/hypr/config/user-keybinds.conf
-```
-
-Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
-
-```plaintext
-bind = $mainMod, A, exec, $hyprBin/touchpad_hyprland.sh "ven_04f3:00-04f3:32aa-touchpad"
-bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
-```
-
-### Update Touchpad Script
-
-If necessary, edit the touchpad script:
-
-```bash
-nvim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
 ```
 
 ## Bluetuith - Connecting Sonos Speakers
 
-### Pairing Instructions
-
-Before using Bluetuith, press the **Bluetooth pairing button** on the Sonos speakers to enable pairing mode.
-
-### Verify and Manage Bluetooth Service
-
-Check the status of the Bluetooth service:
-
 ```bash
-systemctl status bluetooth
+sudo bluetoothctl
 ```
-
-If necessary, restart the service:
-
-```bash
-systemctl restart bluetooth
-```
-
-Enable Bluetooth service to start on boot:
-
-```bash
-sudo systemctl enable bluetooth
-```
-
-### blueman-manager and bluetuith
-```bash
-
-```
-
-### Debugging Bluetooth Issues
-
-Check recent logs for Bluetooth-related messages:
-
-```bash
-journalctl -u bluetooth --no-pager --since "1 hour ago"
-```
-
-Inspect kernel messages for Bluetooth-related events:
-
-```bash
-dmesg | grep -i bluetooth
-```
-
-Display Bluetooth controller details:
-
-```bash
-bluetoothctl show
-```
-
-### Configure audio
-```
-paru -S linux-firmware
-paru -Sy sof-firmware
-sudo mkinitcpio -P
-lsmod | grep snd_sof
-aplay -l
-    expected output:
-    card 0: sofhdadsp [sof-hda-dsp], device 0: ...
-```
-```
-dmesg | grep -i sof
-sudo pacman -S alsa-utils
-    Run alsamixer to unmute and adjust levels
-```
-
-
-
-
-
 
 ## Firefox
 about:config
@@ -586,3 +489,45 @@ systemctl list-units --type=service > $HOME/utono/install/cachyos/services-activ
 systemctl --user list-units --type=service --all
 systemctl --user status <service_name>.service
 ```
+
+
+
+
+
+
+
+## Configure Touchpad
+
+### Verify Touchpad Device
+
+Reboot your system and check available input devices:
+
+```bash
+hyprctl devices
+```
+### Configure Keybinding
+
+Edit the user keybindings configuration:
+
+```bash
+chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
+chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/scripts/*
+nvim $HOME/.config/hypr/config/user-keybinds.conf
+```
+
+Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
+
+```plaintext
+bind = $mainMod, A, exec, $hyprBin/touchpad_hyprland.sh "ven_04f3:00-04f3:32aa-touchpad"
+bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
+```
+
+### Update Touchpad Script
+
+If necessary, edit the touchpad script:
+
+```bash
+nvim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
+```
+
+
