@@ -244,6 +244,28 @@ For more details on emergency reboot shortcuts, see:
 
 **Reboot Even If System Is Utterly Broken**
 
+## 🔐 Sudoers Rule for Touchpad Toggle
+
+To allow `$HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/toggle-touchpad.sh` to disable/enable the touchpad **without prompting for a password**, this file must exist:
+
+```
+/etc/sudoers.d/touchpad-toggle
+```
+
+### Contents:
+
+```sudoers
+mlj ALL=(ALL) NOPASSWD: /usr/bin/tee /sys/bus/i2c/drivers/i2c_hid_acpi/unbind, /usr/bin/tee /sys/bus/i2c/drivers/i2c_hid_acpi/bind
+```
+
+* Replace `mlj` with your actual username if needed.
+* This allows passwordless writing to the unbind/bind control files for your I²C touchpad device.
+
+```
+cp ~/utono/system-config/etc/sudoers.d/touchpad-toggle /etc/sudoers.d
+```
+---
+
 ### Configure Sysrq Settings
 
 Navigate to the sysctl configuration directory:
@@ -421,6 +443,22 @@ chmod +x *
 reboot
 ```
 
+## systemd services
+
+```bash
+# Reload systemd user units (required if you've changed the .service file)
+systemctl --user daemon-reexec
+systemctl --user daemon-reload
+
+systemctl --user enable --now watch-clipboard.service
+
+# Restart your service
+systemctl --user restart watch-clipboard.service
+
+# (Optional) Check status
+systemctl --user status watch-clipboard.service
+
+```
 ## Bluetuith - Connecting Sonos Speakers
 
 ```bash
