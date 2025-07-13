@@ -2,6 +2,7 @@
 
 # blueman
 # bluetuith-bin
+bc
 btrfs-progs
 calibre
 curl
@@ -26,12 +27,15 @@ lazygit
 lftp
 libinput
 libnotify
+lsof
 mpv
 myrepos
 neofetch
 neovide
 neovim
 neovim-remote
+noto-fonts-emoji
+otf-san-francisco-mono
 p7zip
 poppler
 python-evdev
@@ -49,8 +53,19 @@ task
 taskwarrior-tui
 trash-cli
 tree
-ttf-jetbrains-mono-nerd
+ttf-3270-nerd
+ttf-anonymouspro-nerd
+ttf-cascadia-code-nerd
+ttf-cascadia-mono-nerd
+ttf-courier-prime
 ttf-firacode-nerd
+ttf-inconsolata-nerd
+ttf-iosevkaterm-nerd
+ttf-jetbrains-mono-nerd
+ttf-meslo-nerd
+ttf-monaco
+ttf-ubuntu-font-family
+ttf-victor-mono-nerd
 udisks2
 vobcopy
 wget
