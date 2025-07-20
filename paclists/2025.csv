@@ -4,7 +4,6 @@
 # bluetuith-bin
 bc
 btrfs-progs
-calibre
 curl
 downgrade
 dysk
@@ -15,12 +14,11 @@ fzf
 go
 git-delta
 gnome-calculator
-gopass
+# gopass
 grub-btrfs
 hypridle
 hyprlock
 imagemagick
-instaloader
 jq
 kitty
 lazygit
@@ -38,19 +36,20 @@ noto-fonts-emoji
 otf-san-francisco-mono
 p7zip
 poppler
+python-anthropic
 python-evdev
 python-openai
 python-psutil
 ripgrep
-snapper
-snap-pac
+# snapper
+# snap-pac
 socat
 # sof-firmware: installed by default
 starship
 stow
-swayidle
-task
-taskwarrior-tui
+# swayidle: use hypridle instead
+# task
+# taskwarrior-tui
 trash-cli
 tree
 ttf-3270-nerd
