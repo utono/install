@@ -1,5 +1,6 @@
 # may-2025.csv
 
+adobe-source-code-pro-fonts
 # blueman
 # bluetuith-bin
 bc
@@ -52,6 +53,7 @@ stow
 # taskwarrior-tui
 trash-cli
 tree
+# Install all the recommended fonts
 ttf-3270-nerd
 ttf-anonymouspro-nerd
 ttf-cascadia-code-nerd
@@ -61,6 +63,7 @@ ttf-firacode-nerd
 ttf-inconsolata-nerd
 ttf-iosevkaterm-nerd
 ttf-jetbrains-mono-nerd
+ttf-liberation-mono-nerd
 ttf-meslo-nerd
 ttf-monaco
 ttf-ubuntu-font-family

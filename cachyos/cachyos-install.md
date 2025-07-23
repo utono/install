@@ -111,7 +111,9 @@ cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
 trash ~/.config/mako
-stow --verbose=2 --no-folding bat bin-mlj git kitty ksb mako shell starship yazi -n 2>&1 | tee stow-output.out
+stow --verbose=2 --no-folding bat bin-mlj git kitty ksb mako starship yazi -n 2>&1 | tee stow-output.out
+cd $HOME/utono/shell-config
+stow --verbose=2 --no-folding shell-config -n 2>&1 | tee stow-output.out
 ya pkg list
 ya pkg add ahkohd/eza-preview
 ya pkg add h-hg/yamb
