@@ -1,6 +1,7 @@
 # may-2025.csv
 
 adobe-source-code-pro-fonts
+base-devel
 # blueman
 # bluetuith-bin
 bc
@@ -20,20 +21,26 @@ grub-btrfs
 hypridle
 hyprlock
 imagemagick
+javascriptcore
 jq
 kitty
 lazygit
 lftp
+libappindicator-gtk3
 libinput
 libnotify
+libsoup
 lsof
+lua51-sql-sqlite
 mpv
 myrepos
 neofetch
 neovide
 neovim
 neovim-remote
+nodejs
 noto-fonts-emoji
+npm
 otf-san-francisco-mono
 p7zip
 poppler
@@ -46,11 +53,15 @@ ripgrep
 # snap-pac
 socat
 # sof-firmware: installed by default
+sqlite
 starship
 stow
 # swayidle: use hypridle instead
 # task
 # taskwarrior-tui
+python-linkify-it-py
+python-textual
+python-textual-dev
 trash-cli
 tree
 # Install all the recommended fonts
@@ -69,7 +80,11 @@ ttf-monaco
 ttf-ubuntu-font-family
 ttf-victor-mono-nerd
 udisks2
+visidata
 vobcopy
+webkit2gtk
+webkit2gtk-4.1
+webkitgtk-6.0
 wget
 yadm
 yazi-nightly-bin

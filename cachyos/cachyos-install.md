@@ -102,6 +102,8 @@ mv ~/utono/nvim-temp/ nvim
         git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
 
 nvim
+ln -sf ~/utono/glosses-nvim/ ~/.config/glosses-nvim
+ln -sf ~/utono/xc/nvim ~/.config/nvim-xc
 ```
 
 ## stow dotfiles
@@ -171,7 +173,7 @@ Before setting the resolution, verify what your system supports:
 Edit the GRUB configuration file:
 
 ```bash
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 ```
 
 Find or add the following lines:
@@ -437,7 +439,7 @@ Optional:
     git commit  
 ```
 ```bash
-nvim ~/.config/hypr/hyprland.conf
+vim ~/.config/hypr/hyprland.conf
 cd ~/.config/hypr/bin
 chmod +x *.sh
 cd ~/.config/hypr/scripts/
@@ -519,7 +521,7 @@ pgrep ssh-agent
 ssh-add -l  
 ssh-add $HOME/.ssh/id_rsa  
 
-sudo nvim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
+sudo vim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
 
 ## pacman
 
@@ -552,7 +554,7 @@ Edit the user keybindings configuration:
 ```bash
 chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
 chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/scripts/*
-nvim $HOME/.config/hypr/config/user-keybinds.conf
+vim $HOME/.config/hypr/config/user-keybinds.conf
 ```
 
 Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
@@ -567,7 +569,7 @@ bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-t
 If necessary, edit the touchpad script:
 
 ```bash
-nvim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
+vim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
 ```
 
 
