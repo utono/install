@@ -10,13 +10,9 @@ cd ~/Downloads
 Then, download the necessary files from the Arizona mirror:
 
 # Download the Arch Linux ISO file
-wget https://mirror.arizona.edu/archlinux/iso/2025.02.01/archlinux-2025.02.01-x86_64.iso
-
-# Download the checksum file
-wget https://mirror.arizona.edu/archlinux/iso/2025.02.01/sha256sums.txt
-
-# Download the signature file
-wget https://mirror.arizona.edu/archlinux/iso/2025.02.01/archlinux-2025.02.01-x86_64.iso.sig
+wget https://mirror.arizona.edu/archlinux/iso/2025.08.01/archlinux-2025.02.01-x86_64.iso
+wget https://mirror.arizona.edu/archlinux/iso/2025.08.01/sha256sums.txt
+wget https://mirror.arizona.edu/archlinux/iso/2025.08.01/archlinux-2025.02.01-x86_64.iso.sig
 
 2. Install and Update the Arch Linux Keyring
 
@@ -56,6 +52,7 @@ gpg --import 3E80CA1A8B89F69CBA57D98A76A5EF9054449A5C.asc
 Now, check that the ISO is properly signed by an official Arch Linux developer:
 
 gpg --verify archlinux-2025.02.01-x86_64.iso.sig archlinux-2025.02.01-x86_64.iso
+gpg --verify archlinux-2025.08.01-x86_64.iso.sig archlinux-2025.08.01-x86_64.iso
 
 Expected Output (Valid Signature)
 

@@ -20,6 +20,7 @@ gnome-calculator
 grub-btrfs
 hypridle
 hyprlock
+hyprpaper
 imagemagick
 javascriptcore
 jq
@@ -48,6 +49,7 @@ python-anthropic
 python-evdev
 python-openai
 python-psutil
+qemu-desktop
 ripgrep
 # snapper
 # snap-pac
