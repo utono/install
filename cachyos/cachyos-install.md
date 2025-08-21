@@ -3,20 +3,25 @@
 ## Format USB drive and sync USB drive's utono directory
 
 ```bash
-sudo loadkeys dvorak  
-paru -Sy udisks2
 wipefs --all /dev/sda
 sudo mkfs.fat -F 32 /dev/sda  
 udisksctl mount -b /dev/sda  
-# rsync -avh --progress $HOME/utono /run/media/mlj/8C8E-606F -n
+# cd /run/media/mlj/8C8E-606F/utono
 cd8
-rm -rf utono
+sudo rm -rf utono
 mkdir -p utono
+# https://github.com/settings/tokens
+# nvim ~/.config/shell/secrets
 sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
-cp -r /run/media/mlj/8C8E-606F/utono/ffmetadata /run/media/mlj/8C8E-606F/Music
-rm -rf /run/media/mlj/8C8E-606F/utono/ffmetadata
-rsync -avh ~/Music/shakespeare-william /run/media/mlj/8C8E-606F/Music/shakespeare-william --dry-run
 # sh ~/utono/user-config/utono-update-repos.sh /run/media/mlj/8C8E-606F/utono
+cp ~/.config/shell/secrets /run/media/mlj/8C8E-606F/utono/shell-config/.config/shell
+
+sudo rm -rf /run/media/mlj/8C8E-606F/Music/.git
+ls -al /run/media/mlj/8C8E-606F/
+exclude_dirs=("fussell-paul" "harris-robert""keynes-john-maynard" "mantel-hilary" "melville-herman" "trollope-anthony" "worthen-molly")
+rsync -av --delete "${exclude_dirs[@]/#/--exclude=}" --exclude="*.aax" ~/Music/ /run/media/mlj/8C8E-606F/Music/
+
+rsync -avh ~/Music/shakespeare-william /run/media/mlj/8C8E-606F/Music/shakespeare-william --dry-run
 ```
 
 Since your destination is a FAT32-formatted USB drive (mkfs.fat -F 32), symlinks are not supported.
@@ -24,6 +29,11 @@ Thus, using -l has no effect, and you should either:
 
     - Let rsync follow the symlinks automatically.
     - Use -L if you want to ensure the linked files are copied.
+
+```
+sudo loadkeys dvorak  
+paru -Sy udisks2
+```
 
 ## Create new user
 
@@ -91,11 +101,13 @@ bash install_packages.sh 2025.csv
 ## Configure utono repos
 
 ```bash
+mkdir -p ~/projects
+cp -r /run/media/mlj/8C8E-606F/utono/gloss-browser ~/projects
 bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
 ls -al $HOME/.config
 cd ~/.config
 rm -rf nvim
-mv ~/utono/nvim-temp/ nvim
+mv ~/utono/nvim-code/ nvim
 
     Or, as an alternatives:
 
