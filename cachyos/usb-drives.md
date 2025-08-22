@@ -150,8 +150,66 @@ rsync -avh --progress ./harris-robert $HOME/Music
 
 ---
 
+## Phase 3: Sync Destination with USB Drive
+
+### 3.1 Setup Projects Directory
+
+```bash
+# Create projects directory with Copy-on-Write disabled (Btrfs optimization)
+mkdir -p ~/projects
+chattr -V +C ~/projects/
+
+# Copy gloss-browser project from USB
+cp -r /run/media/mlj/8C8E-606F/utono/gloss-browser ~/projects
+```
+
+### 3.2 Configure Dotfiles and Repository Sync
+
+```bash
+# Run repository sync and cleanup script
+bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
+
+# Verify ~/.config directory structure
+ls -al $HOME/.config
+```
+
+### 3.3 Setup Neovim Configuration
+
+```bash
+cd ~/.config
+
+# Remove any existing nvim config
+rm -rf nvim
+
+# Move nvim configuration from utono directory
+mv ~/utono/nvim-code/ nvim
+
+# Alternative: Clone directly from GitHub
+# git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
+
+# Test neovim configuration
+nvim
+```
+
+### 3.4 Create Configuration Symlinks
+
+```bash
+# Link kitty configuration
+ln -sf ~/utono/kitty-config/.config/kitty ~/.config/kitty
+
+# Link glosses-nvim configuration
+ln -sf ~/utono/glosses-nvim/ ~/.config/glosses-nvim
+
+# Link nvim-xc configuration
+ln -sf ~/utono/xc/nvim ~/.config/nvim-xc
+```
+
+---
+
 ## Summary
 
 This guide transfers your Arch Linux configuration from `xps17-4tb.local` to `xps13.local` using a USB drive as an intermediate storage medium. The process handles symlinks properly for FAT32 drives and includes optimizations for Btrfs filesystems on the destination.
 
-
+**Phase 1** backs up essential directories from the source machine to USB.
+**Phase 2** restores the core utono configuration and music files.
+**Phase 3** completes the setup by syncing projects, configuring dotfiles, and establishing symlinks for development environments.

@@ -14,29 +14,6 @@ chmod +x install_packages.sh
 bash install_packages.sh 2025.csv
 ```
 
-## Configure utono repos
-
-```bash
-mkdir -p ~/projects
-chattr -V +C ~/projects/
-cp -r /run/media/mlj/8C8E-606F/utono/gloss-browser ~/projects
-bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
-ls -al $HOME/.config
-cd ~/.config
-rm -rf nvim
-mv ~/utono/nvim-code/ nvim
-
-    Or, as an alternatives:
-
-        git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
-
-nvim
-# On DEST_HOST:
-ln -sf ~/utono/kitty-config/.config/kitty ~/.config/kitty
-ln -sf ~/utono/glosses-nvim/ ~/.config/glosses-nvim
-ln -sf ~/utono/xc/nvim ~/.config/nvim-xc
-```
-
 ## stow dotfiles
 
 ```bash
@@ -87,61 +64,6 @@ chmod +x *.sh
 ssh-add $HOME/.ssh/id_ed25519
 ssh-add -l
 ```
-
-## Configure GRUB to Use 1280x1024 Resolution
-
-### 1. Check Supported Resolutions
-
-Before setting the resolution, verify what your system supports:
-
-1. Reboot and enter the **GRUB command line** by pressing `c` at the GRUB menu.
-
-2. When the GRUB menu appears, press 'c' to open the the GRUB command line, then run:
-
-   ```bash
-   videoinfo
-   ```
-
-3. Look for **1280x1024** in the output. If it’s listed, proceed to the next step.
-
-### 2. Set GRUB Resolution
-
-Edit the GRUB configuration file:
-
-```bash
-sudo vim /etc/default/grub
-```
-
-Find or add the following lines:
-
-```plaintext
-GRUB_GFXMODE=3840x2400
-GRUB_GFXMODE=600x400
-GRUB_GFXMODE=800x600
-GRUB_GFXMODE=1024x768
-GRUB_GFXMODE=1280x1024
-GRUB_GFXMODE=1600x1200
-* GRUB_GFXMODE=1920x1440
-GRUB_GFXPAYLOAD_LINUX=keep
-```
-
-### 3. Apply Changes
-
-Regenerate the GRUB configuration file:
-
-```bash
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-### 4. Reboot
-
-Restart your system to apply the changes:
-
-```bash
-reboot
-```
-
-This should force GRUB to use **1920x1440** resolution. If it doesn’t work, double-check `videoinfo` to confirm that your system supports it.
 
 ---
 ## Configure /etc/sysctl.d/
