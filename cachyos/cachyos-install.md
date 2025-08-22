@@ -1,70 +1,153 @@
 # CachyOS Install Guide
 
-## Format USB drive and sync USB drive's utono directory
+## Configuration Variables
+```bash
+SOURCE_HOST="xps17-4tb.local"
+DEST_HOST="xps13.local"
+udisksctl mount -b /dev/sda
+USB_DRIVE="/run/media/mlj/8C8E-606F"
+```
+
+---
+
+## Phase 1: Backup from Source Machine (xps17-4tb.local)
+
+### Overview
+Sync these directories from source machine to USB drive:
+- `$HOME/Music`
+- `$HOME/projects` 
+- `$HOME/utono`
+
+### 1.1 Sync Music Directory
+
+**Note:** This syncs Music with special excludes and sets up git repository for metadata.
 
 ```bash
-wipefs --all /dev/sda
-sudo mkfs.fat -F 32 /dev/sda  
-udisksctl mount -b /dev/sda  
-# cd /run/media/mlj/8C8E-606F/utono
-cd8
-sudo rm -rf utono
-mkdir -p utono
-# https://github.com/settings/tokens
-# nvim ~/.config/shell/secrets
-sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
-# sh ~/utono/user-config/utono-update-repos.sh /run/media/mlj/8C8E-606F/utono
-cp ~/.config/shell/secrets /run/media/mlj/8C8E-606F/utono/shell-config/.config/shell
+# Verify running on correct machine
+echo "Running Music sync on: $(hostname)"
 
-sudo rm -rf /run/media/mlj/8C8E-606F/Music/.git
-ls -al /run/media/mlj/8C8E-606F/
-exclude_dirs=("fussell-paul" "harris-robert""keynes-john-maynard" "mantel-hilary" "melville-herman" "trollope-anthony" "worthen-molly")
-rsync -av --delete "${exclude_dirs[@]/#/--exclude=}" --exclude="*.aax" ~/Music/ /run/media/mlj/8C8E-606F/Music/
+# Define directories to exclude from sync
+exclude_dirs=(
+    "fussell-paul" 
+    "harris-robert" 
+    "keynes-john-maynard" 
+    "mantel-hilary" 
+    "melville-herman" 
+    "trollope-anthony" 
+    "worthen-molly"
+)
 
+# Sync Music directory with exclusions
+rsync -av --delete "${exclude_dirs[@]/#/--exclude=}" \
+    --exclude="*.aax" \
+    --exclude=".git" \
+    ~/Music/ /run/media/mlj/8C8E-606F/Music/
+
+# Clean up any existing git directory
+\rm -rf /run/media/mlj/8C8E-606F/Music/.git
+
+# Verify sync results
+ls -al /run/media/mlj/8C8E-606F/Music/
+
+# Initialize git repository for metadata tracking
+cd /run/media/mlj/8C8E-606F/Music
+git init
+git remote add origin git@github.com:utono/ffmetadata.git
+git fetch --depth 1 origin
+git reset --hard origin/main
+
+# Test sync of shakespeare-william (dry run)
 rsync -avh ~/Music/shakespeare-william /run/media/mlj/8C8E-606F/Music/shakespeare-william --dry-run
 ```
 
-Since your destination is a FAT32-formatted USB drive (mkfs.fat -F 32), symlinks are not supported.
-Thus, using -l has no effect, and you should either:
-
-    - Let rsync follow the symlinks automatically.
-    - Use -L if you want to ensure the linked files are copied.
-
-```
-sudo loadkeys dvorak  
-paru -Sy udisks2
-```
-
-## Create new user
+### 1.2 Sync Projects Directory
 
 ```bash
-sudo useradd -m -G wheel -s /usr/bin/zsh newuser
-sudo passwd newuser
+echo "Syncing projects directory..."
+cp -r ~/projects /run/media/mlj/8C8E-606F/
 ```
 
-## Delete user
+### 1.3 Sync Utono Directory
+
+**Important:** FAT32 USB drives don't support symlinks. Rsync will follow symlinks automatically or use `-L` to ensure linked files are copied.
+
 ```bash
-sudo userdel -r newuser
+echo "Preparing USB drive..."
+alias cd8='cd /run/media/mlj/8C8E-606F'
+cd8
+
+# Clean and recreate utono directory
+\rm -rf utono
+mkdir -p utono
+
+# Clone repositories to USB
+# Note: Update GitHub token if necessary at https://github.com/settings/tokens
+# Edit token in: nvim ~/.config/shell/secrets
+sh ~/utono/user-config/utono-clone-repos.sh /run/media/mlj/8C8E-606F/utono
+
+# Copy shell secrets configuration
+cp ~/.config/shell/secrets /run/media/mlj/8C8E-606F/utono/shell-config/.config/shell
 ```
 
-## Login as user 'mlj'
+---
+
+## Phase 2: Restore to Destination Machine (xps13.local)
+
+### 2.1 Initial Setup
+
+```bash
+echo "Setting up destination machine: $(hostname)"
+
+# Create utono directory with Copy-on-Write disabled (Btrfs optimization)
+mkdir -p utono
+chattr -V +C utono
 ```
-xps17-2 login: mlj
-Password:
+
+### 2.2 Sync Utono Configuration
+
+```bash
+udisksctl mount -b /dev/sda
+# Navigate to USB utono directory
+cd /run/media/mlj/8C8E-606F/utono/
+
+# Sync all utono files to home directory
+rsync -avh --progress ./ $HOME/utono
+
+# Clean up default directories and recreate with CoW disabled
+rm -rf {Documents,Downloads,Music,Pictures,Videos}
+mkdir -p {Documents,Downloads,Music,Pictures,Videos}
+chattr -V +C {Documents,Downloads,Music,Pictures,Videos}
 ```
+
+### 2.3 Sync Music Files
+
+```bash
+# Navigate to USB Music directory
+cd /run/media/mlj/8C8E-606F/Music
+
+# Sync selected music collections
+rsync -avh --progress ./{fussell-paul,harris-robert,mantel-hilary,shakespeare-william} $HOME/Music
+```
+
+### 2.4 Additional Music Sync (If Needed)
+
+If `harris-robert` collection needs separate syncing:
+
+```bash
+echo "Re-syncing harris-robert collection..."
+rsync -avh --progress ./harris-robert $HOME/Music
+```
+
+---
+
+## Summary
+
+This guide transfers your Arch Linux configuration from `xps17-4tb.local` to `xps13.local` using a USB drive as an intermediate storage medium. The process handles symlinks properly for FAT32 drives and includes optimizations for Btrfs filesystems on the destination.
+
+---
 
 ## Configure keyboard
-```bash
-Ctrl + Alt + F3
-sudo loadkeys dvorak
-cachyos-rate-mirrors
-sudo pacman -Syu
-sudo pacman -S udisks2
-udisksctl mount -b /dev/sda
-mkdir -p $HOME/utono
-chattr -V +C $HOME/utono
-cd /run/media/mlj/8C8E-606F/utono/
-rsync -avh --progress ./ $HOME/utono
+```
 cd $HOME/utono/rpd
 chmod +x $HOME/utono/rpd/keyd-configuration.sh  
 bash $HOME/utono/rpd/keyd-configuration.sh $HOME/utono/rpd
@@ -77,7 +160,7 @@ reboot
 
 Optional: 
 ```bash
-git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/rpd.git
+# git clone https://github.com/utono/rpd.git
 git remote -v
 git remote set-url origin git@github.com:utono/rpd.git
 git remote -v
@@ -102,6 +185,7 @@ bash install_packages.sh 2025.csv
 
 ```bash
 mkdir -p ~/projects
+chattr -V +C ~/projects/
 cp -r /run/media/mlj/8C8E-606F/utono/gloss-browser ~/projects
 bash "$HOME/utono/user-config/rsync-delete-repos-for-new-user.sh" 2>&1 | tee rsync-delete-output.out
 ls -al $HOME/.config
@@ -114,6 +198,8 @@ mv ~/utono/nvim-code/ nvim
         git clone --config remote.origin.fetch='+refs/heads/*:refs/remotes/origin/*' https://github.com/utono/nvim-temp.git nvim
 
 nvim
+# On DEST_HOST:
+ln -sf ~/utono/kitty-config/.config/kitty ~/.config/kitty
 ln -sf ~/utono/glosses-nvim/ ~/.config/glosses-nvim
 ln -sf ~/utono/xc/nvim ~/.config/nvim-xc
 ```
@@ -125,12 +211,17 @@ cd $HOME/tty-dotfiles
 mkdir -p $HOME/.local/bin
 # https://github.com/ahkohd/eza-preview.yazi
 trash ~/.config/mako
-stow --verbose=2 --no-folding bat bin-mlj git kitty ksb mako starship yazi -n 2>&1 | tee stow-output.out
-cd $HOME/utono/shell-config
+stow --verbose=2 --no-folding bat bin-mlj git ksb mako starship systemd -n 2>&1 | tee stow-output.out
+vim ~/.config/mako/config
+systemctl --user enable --now mako
+systemctl --user status mako
+notify-send "Test" "Notification working"
+# stow --verbose=2 --no-folding yazy 2>&1 | tee stow-output.out
+cd $HOME/utono
 stow --verbose=2 --no-folding shell-config -n 2>&1 | tee stow-output.out
-ya pkg list
-ya pkg add ahkohd/eza-preview
-ya pkg add h-hg/yamb
+# ya pkg list
+# ya pkg add ahkohd/eza-preview
+# ya pkg add h-hg/yamb
 ```
 
 ## Configure zsh
@@ -172,7 +263,7 @@ Before setting the resolution, verify what your system supports:
 
 1. Reboot and enter the **GRUB command line** by pressing `c` at the GRUB menu.
 
-2. Run the following command:
+2. When the GRUB menu appears, press 'c' to open the the GRUB command line, then run:
 
    ```bash
    videoinfo
@@ -219,36 +310,14 @@ reboot
 
 This should force GRUB to use **1920x1440** resolution. If it doesn’t work, double-check `videoinfo` to confirm that your system supports it.
 
-## Configure $HOME/Music
-
-### Create Music Directory
-
-Ensure the `Music` directory exists and disable copy-on-write (CoW):
-
-```bash
-rm -rf {Documents,Downloads,Music,Pictures,Videos}
-mkdir -p {Documents,Downloads,Music,Pictures,Videos}
-chattr -V +C {Documents,Downloads,Music,Pictures,Videos}
-```
-
-### Sync Music Files
-
-Navigate to the external drive and sync selected artist directories to `Music`:
-
-```bash
-cd /run/media/mlj/956A-D24E/Music
-rsync -avh --progress ./{fussell-paul,harris-robert,mantel-hilary,shakespeare-william} $HOME/Music
-```
-
-If necessary, re-sync `harris-robert` separately:
-
-```bash
-rsync -avh --progress ./harris-robert $HOME/Music
-```
-
+---
 ## Configure /etc/sysctl.d/
 
-### Log in as Root
+### Login as user 'root'
+```
+xps17-2 login: root
+Password:
+```
 
 Ensure you have root privileges before proceeding.
 
@@ -259,28 +328,6 @@ For more details on emergency reboot shortcuts, see:
 [Arch Wiki: Keyboard Shortcuts](https://wiki.archlinux.org/title/Keyboard_shortcuts)
 
 **Reboot Even If System Is Utterly Broken**
-
-## 🔐 Sudoers Rule for Touchpad Toggle
-
-To allow `$HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/toggle-touchpad.sh` to disable/enable the touchpad **without prompting for a password**, this file must exist:
-
-```
-/etc/sudoers.d/touchpad-toggle
-```
-
-### Contents:
-
-```sudoers
-mlj ALL=(ALL) NOPASSWD: /usr/bin/tee /sys/bus/i2c/drivers/i2c_hid_acpi/unbind, /usr/bin/tee /sys/bus/i2c/drivers/i2c_hid_acpi/bind
-```
-
-* Replace `mlj` with your actual username if needed.
-* This allows passwordless writing to the unbind/bind control files for your I²C touchpad device.
-
-```
-cp ~/utono/system-config/etc/sudoers.d/touchpad-toggle /etc/sudoers.d
-```
----
 
 ### Configure Sysrq Settings
 
@@ -307,6 +354,26 @@ Verify the current Sysrq value:
 ```bash
 cat /proc/sys/kernel/sysrq
 ```
+---
+## 🔐 Sudoers Rule for Touchpad Toggle
+
+To allow `$HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/toggle-touchpad.sh` 
+to disable/enable the touchpad **without prompting for a password**, this file must exist:
+
+```
+/etc/sudoers.d/touchpad-toggle
+
+    mlj ALL=(ALL) NOPASSWD: /usr/bin/tee /sys/bus/i2c/drivers/i2c_hid_acpi/unbind, /usr/bin/tee /sys/bus/i2c/drivers/i2c_hid_acpi/bind
+
+```
+
+* Replace `mlj` with your actual username if needed.
+* This allows passwordless writing to the unbind/bind control files for your I²C touchpad device.
+
+```
+sudo cp ~/utono/system-config/etc/sudoers.d/touchpad-toggle /etc/sudoers.d
+```
+---
 
 ## Configure /etc/systemd/logind.conf.d/
 
@@ -360,7 +427,7 @@ Expected output:
 HandleLidSwitch=ignore
 HandleLidSwitchDocked=ignore
 ```
-
+---
 ## Configure SDDM
 
 ### Configure SDDM Xsetup
@@ -391,6 +458,7 @@ export XKB_DEFAULT_LAYOUT=real_prog_dvorak
 setxkbmap -layout real_prog_dvorak -v
 ```
 
+---
 ### Configure sddm.conf
 
 View existing SDDM configuration:
@@ -398,6 +466,8 @@ View existing SDDM configuration:
 ```bash
 cat /etc/sddm.conf
 ```
+[Autologin]
+Session=hyprland
 
 Ensure autologin settings are applied:
 
@@ -431,9 +501,9 @@ reboot
 
 ```bash
 sh "$HOME/utono/user-config/link-cachyos-hyprland-settings.sh" 2>&1 | tee link-hyprland-output.out
-cat ~/.config/mako
-trash ~/.config/mako
-stow --verbose=2 --no-folding mako -n 2>&1 | tee stow-output.out
+# cat ~/.config/mako
+# trash ~/.config/mako
+# stow --verbose=2 --no-folding mako -n 2>&1 | tee stow-output.out
 ```
 
 Optional:
@@ -466,6 +536,7 @@ reboot
 systemctl --user daemon-reexec
 systemctl --user daemon-reload
 
+fd -e sh -H -x chmod -v +x {} ~/tty-dotfiles
 systemctl --user enable --now watch-clipboard.service
 
 # Restart your service
@@ -475,113 +546,7 @@ systemctl --user restart watch-clipboard.service
 systemctl --user status watch-clipboard.service
 
 ```
-## Bluetuith - Connecting Sonos Speakers
-
-```bash
-sudo bluetoothctl
-```
-
 ## Firefox
 about:config
 browser.gesture.pinch.threshold     50
-
-## Hyprland
-
-cd $HOME/utono/rpd  
-hyprctl binds >> hyprctl-binds.md  
-
-hyprctl monitors  
-hyprctl keyword monitor ,1920x1200,,  
-hyprctl keyword input:kb_variant dvorak  
-(Optional: Reset keyboard layout)  
-
-hyprctl keyword input:kb_variant ""  
-hyprctl keyword input:kb_layout real_prog_dvorak  
-
-## Terminal Adjustments  
-
-**Open terminal:** Meta + Enter  
-
-**Alacritty Font Adjustments**  
-
-Control + Equals  
-Control + Minus  
-Control + Zero  
-
-## Audio Configuration
-
-pacman -Qi sof-firmware  
-alsamixer  
-
-**Steps:**  
-1. Press F6  
-2. Select sof-firmware if available  
-
-### SSH Configuration  
-
-chmod 700 $HOME/.ssh  
-find $HOME/.ssh -type f -name "id_*" -exec chmod 600 {} \;  
-chmod 0600 $HOME/.ssh/id_ed25519  
-
-cd $HOME/utono/ssh/.config/systemd/user
-ls -al
-systemctl --user enable --now ssh-agent
-systemctl --user status ssh-agent
-systemctl --user daemon-reexec
-systemctl --user daemon-reload
-pgrep ssh-agent  
-ssh-add -l  
-ssh-add $HOME/.ssh/id_rsa  
-
-sudo vim /etc/ssh/sshd_config *(Ensure PermitRootLogin is configured correctly)*  
-
-## pacman
-
-pacman -Qe > $HOME/utono/install/paclists/explicitly-installed.csv
-systemctl list-units --type=service all > $HOME/utono/install/cachyos/services-all.md
-systemctl list-units --type=service > $HOME/utono/install/cachyos/services-active.md
-systemctl --user list-units --type=service --all
-systemctl --user status <service_name>.service
-```
-
-
-
-
-
-
-
-## Configure Touchpad
-
-### Verify Touchpad Device
-
-Reboot your system and check available input devices:
-
-```bash
-hyprctl devices
-```
-### Configure Keybinding
-
-Edit the user keybindings configuration:
-
-```bash
-chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
-chmod +x $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/scripts/*
-vim $HOME/.config/hypr/config/user-keybinds.conf
-```
-
-Uncomment the following line and replace `xxxx:xx-xxxx:xxxx-touchpad` with the correct touchpad identifier:
-
-```plaintext
-bind = $mainMod, A, exec, $hyprBin/touchpad_hyprland.sh "ven_04f3:00-04f3:32aa-touchpad"
-bind = $mainMod, space, exec, $hyprBin/touchpad_hyprland.sh "xxxx:xx-xxxx:xxxx-touchpad"
-```
-
-### Update Touchpad Script
-
-If necessary, edit the touchpad script:
-
-```bash
-vim $HOME/utono/cachyos-hyprland-settings/etc/skel/.config/hypr/bin/touchpad_hyprland.sh
-```
-
 
